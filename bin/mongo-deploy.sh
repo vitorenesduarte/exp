@@ -14,7 +14,7 @@ cat <<EOF > mongo.json
   "acceptedResourceRoles": [
     "slave_public"
   ],
-  "id": "ldb-mongo",
+  "id": "lsim-mongo",
   "dependencies": [],
   "constraints": [["hostname", "UNIQUE", ""]],
   "cpus": $CPU,

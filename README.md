@@ -23,23 +23,22 @@ $ dcos auth login
 ```
 
 Once authenticated, launch the Mongo instance
-(this is where LDBs instance will push their logs).
+(this is where __lsim__ instances will push their logs).
 
 ```bash
 $ cd bin/
 $ ./mongo-deploy.sh
 ```
 
-Last but not least, launch LDBs instances.
+Last but not least, launch __lsim__ instances.
 ```bash
 $ cd bin/
-$ ./ldb-deploy.sh
+$ ./lsim-deploy.sh
 ```
 
 In order to execute this last script, a set of environment variables
 have to be defined:
 
-- __BRANCH__: which ldb branch should LDBs instances run
 - __LDB_MODE__:
   - state_based
   - delta_based
@@ -47,28 +46,27 @@ have to be defined:
 - __LDB_JOIN_DECOMPOSITIONS__: when set to _true_, applies
 join-decompositions to the received delta buffers (this will only
 have an effect if __LBD_MODE=delta_based__)
-- __LDB_DCOS_OVERLAY__:
+- __LDB_EXTENDED_LOGGING__: _true_/_false_
+- __BRANCH__: which lsim branch should instances run
+- __OVERLAY__:
   - line
   - ring
   - hyparview
   - erdos_renyi
-- __LDB_SIMULATION__:
-  - basic
-- __LDB_NODE_NUMBER__: number of LDBs nodes. Since the overlays are
+- __NODE_NUMBER__: number of LDBs nodes. Since the overlays are
 not yet created in runtime, only __3__ and __13__ nodes for some of
-the overlays. Check [src/ldb_overlay.erl](https://github.com/vitorenesduarte/ldb/blob/master/src/ldb_overlay.erl)
-- __LDB_EVALUATION_IDENTIFIER__: set this with one of the following
+the overlays. Check __src/lsim_overlay.erl__
+- __SIMULATION__:
+  - gset
+- __EVALUATION_IDENTIFIER__: set this with one of the following
 values, depending on which evaluation you are running. This id will
 be later used to generate the graphs with proper labels.
-  - state_based_$LDB_DCOS_OVERLAY
-  - delta_based_$LDB_DCOS_OVERLAY
-  - pure_op_based_$LDB_DCOS_OVERLAY
-  - join_decompositions_$LDB_DCOS_OVERLAY
-- __LDB_EVALUATION_TIMESTAMP__: When running concurrent experiments
+  - state_based_$OVERLAY
+  - delta_based_$OVERLAY
+  - pure_op_based_$OVERLAY
+  - join_decompositions_$OVERLAY
+- __EVALUATION_TIMESTAMP__: When running concurrent experiments
 in the cluster, this timestamp should be unique.
-- __LDB_INSTRUMENTATION__: this should be set to _true_ if logs are to
-be pushed to the Mongo instance
-- __LDB_EXTENDED_LOGGING__: _true_/_false_
 
 
 To see the results of the experiments, firstly you need to pull logs
@@ -92,5 +90,3 @@ $ make shell
 ok
 4>
 ```
-
-

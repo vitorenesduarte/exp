@@ -4,16 +4,15 @@ DCOS=$(dcos config show core.dcos_url)
 TOKEN=$(dcos config show core.dcos_acs_token)
 
 ENV_VARS=(
-  BRANCH
   LDB_MODE
   LDB_JOIN_DECOMPOSITIONS
-  LDB_DCOS_OVERLAY
-  LDB_SIMULATION
-  LDB_NODE_NUMBER
-  LDB_EVALUATION_IDENTIFIER
-  LDB_EVALUATION_TIMESTAMP
-  LDB_INSTRUMENTATION
   LDB_EXTENDED_LOGGING
+  BRANCH
+  OVERLAY
+  SIMULATION
+  NODE_NUMBER
+  EVALUATION_IDENTIFIER
+  EVALUATION_TIMESTAMP
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -24,26 +23,26 @@ do
   fi
 done
 
-echo ">>> Configuring LDBs"
+echo ">>> Configuring lsims"
 cd /tmp
 
 MEMORY=512.0
 CPU=0.6
 
-cat <<EOF > ldbs.json
+cat <<EOF > lsim.json
 {
   "acceptedResourceRoles": [
     "slave_public"
   ],
-  "id": "ldbs",
+  "id": "lsims",
   "dependencies": [],
   "cpus": $CPU,
   "mem": $MEMORY,
-  "instances": $LDB_NODE_NUMBER,
+  "instances": $NODE_NUMBER,
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "vitorenesduarte/ldb",
+      "image": "vitorenesduarte/lsim",
       "network": "HOST",
       "forcePullImage": true,
       "parameters" : [
@@ -53,22 +52,21 @@ cat <<EOF > ldbs.json
   },
   "ports": [0],
   "env" : {
-    "BRANCH": "$BRANCH",
     "DCOS": "$DCOS",
     "TOKEN": "$TOKEN",
     "LDB_MODE": "$LDB_MODE",
     "LDB_JOIN_DECOMPOSITIONS": "$LDB_JOIN_DECOMPOSITIONS",
-    "LDB_DCOS_OVERLAY": "$LDB_DCOS_OVERLAY",
-    "LDB_SIMULATION": "$LDB_SIMULATION",
-    "LDB_NODE_NUMBER": "$LDB_NODE_NUMBER",
-    "LDB_EVALUATION_IDENTIFIER": "$LDB_EVALUATION_IDENTIFIER",
-    "LDB_EVALUATION_TIMESTAMP": "$LDB_EVALUATION_TIMESTAMP",
-    "LDB_INSTRUMENTATION": "$LDB_INSTRUMENTATION",
-    "LDB_EXTENDED_LOGGING": "$LDB_EXTENDED_LOGGING"
+    "LDB_EXTENDED_LOGGING": "$LDB_EXTENDED_LOGGING",
+    "BRANCH": "$BRANCH",
+    "OVERLAY": "$DCOS_OVERLAY",
+    "SIMULATION": "$SIMULATION",
+    "NODE_NUMBER": "$NODE_NUMBER",
+    "EVALUATION_IDENTIFIER": "$EVALUATION_IDENTIFIER",
+    "EVALUATION_TIMESTAMP": "$EVALUATION_TIMESTAMP"
   },
   "healthChecks": []
 }
 EOF
 
-echo ">>> Adding LDBs to Marathon"
-curl -s -H "Authorization: token=$TOKEN" -H 'Content-type: application/json' -X POST -d @ldbs.json "$DCOS/service/marathon/v2/apps" > /dev/null
+echo ">>> Adding lsims to Marathon"
+curl -s -H "Authorization: token=$TOKEN" -H 'Content-type: application/json' -X POST -d @lsims.json "$DCOS/service/marathon/v2/apps" > /dev/null
