@@ -27,7 +27,7 @@ echo ">>> Configuring lsims"
 cd /tmp
 
 MEMORY=512.0
-CPU=0.6
+CPU=0.5
 
 cat <<EOF > lsims.json
 {
