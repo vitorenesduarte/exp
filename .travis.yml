@@ -1,0 +1,11 @@
+language: erlang
+otp_release:
+  - 18.1
+before_script:
+  - epmd -daemon
+script:
+  - echo "Hello"
+notifications:
+  slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
+  email: false
+sudo: false
