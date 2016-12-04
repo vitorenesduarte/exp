@@ -19,6 +19,7 @@ $ docker push vitorenesduarte/lsim
 First authenticate to the DCOS cluster with:
 
 ```bash
+$ dcos config set core.dcos_url http://$DCOS
 $ dcos auth login
 ```
 
@@ -57,7 +58,7 @@ have an effect if __LBD_MODE=delta_based__)
 not yet created in runtime, only __3__ and __13__ nodes for some of
 the overlays. Check __src/lsim_overlay.erl__
 - __SIMULATION__:
-  - gset
+  - TODO
 - __SIMULATION_IDENTIFIER__: set this with one of the following
 values, depending on which simulation you are running. This id will
 be later used to generate the graphs with proper labels.

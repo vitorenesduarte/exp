@@ -29,7 +29,7 @@ cd /tmp
 MEMORY=512.0
 CPU=0.6
 
-cat <<EOF > lsim.json
+cat <<EOF > lsims.json
 {
   "acceptedResourceRoles": [
     "slave_public"
