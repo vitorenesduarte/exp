@@ -124,7 +124,7 @@ start(Options) ->
 
 
         %% Load ldb
-        ok = rpc:call(Node, application, load, [?LDB]),
+        ok = rpc:call(Node, application, load, [ldb]),
 
         %% Load lsim
         ok = rpc:call(Node, application, load, [?APP]),
@@ -146,20 +146,20 @@ start(Options) ->
         ok = rpc:call(Node,
                       application,
                       set_env,
-                      [?LDB, ldb_simulation, basic]),
+                      [ldb, ldb_simulation, basic]),
 
         %% Set extended logging on ldb
         ExtendedLogging = true,
         ok = rpc:call(Node,
                       application,
                       set_env,
-                      [?LDB, ldb_extended_logging, ExtendedLogging]),
+                      [ldb, ldb_extended_logging, ExtendedLogging]),
 
         %% Set node number on ldb
         NodeNumber = length(Nodes),
         ok = rpc:call(Node,
                       application, set_env,
-                      [?LDB, ldb_node_number, NodeNumber])
+                      [ldb, ldb_node_number, NodeNumber])
 
     end,
     lists:foreach(ConfigureFun, Nodes),
@@ -223,7 +223,7 @@ wait_for_completion(NameToNode) ->
                     SimulationEnd = rpc:call(Node,
                                              application,
                                              get_env,
-                                             [?LDB, simulation_end, false]),
+                                             [ldb, simulation_end, false]),
                     ct:pal("Node ~p with simulation end as ~p", [Node, SimulationEnd]),
                     Acc andalso SimulationEnd
                 end,

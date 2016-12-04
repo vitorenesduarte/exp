@@ -68,7 +68,10 @@ init([]) ->
                                "undefined"),
     case Simulation of
         basic ->
-            {ok, _} = ldb_basic_simulation:start_link();
+            {ok, _} = ldb_basic_simulation:start_link(),
+            application:set_env(ldb,
+                                ldb_node_number,
+                                lsim_config:node_number());
         undefined ->
             ok
     end,
