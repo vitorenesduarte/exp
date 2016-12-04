@@ -67,6 +67,8 @@ init([]) ->
                                "SIMULATION",
                                "undefined"),
     case Simulation of
+        basic ->
+            {ok, _} = ldb_basic_simulation:start_link();
         undefined ->
             ok
     end,
