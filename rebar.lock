@@ -16,7 +16,7 @@
   0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"662299b1cd1de0ad3846140ce12c6c3a7a36bccf"}},
+       {ref,"0f7ca9d627c4f826b86d8605e9f834201b6d9d84"}},
   0},
  {<<"mongodb">>,
   {git,"https://github.com/comtihon/mongodb-erlang",
