@@ -58,14 +58,14 @@ not yet created in runtime, only __3__ and __13__ nodes for some of
 the overlays. Check __src/lsim_overlay.erl__
 - __SIMULATION__:
   - gset
-- __EVALUATION_IDENTIFIER__: set this with one of the following
-values, depending on which evaluation you are running. This id will
+- __SIMULATION_IDENTIFIER__: set this with one of the following
+values, depending on which simulation you are running. This id will
 be later used to generate the graphs with proper labels.
   - state_based_$OVERLAY
   - delta_based_$OVERLAY
   - pure_op_based_$OVERLAY
   - join_decompositions_$OVERLAY
-- __EVALUATION_TIMESTAMP__: When running concurrent experiments
+- __SIMULATION_TIMESTAMP__: When running concurrent experiments
 in the cluster, this timestamp should be unique.
 
 

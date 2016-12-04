@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_basic_simulation_SUITE).
+-module(lsim_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -34,7 +34,7 @@
 %% tests
 -compile([export_all]).
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -60,20 +60,19 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     basic_test
+     ldb_basic_simulation_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-basic_test(_Config) ->
+ldb_basic_simulation_test(_Config) ->
     Nodes = node_names(),
     Graph = line(),
 
     Options = [{nodes, Nodes},
-               {graph, Graph},
-               {ldb_simulation, basic}],
+               {graph, Graph}],
     lsim_simulation_support:run(Options).
 
 %% @private

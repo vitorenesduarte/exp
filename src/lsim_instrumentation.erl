@@ -1,6 +1,5 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
-%% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -18,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(ldb_instrumentation).
+-module(lsim_instrumentation).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
 -behaviour(gen_server).
 
-%% ldb_instrumentation callbacks
+%% lsim_instrumentation callbacks
 -export([start_link/0,
          transmission/2,
          convergence/0,
@@ -77,7 +76,7 @@ init([]) ->
 
     {ok, TRef} = start_transmission_timer(),
 
-    ldb_log:info("Instrumentation timer enabled!", extended),
+    lager:info("Instrumentation timer enabled!", extended),
     {ok, #state{tref=TRef,
                 size_per_type=orddict:new(),
                 filename=Filename}}.
@@ -88,7 +87,7 @@ handle_call(convergence, _From, #state{filename=Filename}=State) ->
 
 handle_call(stop, _From, #state{tref=TRef}=State) ->
     {ok, cancel} = timer:cancel(TRef),
-    ldb_log:info("Instrumentation timer disabled!", extended),
+    lager:info("Instrumentation timer disabled!", extended),
     {reply, ok, State#state{tref=undefined}};
 
 handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
@@ -96,7 +95,7 @@ handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
     {reply, {Id, Filename}, State};
 
 handle_call(Msg, _From, State) ->
-    ldb_log:warning("Unhandled call message: ~p", [Msg]),
+    lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast({transmission, Type, Payload},
@@ -113,7 +112,7 @@ handle_cast({transmission, Type, Payload},
     {noreply, State#state{size_per_type=Map}};
 
 handle_cast(Msg, State) ->
-    ldb_log:warning("Unhandled cast message: ~p", [Msg]),
+    lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
 handle_info(transmission,
@@ -123,7 +122,7 @@ handle_info(transmission,
     {noreply, State#state{tref=TRef}};
 
 handle_info(Msg, State) ->
-    ldb_log:warning("Unhandled info message: ~p", [Msg]),
+    lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->
@@ -154,20 +153,20 @@ log_dir() ->
 
 %% @private
 simulation_id() ->
-    Simulation = ldb_config:simulation(),
-    LocalOrDCOS = case ldb_config:dcos() of
+    Simulation = lsim_config:simulation(),
+    LocalOrDCOS = case lsim_config:dcos() of
         true ->
             "dcos";
         false ->
             "local"
     end,
-    EvalIdentifier = ldb_config:evaluation_identifier(),
-    EvalTimestamp = ldb_config:evaluation_timestamp(),
+    SimIdentifier = lsim_config:simulation_identifier(),
+    SimTimestamp = lsim_config:simulation_timestamp(),
 
     Id = atom_to_list(Simulation) ++ "/"
       ++ LocalOrDCOS ++ "/"
-      ++ atom_to_list(EvalIdentifier) ++ "/"
-      ++ atom_to_list(EvalTimestamp),
+      ++ atom_to_list(SimIdentifier) ++ "/"
+      ++ atom_to_list(SimTimestamp),
     Id.
 
 %% @private

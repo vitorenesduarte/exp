@@ -1,0 +1,2 @@
+-define(APP, lsim).
+-define(LDB, ldb).

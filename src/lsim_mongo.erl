@@ -1,6 +1,5 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
-%% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -18,16 +17,16 @@
 %%
 %% -------------------------------------------------------------------
 
--module(ldb_mongo).
+-module(lsim_mongo).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
 -define(MONGO, mc_worker_api).
--define(DATABASE, <<"ldb">>).
+-define(DATABASE, <<"lsim">>).
 -define(COLLECTION, <<"logs">>).
 
-%% ldb_mongo callbacks
+%% lsim_mongo callbacks
 -export([log_number/0,
          push_logs/0,
          pull_logs/2]).
@@ -36,10 +35,10 @@
 log_number() ->
     case get_connection() of
         {ok, Connection} ->
-            EvaluationTimestamp = ldb_config:evaluation_timestamp(),
+            SimulationTimestamp = lsim_config:simulation_timestamp(),
             ?MONGO:count(Connection,
                          ?COLLECTION,
-                         {<<"timestamp">>, ldb_util:atom_to_binary(EvaluationTimestamp)});
+                         {<<"timestamp">>, ldb_util:atom_to_binary(SimulationTimestamp)});
         _ ->
             0
     end.
@@ -48,22 +47,22 @@ log_number() ->
 push_logs() ->
     case get_connection() of
         {ok, Connection} ->
-            EvaluationTimestamp0 = ldb_config:evaluation_timestamp(),
-            {Id0, Filename} = ldb_instrumentation:log_id_and_file(),
+            SimulationTimestamp0 = lsim_config:simulation_timestamp(),
+            {Id0, Filename} = lsim_instrumentation:log_id_and_file(),
             Logs0 = get_logs(Filename),
 
-            EvaluationTimestamp = ldb_util:atom_to_binary(EvaluationTimestamp0),
+            SimulationTimestamp = ldb_util:atom_to_binary(SimulationTimestamp0),
             Id = list_to_binary(Id0),
             Logs = list_to_binary(Logs0),
 
             ?MONGO:insert(Connection,
                           ?COLLECTION,
-                          {<<"timestamp">>, EvaluationTimestamp,
+                          {<<"timestamp">>, SimulationTimestamp,
                            <<"id">>, Id,
                            <<"logs">>, Logs}),
             ok;
         _ ->
-            ldb_log:info("Couldn't push the logs to ldb-mongo. Will try again in 5 seconds"),
+            lager:info("Couldn't push the logs to lsim-mongo. Will try again in 5 seconds"),
             timer:sleep(5),
             push_logs()
     end.
@@ -80,7 +79,7 @@ pull_logs(Host, Port) ->
 
 %% @private
 get_connection() ->
-    case ldb_dcos:get_app_tasks("ldb-mongo") of
+    case lsim_dcos:get_app_tasks("lsim-mongo") of
         {ok, Response} ->
             {value, {_, [Task]}} = lists:keysearch(<<"tasks">>, 1, Response),
             {value, {_, Host0}} = lists:keysearch(<<"host">>, 1, Task),
@@ -92,7 +91,7 @@ get_connection() ->
                                                {port, Port}]),
             {ok, Connection};
         error ->
-            ldb_log:info("Cannot contact Marathon!"),
+            lager:info("Cannot contact Marathon!"),
             error
     end.
 

@@ -1,6 +1,5 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
-%% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -18,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(ldb_sup).
+-module(lsim_sup).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
 -behaviour(supervisor).
 
@@ -33,116 +32,59 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    %% Configure peer service
-    configure_var(ldb_peer_service,
-                  "LDB_PEER_SERVICE",
-                  ?DEFAULT_PEER_SERVICE),
-
-    %% Configure store
-    configure_var(ldb_store,
-                  "LDB_STORE",
-                  ?DEFAULT_STORE),
+    %% Start LDB
+    {ok, _} = ldb_sup:start_link(),
 
     %% Configure node number
-    configure_int(ldb_node_number,
-                  "LDB_NODE_NUMBER",
+    configure_int(lsim_node_number,
+                  "NODE_NUMBER",
                   "1"),
 
-    %% Configure extended logging
-    configure_var(ldb_extended_logging,
-                  "LDB_EXTENDED_LOGGING",
-                  "false"),
-
-    %% Start peer service
-    {ok, _} = ldb_peer_service:start_link(),
-
     %% Configure DCOS url
-    configure_str(ldb_dcos_url,
+    configure_str(lsim_dcos_url,
                   "DCOS",
                   "undefined"),
 
     %% If running in DCOS, create overlay
-    LDBId = case ldb_config:dcos() of
+    case lsim_config:dcos() of
         true ->
             %% Configure DCOS token
-            configure_str(ldb_dcos_token,
+            configure_str(lsim_dcos_token,
                           "TOKEN",
                           "undefined"),
 
-            %% Configure DCOS overlay
-            Overlay = configure_var(ldb_dcos_overlay,
-                                    "LDB_DCOS_OVERLAY",
+            %% Configure overlay
+            Overlay = configure_var(lsim_overlay,
+                                    "OVERLAY",
                                     "undefined"),
-            ldb_dcos:create_overlay(Overlay);
+            lsim_dcos:create_overlay(Overlay);
         false ->
-            0
-    end,
-
-    %% Configure ldb id
-    configure_int(ldb_id,
-                  "LDB_ID",
-                  integer_to_list(LDBId)),
-
-    %% Configure mode
-    configure_var(ldb_mode,
-                  "LDB_MODE",
-                  ?DEFAULT_MODE),
-
-    %% Configure join decompositions
-    configure_var(ldb_join_decompositions,
-                  "LDB_JOIN_DECOMPOSITIONS",
-                  "false"),
-
-    {ok, _} = ldb_backend:start_link(),
-    {ok, _} = ldb_whisperer:start_link(),
-    {ok, _} = ldb_listener:start_link(),
-
-    %% Configure space server
-    SpaceServerPort = configure_int(ldb_port,
-                                    "LDB_PORT",
-                                    "-1"),
-
-    case SpaceServerPort of
-        -1 ->
-            %% don't start the space server
-            ok;
-        _ ->
-            {ok, _} = ldb_space_server:start_link(SpaceServerPort)
+            ok
     end,
 
     %% Configure simulation
-    Simulation = configure_var(ldb_simulation,
-                               "LDB_SIMULATION",
+    Simulation = configure_var(lsim_simulation,
+                               "SIMULATION",
                                "undefined"),
     case Simulation of
-        basic ->
-            {ok, _} = ldb_basic_simulation:start_link();
         undefined ->
             ok
     end,
 
-    %% Configure evaluation identifier
-    configure_var(ldb_evaluation_identifier,
-                  "LDB_EVALUATION_IDENTIFIER",
+    %% Configure simulation identifier
+    configure_var(lsim_simulation_identifier,
+                  "SIMULATION_IDENTIFIER",
                   "undefined"),
 
-    %% Configure evaluation timestamp
-    configure_var(ldb_evaluation_timestamp,
-                  "LDB_EVALUATION_TIMESTAMP",
+    %% Configure simulation timestamp
+    configure_var(lsim_simulation_timestamp,
+                  "SIMULATION_TIMESTAMP",
                   "undefined"),
 
-    %% Configure instrumentation
-    Instrumentation = configure_var(ldb_instrumentation,
-                                    "LDB_INSTRUMENTATION",
-                                    "false"),
-    case Instrumentation of
-        true ->
-            {ok, _} = ldb_instrumentation:start_link();
-        false ->
-            ok
-    end,
+    %% Start instrumentation
+    {ok, _} = lsim_instrumentation:start_link(),
 
-    ldb_log:info("ldb_sup initialized!"),
+    ldb_log:info("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, []}}.
 

@@ -41,10 +41,10 @@ eunit:
 	${REBAR} as test eunit
 
 ct:
-	${REBAR} as test ct --readable=false
+	pkill -9 beam.smp; ${REBAR} as test ct --readable=false
 
 cover:
-	${REBAR} as test ct --cover ; \
+	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
 		${REBAR} cover
 
 shell:
@@ -58,7 +58,7 @@ stage:
 	${REBAR} release -d
 
 ##
-## Evaluation targets
+## Simulation targets
 ##
 
 logs:

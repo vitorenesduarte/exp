@@ -1,6 +1,5 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
-%% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -18,26 +17,26 @@
 %%
 %% -------------------------------------------------------------------
 
--module(ldb_dcos).
+-module(lsim_dcos).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
 -define(CREATE_OVERLAY_TIME, 5000).
 -define(EXPERIMENT_END_TIME, 30000).
 
-%% ldb_dcos callbacks
+%% lsim_dcos callbacks
 -export([create_overlay/1,
          get_app_tasks/1]).
 
 %% @docs
--spec create_overlay(atom()) -> ldb_node_id().
+-spec create_overlay(atom()) -> ok.
 create_overlay(OverlayName) ->
-    ldb_log:info("Will create the overlay ~p in ~p", [OverlayName, ?CREATE_OVERLAY_TIME]),
+    lager:info("Will create the overlay ~p in ~p", [OverlayName, ?CREATE_OVERLAY_TIME]),
     timer:sleep(?CREATE_OVERLAY_TIME),
 
     %% Get tasks from marathon
-    case get_app_tasks("ldbs") of
+    case get_app_tasks("lsims") of
         {ok, Response} ->
             {value, {_, Tasks}} = lists:keysearch(<<"tasks">>, 1, Response),
             %% Process marathon reply
@@ -55,7 +54,7 @@ create_overlay(OverlayName) ->
 
                     %% Node name
                     Name = list_to_atom(
-                        "ldb-" ++ integer_to_list(Port) ++ "@" ++ Ip
+                        "lsim-" ++ integer_to_list(Port) ++ "@" ++ Ip
                     ),
 
                     Names1 = ordsets:add_element(Name, Names0),
@@ -82,8 +81,8 @@ create_overlay(OverlayName) ->
                 Names
             ),
 
-            NodeNumber = ldb_config:node_number(),
-            Overlay = ldb_overlay:get(OverlayName, NodeNumber),
+            NodeNumber = lsim_config:node_number(),
+            Overlay = lsim_overlay:get(OverlayName, NodeNumber),
 
             case length(Names) == NodeNumber of
                 true ->
@@ -91,8 +90,7 @@ create_overlay(OverlayName) ->
                     ToConnectIds = orddict:fetch(MyId, Overlay),
                     connect(ToConnectIds, IdToName, NameToNodeInfo),
                     ok = schedule_simulation_end(MyId),
-                    %% Return ldb node id
-                    MyId;
+                    ok;
                 false ->
                     create_overlay(OverlayName)
             end;
@@ -110,13 +108,12 @@ get_app_tasks(App) ->
 connect([], _, _) -> ok;
 connect([Id|Ids]=All, IdToName, NameToNodeInfo) ->
     Name = orddict:fetch(Id, IdToName),
-    {Name, Ip, Port} = orddict:fetch(Name, NameToNodeInfo),
-    RealNodeInfo = {Id, Ip, Port},
-    case ldb_peer_service:join(RealNodeInfo) of
+    NodeInfo = orddict:fetch(Name, NameToNodeInfo),
+    case ldb_peer_service:join(NodeInfo) of
         ok ->
             connect(Ids, IdToName, NameToNodeInfo);
         Error ->
-            ldb_log:info("Couldn't connect to ~p. Error ~p. Will try again in 5 seconds", [RealNodeInfo, Error]),
+            lager:info("Couldn't connect to ~p. Error ~p. Will try again in 5 seconds", [NodeInfo, Error]),
             timer:sleep(5000),
             connect(All, IdToName, NameToNodeInfo)
     end.
@@ -139,15 +136,15 @@ schedule_simulation_end(MyId) ->
 %% @private
 -spec check_dcos_experiment_end() -> ok.
 check_dcos_experiment_end() ->
-    LogNumber = ldb_mongo:log_number(),
-    NodeNumber = ldb_config:node_number(),
+    LogNumber = lsim_mongo:log_number(),
+    NodeNumber = lsim_config:node_number(),
 
     case LogNumber == NodeNumber of
         true ->
-            ldb_log:info("Simulation has ended. Will stop ldb", extended),
-            stop_ldb();
+            lager:info("Simulation has ended. Will stop lsim"),
+            stop_lsim();
         false ->
-            ldb_log:info("Simulation has not ended. ~p of ~p", [LogNumber, NodeNumber], extended),
+            lager:info("Simulation has not ended. ~p of ~p", [LogNumber, NodeNumber]),
             timer:sleep(?EXPERIMENT_END_TIME),
             check_dcos_experiment_end()
     end.
@@ -162,7 +159,7 @@ request(Method, Url) ->
             JSONBody = jsx:decode(Body),
             {ok, JSONBody};
         Error ->
-            ldb_log:info("~p request with url ~p failed with ~p", [Method, Url, Error]),
+            lager:info("~p request with url ~p failed with ~p", [Method, Url, Error]),
             error
     end.
 
@@ -177,28 +174,28 @@ delete_request(Url) ->
     request(delete, Url).
 
 %% @private
--spec stop_ldb() -> ok.
-stop_ldb() ->
-    Url = app_url("ldbs"),
+-spec stop_lsim() -> ok.
+stop_lsim() ->
+    Url = app_url("lsims"),
     case delete_request(Url) of
         {ok, _} ->
             ok;
         error ->
-            ldb_log:info("Stop ldb failed")
+            lager:info("Stop lsim failed")
     end.
 
 %% @private
 -spec headers() -> [{string(), string()}].
 headers() ->
-    Token = ldb_config:dcos_token(),
+    Token = lsim_config:dcos_token(),
     [{"Authorization", "token=" ++ Token}].
 
 %% @private
 -spec app_url(string()) -> string().
 app_url(App) ->
-    ldb_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App.
+    lsim_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App.
 
 %% @private
 -spec tasks_url(string()) -> string().
 tasks_url(App) ->
-    ldb_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App ++ "/tasks".
+    lsim_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App ++ "/tasks".

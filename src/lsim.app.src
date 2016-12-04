@@ -1,20 +1,19 @@
-{application, ldb,
+{application, lsim,
  [
-  {description, "Conflict-free Replicated Data Types Database"},
+  {description, "Running LDB on DCOS"},
   {vsn, "0.0.1"},
   {registered, []},
+  {included_applications,[ldb]},
   {applications, [
                   kernel,
                   stdlib,
                   crypto,
                   bson,
                   mongodb,
-                  jsx,
-                  inets,
                   lager,
                   rand_compat,
                   types
                  ]},
-  {mod, {ldb_app, []}},
+  {mod, {lsim_app, []}},
   {modules, []}
  ]}.

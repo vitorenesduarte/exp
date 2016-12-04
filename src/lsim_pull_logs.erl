@@ -1,6 +1,5 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
-%% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -18,18 +17,18 @@
 %%
 %% -------------------------------------------------------------------
 
--module(ldb_pull_logs).
+-module(lsim_pull_logs).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
--include("ldb.hrl").
+-include("lsim.hrl").
 
-%% ldb_pull_logs callbacks
+%% lsim_pull_logs callbacks
 -export([go/2]).
 
-%% @doc Pulls logs from the running ldb-mongo instance on DCOS.
+%% @doc Pulls logs from the running lsim-mongo instance on DCOS.
 -spec go(string(), non_neg_integer()) -> ok.
 go(Host, Port) ->
-    Logs = ldb_mongo:pull_logs(Host, Port),
+    Logs = lsim_mongo:pull_logs(Host, Port),
     lists:foldl(
         fun(Log, NodeNumber0) ->
             SimulationId0 = maps:get(<<"id">>, Log),
