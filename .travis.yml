@@ -1,10 +1,16 @@
 language: erlang
 otp_release:
   - 18.1
+install:
+  - make
+  - ./rebar3 update
 before_script:
   - epmd -daemon
 script:
-  - echo "Hello"
+  - make test
+  - make xref
+  - make dialyzer
+  - make lint
 notifications:
   slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
   email: false
