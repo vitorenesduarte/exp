@@ -153,15 +153,16 @@ log_dir() ->
 
 %% @private
 simulation_id() ->
-    Simulation = lsim_config:simulation(),
-    LocalOrDCOS = case lsim_config:dcos() of
+    Simulation = lsim_config:get(lsim_simulation),
+    RunningOnDCOS = lsim_config:get(lsim_dcos_url, undefined) /= undefined,
+    LocalOrDCOS = case RunningOnDCOS of
         true ->
             "dcos";
         false ->
             "local"
     end,
-    SimIdentifier = lsim_config:simulation_identifier(),
-    SimTimestamp = lsim_config:simulation_timestamp(),
+    SimIdentifier = lsim_config:get(lsim_simulation_identifier),
+    SimTimestamp = lsim_config:get(lsim_simulation_timestamp),
 
     Id = atom_to_list(Simulation) ++ "/"
       ++ LocalOrDCOS ++ "/"

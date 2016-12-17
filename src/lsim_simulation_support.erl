@@ -1,4 +1,3 @@
-%% -------------------------------------------------------------------
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
@@ -18,74 +17,14 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
-%%
 
--module(lsim_ldb_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
-
-%% common_test callbacks
--export([%% suite/0,
-         init_per_suite/1,
-         end_per_suite/1,
-         init_per_testcase/2,
-         end_per_testcase/2,
-         all/0]).
-
-%% tests
--compile([export_all]).
+-module(lsim_simulation_support).
+-author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
--include_lib("common_test/include/ct.hrl").
--include_lib("eunit/include/eunit.hrl").
--include_lib("kernel/include/inet.hrl").
+-export([run/1]).
 
-%% ===================================================================
-%% common_test callbacks
-%% ===================================================================
-
-init_per_suite(Config) ->
-    Config.
-
-end_per_suite(Config) ->
-    Config.
-
-init_per_testcase(Case, Config) ->
-    ct:pal("Beginning test case: ~p", [Case]),
-    Config.
-
-end_per_testcase(Case, Config) ->
-    ct:pal("Ending test case: ~p", [Case]),
-    Config.
-
-all() ->
-    [
-     ldb_basic_simulation_test
-    ].
-
-%% ===================================================================
-%% tests
-%% ===================================================================
-
-ldb_basic_simulation_test(_Config) ->
-    Nodes = node_names(),
-    Graph = line(),
-
-    Options = [{nodes, Nodes},
-               {graph, Graph}],
-    run(Options).
-
-%% @private
-node_names() ->
-    [n0, n1, n2].
-
-%% @private
-line() ->
-    [{n0, [n1]},
-     {n1, [n0, n2]},
-     {n2, [n1]}].
-
-% @private (from simulation_support)
 run(Options) ->
     NameToNode = start(Options),
     construct_overlay(Options, NameToNode),
@@ -117,12 +56,6 @@ start(Options) ->
     LoaderFun = fun(Node) ->
         ct:pal("Loading lsim on node: ~p", [Node]),
 
-                            ok = rpc:call(Node, application, load, [sasl]),
-                            ok = rpc:call(Node, application, set_env,
-                                          [sasl, sasl_error_logger, false]),
-                            ok = rpc:call(Node, application, start, [sasl]),
-
-
         %% Load ldb
         ok = rpc:call(Node, application, load, [ldb]),
 
@@ -142,24 +75,30 @@ start(Options) ->
     ConfigureFun = fun(Node) ->
         ct:pal("Configuring node: ~p", [Node]),
 
-        %% Set simulation on ldb: basic
+        %% Configure ldb
+        LDBSettings = proplists:get_value(ldb_settings, Options),
+        lists:foreach(
+            fun({Property, Value}) ->
+                ok = rpc:call(Node,
+                              application,
+                              set_env,
+                              [ldb, Property, Value])
+            end,
+            LDBSettings
+        ),
+
+        %% Set simulation
+        Simulation = proplists:get_value(lsim_simulation, Options),
         ok = rpc:call(Node,
                       application,
                       set_env,
-                      [ldb, ldb_simulation, basic]),
+                      [?APP, lsim_simulation, Simulation]),
 
-        %% Set extended logging on ldb
-        ExtendedLogging = true,
-        ok = rpc:call(Node,
-                      application,
-                      set_env,
-                      [ldb, ldb_extended_logging, ExtendedLogging]),
-
-        %% Set node number on ldb
+        %% Set node number
         NodeNumber = length(Nodes),
         ok = rpc:call(Node,
                       application, set_env,
-                      [ldb, ldb_node_number, NodeNumber])
+                      [?APP, lsim_node_number, NodeNumber])
 
     end,
     lists:foreach(ConfigureFun, Nodes),
@@ -180,15 +119,15 @@ construct_overlay(Options, NameToNode) ->
 
     NameToNodeSpec = lists:map(
         fun({Name, Node}) ->
-            {ok, Info} = rpc:call(Node, ldb_peer_service, get_node_info, []),
-            {Name, Info}
+            {ok, Spec} = rpc:call(Node, ldb_peer_service, get_node_spec, []),
+            {Name, Spec}
         end,
         NameToNode
     ),
 
     ct:pal("Graph ~n~p~n", [Graph]),
     ct:pal("Nodes ~n~p~n", [NameToNode]),
-    ct:pal("Nodes Info ~n~p~n", [NameToNodeSpec]),
+    ct:pal("Nodes Spec ~n~p~n", [NameToNodeSpec]),
 
     lists:foreach(
         fun({Name, PeersName}) ->
@@ -216,14 +155,14 @@ construct_overlay(Options, NameToNode) ->
 wait_for_completion(NameToNode) ->
     ct:pal("Waiting for simulation to end"),
 
-    Result = ldb_util:wait_until(
+    Result = lsim_util:wait_until(
         fun() ->
             lists:foldl(
                 fun({_Name, Node}, Acc) ->
                     SimulationEnd = rpc:call(Node,
                                              application,
                                              get_env,
-                                             [ldb, simulation_end, false]),
+                                             [?APP, simulation_end, false]),
                     ct:pal("Node ~p with simulation end as ~p", [Node, SimulationEnd]),
                     Acc andalso SimulationEnd
                 end,

@@ -22,55 +22,19 @@
 
 -include("lsim.hrl").
 
--export([node_number/0,
-         simulation/0,
-         simulation_identifier/0,
-         simulation_timestamp/0,
-         dcos/0,
-         dcos_url/0,
-         dcos_token/0]).
+-export([get/1,
+         get/2,
+         set/2]).
+%% @doc
+-spec get(atom()) -> term().
+get(Property) ->
+    {ok, Value} = application:get_env(?APP, Property),
+    Value.
 
-%% @doc Returns the node number.
--spec node_number() -> non_neg_integer().
-node_number() ->
-    {ok, NodeNumber} = application:get_env(?APP, lsim_node_number),
-    NodeNumber.
+-spec get(atom(), term()) -> term().
+get(Property, Default) ->
+    application:get_env(?APP, Property, Default).
 
-%% @doc Returns the current simulation.
--spec simulation() -> atom().
-simulation() ->
-    {ok, Simulation} = application:get_env(?APP, lsim_simulation),
-    Simulation.
-
-%% @doc Returns the simulation identifier.
--spec simulation_identifier() -> atom().
-simulation_identifier() ->
-    {ok, SimulationIdentifier} =
-        application:get_env(?APP, lsim_simulation_identifier),
-    SimulationIdentifier.
-
-%% @doc Returns the simulation timestamp.
--spec simulation_timestamp() -> atom().
-simulation_timestamp() ->
-    {ok, SimulationTimestamp} =
-        application:get_env(?APP, lsim_simulation_timestamp),
-    SimulationTimestamp.
-
-%% @doc Returns true if running in DCOS.
--spec dcos() -> boolean().
-dcos() ->
-    dcos_url() /= "undefined".
-
-%% @doc Returns the DCOS Url.
--spec dcos_url() -> string().
-dcos_url() ->
-    {ok, DCOSUrl} =
-        application:get_env(?APP, lsim_dcos_url),
-    DCOSUrl.
-
-%% @doc Returns the DCOS Authentication Token.
--spec dcos_token() -> string().
-dcos_token() ->
-    {ok, DCOSToken} =
-        application:get_env(?APP, lsim_dcos_token),
-    DCOSToken.
+-spec set(atom(), term()) -> ok.
+set(Property, Value) ->
+    application:set_env(?APP, Property, Value).

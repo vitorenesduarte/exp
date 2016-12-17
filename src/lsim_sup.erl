@@ -32,83 +32,46 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    %% Start LDB
-    {ok, _} = ldb_sup:start_link(),
+    configure(),
 
-    %% Configure node number
-    configure_int(lsim_node_number,
-                  "NODE_NUMBER",
-                  "1"),
+    ldb_config:set(ldb_peer_service, lsim_static_peer_service),
+    PeerService = {lsim_static_peer_service,
+                   {lsim_static_peer_service, start_link, []},
+                   permanent, 5000, worker, [lsim_static_peer_service]},
 
-    %% Configure DCOS url
-    configure_str(lsim_dcos_url,
-                  "DCOS",
-                  "undefined"),
+    LDB = {ldb_sup,
+           {ldb_sup, start_link, []},
+           permanent, infinity, supervisor, [ldb_sup]},
 
-    %% If running in DCOS, create overlay
-    case lsim_config:dcos() of
-        true ->
-            %% Configure DCOS token
-            configure_str(lsim_dcos_token,
-                          "TOKEN",
-                          "undefined"),
-
-            %% Configure overlay
-            Overlay = configure_var(lsim_overlay,
-                                    "OVERLAY",
-                                    "undefined"),
-            lsim_dcos:create_overlay(Overlay);
-        false ->
-            ok
-    end,
-
-    %% Configure simulation
-    Simulation = configure_var(lsim_simulation,
-                               "SIMULATION",
-                               "undefined"),
-    case Simulation of
-        basic ->
-            {ok, _} = ldb_basic_simulation:start_link(),
-            application:set_env(ldb,
-                                ldb_node_number,
-                                lsim_config:node_number());
-        undefined ->
-            ok
-    end,
-
-    %% Configure simulation identifier
-    configure_var(lsim_simulation_identifier,
-                  "SIMULATION_IDENTIFIER",
-                  "undefined"),
-
-    %% Configure simulation timestamp
-    configure_var(lsim_simulation_timestamp,
-                  "SIMULATION_TIMESTAMP",
-                  "undefined"),
-
-    %% Start instrumentation
-    {ok, _} = lsim_instrumentation:start_link(),
+    BaseSpecs = [PeerService,
+                 LDB],
+    SimSpecs = sim_specs(),
+    Children = BaseSpecs ++ SimSpecs,
 
     ldb_log:info("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
-    {ok, {RestartStrategy, []}}.
-
+    {ok, {RestartStrategy, Children}}.
 
 %% @private
-configure(LDBVariable, EnvironmentVariable, EnvironmentDefault, ParseFun) ->
-    Default = ParseFun(
-        os:getenv(EnvironmentVariable, EnvironmentDefault)
+configure() ->
+    ok.
+
+%% @private
+sim_specs() ->
+    %% the env variables overrides possible application env vars
+    SimulationDefault = application:get_env(?APP,
+                                            lsim_simulation,
+                                            undefined),
+
+    Simulation = list_to_atom(
+        os:getenv("SIMULATION", atom_to_list(SimulationDefault))
     ),
-    Value = application:get_env(?APP,
-                                LDBVariable,
-                                Default),
-    application:set_env(?APP,
-                        LDBVariable,
-                        Value),
-    Value.
-configure_var(LDBVariable, EnvironmentVariable, EnvironmentDefault) ->
-    configure(LDBVariable, EnvironmentVariable, EnvironmentDefault, fun(V) -> list_to_atom(V) end).
-configure_str(LDBVariable, EnvironmentVariable, EnvironmentDefault) ->
-    configure(LDBVariable, EnvironmentVariable, EnvironmentDefault, fun(V) -> V end).
-configure_int(LDBVariable, EnvironmentVariable, EnvironmentDefault) ->
-    configure(LDBVariable, EnvironmentVariable, EnvironmentDefault, fun(V) -> list_to_integer(V) end).
+
+    case Simulation of
+        basic ->
+            [{lsim_basic_simulation,
+              {lsim_basic_simulation, start_link, []},
+              permanent, 5000, worker, [lsim_basic_simulation]}];
+        undefined ->
+            []
+    end.

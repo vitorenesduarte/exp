@@ -81,7 +81,7 @@ create_overlay(OverlayName) ->
                 Names
             ),
 
-            NodeNumber = lsim_config:node_number(),
+            NodeNumber = lsim_config:get(lsim_node_number),
             Overlay = lsim_overlay:get(OverlayName, NodeNumber),
 
             case length(Names) == NodeNumber of
@@ -137,7 +137,7 @@ schedule_simulation_end(MyId) ->
 -spec check_dcos_experiment_end() -> ok.
 check_dcos_experiment_end() ->
     LogNumber = lsim_mongo:log_number(),
-    NodeNumber = lsim_config:node_number(),
+    NodeNumber = lsim_config:get(lsim_node_number),
 
     case LogNumber == NodeNumber of
         true ->
@@ -187,15 +187,15 @@ stop_lsim() ->
 %% @private
 -spec headers() -> [{string(), string()}].
 headers() ->
-    Token = lsim_config:dcos_token(),
+    Token = lsim_config:get(lsim_dcos_token),
     [{"Authorization", "token=" ++ Token}].
 
 %% @private
 -spec app_url(string()) -> string().
 app_url(App) ->
-    lsim_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App.
+    lsim_config:get(lsim_dcos_url) ++ "/service/marathon/v2/apps/" ++ App.
 
 %% @private
 -spec tasks_url(string()) -> string().
 tasks_url(App) ->
-    lsim_config:dcos_url() ++ "/service/marathon/v2/apps/" ++ App ++ "/tasks".
+    lsim_config:get(lsim_dcos_url) ++ "/service/marathon/v2/apps/" ++ App ++ "/tasks".

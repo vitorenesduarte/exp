@@ -35,7 +35,7 @@
 log_number() ->
     case get_connection() of
         {ok, Connection} ->
-            SimulationTimestamp = lsim_config:simulation_timestamp(),
+            SimulationTimestamp = lsim_config:get(lsim_simulation_timestamp),
             ?MONGO:count(Connection,
                          ?COLLECTION,
                          {<<"timestamp">>, ldb_util:atom_to_binary(SimulationTimestamp)});
@@ -47,7 +47,7 @@ log_number() ->
 push_logs() ->
     case get_connection() of
         {ok, Connection} ->
-            SimulationTimestamp0 = lsim_config:simulation_timestamp(),
+            SimulationTimestamp0 = lsim_config:get(lsim_simulation_timestamp),
             {Id0, Filename} = lsim_instrumentation:log_id_and_file(),
             Logs0 = get_logs(Filename),
 
@@ -97,7 +97,7 @@ get_connection() ->
 
 %% @private
 get_logs(Filename) ->
-    Lines = ldb_util:read_lines(Filename),
+    Lines = lsim_util:read_lines(Filename),
     lists:foldl(
         fun(Line, Acc) ->
             Acc ++ Line
