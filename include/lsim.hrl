@@ -10,3 +10,6 @@
 -type message() :: term().
 -define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
+%% defaults
+-define(DEFAULT_PEER_SERVICE, lsim_static_peer_service).
+-define(DEFAULT_MODE, state_based).

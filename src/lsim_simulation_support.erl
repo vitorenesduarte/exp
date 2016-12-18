@@ -56,6 +56,9 @@ start(Options) ->
     LoaderFun = fun(Node) ->
         ct:pal("Loading lsim on node: ~p", [Node]),
 
+        %% Load partisan
+        ok = rpc:call(Node, application, load, [partisan]),
+
         %% Load ldb
         ok = rpc:call(Node, application, load, [ldb]),
 
@@ -75,31 +78,29 @@ start(Options) ->
     ConfigureFun = fun(Node) ->
         ct:pal("Configuring node: ~p", [Node]),
 
+        %% Configure lsim
+        LSimSettings = proplists:get_value(lsim_settings, Options),
+        lists:foreach(
+            fun({Property, Value}) ->
+                ok = rpc:call(Node,
+                              lsim_config,
+                              set,
+                              [Property, Value])
+            end,
+            LSimSettings
+        ),
+
         %% Configure ldb
         LDBSettings = proplists:get_value(ldb_settings, Options),
         lists:foreach(
             fun({Property, Value}) ->
                 ok = rpc:call(Node,
-                              application,
-                              set_env,
-                              [ldb, Property, Value])
+                              ldb_config,
+                              set,
+                              [Property, Value])
             end,
             LDBSettings
-        ),
-
-        %% Set simulation
-        Simulation = proplists:get_value(lsim_simulation, Options),
-        ok = rpc:call(Node,
-                      application,
-                      set_env,
-                      [?APP, lsim_simulation, Simulation]),
-
-        %% Set node number
-        NodeNumber = length(Nodes),
-        ok = rpc:call(Node,
-                      application, set_env,
-                      [?APP, lsim_node_number, NodeNumber])
-
+        )
     end,
     lists:foreach(ConfigureFun, Nodes),
 
@@ -119,7 +120,7 @@ construct_overlay(Options, NameToNode) ->
 
     NameToNodeSpec = lists:map(
         fun({Name, Node}) ->
-            {ok, Spec} = rpc:call(Node, ldb_peer_service, get_node_spec, []),
+            Spec = rpc:call(Node, ldb_peer_service, myself, []),
             {Name, Spec}
         end,
         NameToNode

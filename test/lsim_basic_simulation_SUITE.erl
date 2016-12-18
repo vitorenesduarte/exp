@@ -90,12 +90,14 @@ run(Evaluation) ->
 
     Options = [{nodes, Nodes},
                {graph, Graph},
-               {lsim_simulation, basic},
+               {lsim_settings,
+                [{lsim_peer_service, lsim_static_peer_service},
+                 {lsim_simulation, basic},
+                 {lsim_node_number, length(Nodes)}]},
                {ldb_settings,
-                [{ldb_peer_service, lsim_static_peer_service},
-                 {ldb_mode, Mode},
-                 {ldb_join_decompositions, JoinDecompositions},
-                 {ldb_extended_logging, true}]}],
+                 [{ldb_mode, Mode},
+                  {ldb_join_decompositions, JoinDecompositions},
+                  {ldb_extended_logging, true}]}],
     lsim_simulation_support:run(Options).
 
 %% @private

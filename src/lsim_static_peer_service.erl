@@ -30,7 +30,7 @@
          members/0,
          join/1,
          forward_message/3,
-         get_node_spec/0]).
+         myself/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -40,8 +40,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {spec :: node_spec(),
-                connected :: orddict:orddict()}).
+-record(state, {connected :: orddict:orddict()}).
 
 -define(LOG_INTERVAL, 10000).
 
@@ -62,18 +61,21 @@ join(NodeSpec) ->
 forward_message(LDBId, Handler, Message) ->
     gen_server:call(?MODULE, {forward_message, LDBId, Handler, Message}, infinity).
 
--spec get_node_spec() -> {ok, node_spec()}.
-get_node_spec() ->
-    gen_server:call(?MODULE, get_node_spec, infinity).
+-spec myself() -> node_spec().
+myself() ->
+    LDBId = node(),
+    Ip = lsim_config:get(lsim_peer_ip),
+    Port = lsim_config:get(lsim_peer_port),
+    {LDBId, Ip, Port}.
 
 %% gen_server callbacks
 init([]) ->
-    {LDBId, Ip, Port} = parse_node_spec(),
+    {_, _, Port} = myself(),
     {ok, _} = lsim_static_peer_service_server:start_link(Port),
     schedule_log(),
 
     ldb_log:info("lsim_static_peer_service initialized!", extended),
-    {ok, #state{spec={LDBId, Ip, Port}, connected=orddict:new()}}.
+    {ok, #state{connected=orddict:new()}}.
 
 handle_call(members, _From, #state{connected=Connected}=State) ->
     Result = {ok, orddict:fetch_keys(Connected)},
@@ -108,10 +110,6 @@ handle_call({forward_message, LDBId, Handler, Message}, _From, #state{connected=
 
     {reply, Result, State};
 
-handle_call(get_node_spec, _From, #state{spec=NodeSpec}=State) ->
-    Result = {ok, NodeSpec},
-    {reply, Result, State};
-
 handle_call(Msg, _From, State) ->
     ldb_log:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
@@ -135,32 +133,6 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%% @private
-parse_node_spec() ->
-    LDBId = node(),
-    Ip = case os:getenv("PEER_IP", "undefined") of
-        "undefined" ->
-            {127, 0, 0, 1};
-        PeerIp ->
-            {ok, IPAddress} = inet_parse:address(PeerIp),
-            IPAddress
-    end,
-    Port = case os:getenv("PEER_PORT", "undefined") of
-        "undefined" ->
-            random_port();
-        PeerPort ->
-            list_to_integer(PeerPort)
-    end,
-
-    {LDBId, Ip, Port}.
-
-%% @private
-random_port() ->
-    rand_compat:seed(erlang:phash2([node()]),
-                     erlang:monotonic_time(),
-                     erlang:unique_integer()),
-    rand_compat:uniform(10000) + 3000.
 
 %% @private
 schedule_log() ->
