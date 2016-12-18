@@ -26,32 +26,37 @@
 -export([run/1]).
 
 run(Options) ->
-    NameToNode = start(Options),
-    construct_overlay(Options, NameToNode),
-    wait_for_completion(NameToNode),
-    stop(NameToNode).
+    Overlay = proplists:get_value(overlay, Options),
+    {IToNode, Nodes} = start(Options),
+    construct_overlay(Overlay, IToNode),
+    wait_for_completion(Nodes),
+    stop(IToNode).
 
 %% @private Start nodes.
 start(Options) ->
     ok = start_erlang_distribution(),
-    Names = proplists:get_value(nodes, Options),
+    NodeNumber = proplists:get_value(node_number, Options),
 
-    InitializerFun = fun(Name, Acc) ->
-        ct:pal("Starting node: ~p", [Name]),
+    InitializerFun = fun(I, Acc) ->
+        ct:pal("Starting node: ~p", [I]),
 
         %% Start node
         Config = [{monitor_master, true},
                   {startup_functions, [{code, set_path, [codepath()]}]}],
 
+        Name = get_node_name(I),
         case ct_slave:start(Name, Config) of
             {ok, Node} ->
-                orddict:store(Name, Node, Acc);
+                orddict:store(I, Node, Acc);
             Error ->
                 ct:fail(Error)
         end
     end,
-    NameToNode = lists:foldl(InitializerFun, orddict:new(), Names),
-    Nodes = [Node || {_Name, Node} <- NameToNode],
+
+    IToNode = lists:foldl(InitializerFun,
+                          orddict:new(),
+                          lists:seq(0, NodeNumber - 1)),
+    Nodes = [Node || {_I, Node} <- IToNode],
 
     LoaderFun = fun(Node) ->
         ct:pal("Loading lsim on node: ~p", [Node]),
@@ -112,32 +117,44 @@ start(Options) ->
     end,
     lists:foreach(StartFun, Nodes),
 
-    NameToNode.
+    {IToNode, Nodes}.
 
 %% @private Connect each node to its peers.
-construct_overlay(Options, NameToNode) ->
-    Graph = proplists:get_value(graph, Options),
-
-    NameToNodeSpec = lists:map(
-        fun({Name, Node}) ->
+%%          If `Overlay' is hyparview, it's enough all peers
+%%          connected to the same node.
+%%          Otherwise use `lsim_overlay' to decide to which
+%%          nodes a node should connect.
+construct_overlay(Overlay, IToNode) ->
+    IToNodeSpec = lists:map(
+        fun({I, Node}) ->
             Spec = rpc:call(Node, ldb_peer_service, myself, []),
-            {Name, Spec}
+            {I, Spec}
         end,
-        NameToNode
+        IToNode
     ),
 
-    ct:pal("Graph ~n~p~n", [Graph]),
-    ct:pal("Nodes ~n~p~n", [NameToNode]),
-    ct:pal("Nodes Spec ~n~p~n", [NameToNodeSpec]),
+    NodeNumber = orddict:size(IToNode),
+
+    ct:pal("Nodes ~n~p~n", [IToNode]),
+    ct:pal("Nodes Spec ~n~p~n", [IToNodeSpec]),
+
+    Graph = case Overlay of
+        hyparview ->
+            %% all nodes join the same node with I = 0
+            [{I, [0]} || I <- lists:seq(1, NodeNumber - 1)];
+        _ ->
+            %% ensure symmetric views using `lsim_overlay'
+            lsim_overlay:get(Overlay, NodeNumber)
+    end,
 
     lists:foreach(
-        fun({Name, PeersName}) ->
-            Node = orddict:fetch(Name, NameToNode),
+        fun({I, Peers}) ->
+            Node = orddict:fetch(I, IToNode),
             ct:pal("Node ~p~n~n", [Node]),
 
             lists:foreach(
-                fun(PeerName) ->
-                    PeerSpec = orddict:fetch(PeerName, NameToNodeSpec),
+                fun(Peer) ->
+                    PeerSpec = orddict:fetch(Peer, IToNodeSpec),
 
                     ct:pal("PeerSpec ~p~n~n", [PeerSpec]),
 
@@ -146,30 +163,41 @@ construct_overlay(Options, NameToNode) ->
                                   join,
                                   [PeerSpec])
                 end,
-                PeersName
+                Peers
             )
         end,
         Graph
     ).
 
 %% @private Poll nodes to see if simulation is ended.
-wait_for_completion(NameToNode) ->
+wait_for_completion(Nodes) ->
     ct:pal("Waiting for simulation to end"),
+
+    NodeNumber = length(Nodes),
 
     Result = lsim_util:wait_until(
         fun() ->
-            lists:foldl(
-                fun({_Name, Node}, Acc) ->
+            Ended = lists:foldl(
+                fun(Node, Acc) ->
                     SimulationEnd = rpc:call(Node,
                                              application,
                                              get_env,
                                              [?APP, simulation_end, false]),
-                    ct:pal("Node ~p with simulation end as ~p", [Node, SimulationEnd]),
-                    Acc andalso SimulationEnd
+
+                    case SimulationEnd of
+                        true ->
+                            Acc + 1;
+                        false ->
+                            Acc
+                    end
                 end,
-                true,
-                NameToNode
-             )
+                0,
+                Nodes
+            ),
+
+            ct:pal("~p of ~p with simulation as true", [Ended, NodeNumber]),
+
+            Ended == NodeNumber
         end,
         100,      %% 100 retries
         10 * 1000 %% every 10 seconds
@@ -183,8 +211,9 @@ wait_for_completion(NameToNode) ->
     end.
 
 %% @private Stop nodes.
-stop(NameToNode) ->
-    StopFun = fun({Name, _Node}) ->
+stop(IToNode) ->
+    StopFun = fun({I, _Node}) ->
+        Name = get_node_name(I),
         case ct_slave:stop(Name) of
             {ok, _} ->
                 ok;
@@ -192,7 +221,7 @@ stop(NameToNode) ->
                 ct:fail(Error)
         end
     end,
-    lists:foreach(StopFun, NameToNode).
+    lists:foreach(StopFun, IToNode).
 
 %% @private Start erlang distribution.
 start_erlang_distribution() ->
@@ -208,3 +237,8 @@ start_erlang_distribution() ->
 %% @private
 codepath() ->
     lists:filter(fun filelib:is_dir/1, code:get_path()).
+
+
+%% @private
+get_node_name(I) ->
+    list_to_atom("n" ++ integer_to_list(I)).

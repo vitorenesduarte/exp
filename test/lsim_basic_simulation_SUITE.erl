@@ -40,6 +40,9 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
+%%-define(NODE_NUMBER, 13).
+-define(NODE_NUMBER, 5).
+
 %% ===================================================================
 %% common_test callbacks
 %% ===================================================================
@@ -84,21 +87,33 @@ pure_op_based_test(_Config) ->
 
 %% @private
 run(Evaluation) ->
-    Nodes = node_names(),
-    Graph = line(),
-    {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
+    lists:foreach(
+        fun(Overlay) ->
+            PeerService = get_peer_service(Overlay),
+            {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
-    Options = [{nodes, Nodes},
-               {graph, Graph},
-               {lsim_settings,
-                [{lsim_peer_service, lsim_static_peer_service},
-                 {lsim_simulation, basic},
-                 {lsim_node_number, length(Nodes)}]},
-               {ldb_settings,
-                 [{ldb_mode, Mode},
-                  {ldb_join_decompositions, JoinDecompositions},
-                  {ldb_extended_logging, true}]}],
-    lsim_simulation_support:run(Options).
+            Options = [{node_number, ?NODE_NUMBER},
+                       {overlay, Overlay},
+                       {lsim_settings,
+                        [{lsim_peer_service, PeerService},
+                         {lsim_simulation, basic},
+                         {lsim_node_number, ?NODE_NUMBER}]},
+                       {ldb_settings,
+                         [{ldb_mode, Mode},
+                          {ldb_join_decompositions, JoinDecompositions},
+                          {ldb_extended_logging, true}]}],
+
+            lsim_simulation_support:run(Options)
+        end,
+        %%[line, hyparview]
+        [hyparview]
+    ).
+
+%% @private
+get_peer_service(hyparview) ->
+    partisan_hyparview_peer_service_manager;
+get_peer_service(_StaticOverlay) ->
+    lsim_static_peer_service.
 
 %% @private
 get_mode_and_join_decompositions(state_based) ->
@@ -109,13 +124,3 @@ get_mode_and_join_decompositions(join_decompositions) ->
     {delta_based, true};
 get_mode_and_join_decompositions(pure_op_based) ->
     {pure_op_based, false}.
-
-%% @private
-node_names() ->
-    [n0, n1, n2].
-
-%% @private
-line() ->
-    [{n0, [n1]},
-     {n1, [n0, n2]},
-     {n2, [n1]}].
