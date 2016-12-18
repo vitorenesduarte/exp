@@ -40,8 +40,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
-%%-define(NODE_NUMBER, 13).
--define(NODE_NUMBER, 5).
+-define(NODE_NUMBER, 13).
 
 %% ===================================================================
 %% common_test callbacks
@@ -105,8 +104,7 @@ run(Evaluation) ->
 
             lsim_simulation_support:run(Options)
         end,
-        %%[line, hyparview]
-        [hyparview]
+        [line, hyparview]
     ).
 
 %% @private
