@@ -17,15 +17,15 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_basic_simulation).
+-module(lsim_simulation_runner).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_basic_simulation callbacks
--export([start_link/0]).
+%% lsim_simulation_runner callbacks
+-export([start_link/3]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -35,23 +35,31 @@
          terminate/2,
          code_change/3]).
 
--record(state, {local_events :: non_neg_integer()}).
+-record(state, {event_count :: non_neg_integer(),
+                event_fun :: function(),
+                total_events_fun :: function()}).
 
 -define(EVENT_NUMBER, 10).
 -define(EVENT_INTERVAL, 5000).
 -define(SIMULATION_END_INTERVAL, 10000).
 
--spec start_link() -> {ok, pid()} | ignore | {error, term()}.
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+-spec start_link(function(), function(), function()) ->
+    {ok, pid()} | ignore | {error, term()}.
+start_link(StartFun, EventFun, TotalEventsFun) ->
+    gen_server:start_link({local, ?MODULE},
+                          ?MODULE,
+                          [StartFun, EventFun, TotalEventsFun],
+                          []).
 
 %% gen_server callbacks
-init([]) ->
-    ldb:create("SET", gset),
+init([StartFun, EventFun, TotalEventsFun]) ->
+    StartFun(),
     schedule_event(),
 
-    ldb_log:info("lsim_basic_simulation initialized!", extended),
-    {ok, #state{local_events=0}}.
+    ldb_log:info("lsim_simulation_runner initialized"),
+    {ok, #state{event_count=0,
+                event_fun=EventFun,
+                total_events_fun=TotalEventsFun}}.
 
 handle_call(Msg, _From, State) ->
     ldb_log:warning("Unhandled call message: ~p", [Msg]),
@@ -61,35 +69,39 @@ handle_cast(Msg, State) ->
     ldb_log:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
-handle_info(event, #state{local_events=LocalEvents0}=State) ->
-    LocalEvents1 = LocalEvents0 + 1,
-    Element = atom_to_list(node()) ++ integer_to_list(LocalEvents1),
-    ldb:update("SET", {add, Element}),
-
-    {ok, Value} = ldb:query("SET"),
-    Events = sets:size(Value),
-    ldb_log:info("Events observed ~p | Node ~p", [Events, node()], extended),
-
-    case LocalEvents1 == ?EVENT_NUMBER of
+handle_info(event, #state{event_count=Events0,
+                          event_fun=EventFun}=State) ->
+    Events = case simulation_started() of
         true ->
-            schedule_simulation_end();
+            Events1 = Events0 + 1,
+            EventFun(Events1),
+            ldb_log:info("Event ~p | Node ~p", [Events1, node()]),
+
+            case Events1 == ?EVENT_NUMBER of
+                true ->
+                    schedule_simulation_end();
+                false ->
+                    schedule_event()
+            end,
+
+            Events1;
         false ->
-            schedule_event()
+            schedule_event(),
+            Events0
     end,
 
-    {noreply, State#state{local_events=LocalEvents1}};
+    {noreply, State#state{event_count=Events}};
 
-handle_info(simulation_end, State) ->
+handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
     NodeNumber = lsim_config:get(lsim_node_number),
-    {ok, Value} = ldb:query("SET"),
-    Events = sets:size(Value),
+    TotalEvents = TotalEventsFun(),
 
-    ldb_log:info("Events observed ~p | Node ~p", [Events, node()], extended),
+    ldb_log:info("Events observed ~p | Node ~p", [TotalEvents, node()]),
 
-    case Events == NodeNumber * ?EVENT_NUMBER of
+    case TotalEvents == NodeNumber * ?EVENT_NUMBER of
         true ->
-            ldb_log:info("All events have been observed", extended),
-            application:set_env(?APP, simulation_end, true);
+            ldb_log:info("All events have been observed"),
+            ldb_config:set(simulation_end, true);
         false ->
             schedule_simulation_end()
     end,
@@ -105,6 +117,11 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% @private
+simulation_started() ->
+    %% @todo Fix this for DCOS runs
+    true.
 
 %% @private
 schedule_event() ->

@@ -118,14 +118,7 @@ sim_specs() ->
     lsim_config:set(lsim_simulation, Simulation),
 
     %% specs
-    case Simulation of
-        basic ->
-            [{lsim_basic_simulation,
-              {lsim_basic_simulation, start_link, []},
-              permanent, 5000, worker, [lsim_basic_simulation]}];
-        undefined ->
-            []
-    end.
+    lsim_simulations:get_specs(Simulation).
 
 %% @private
 ip_and_port() ->

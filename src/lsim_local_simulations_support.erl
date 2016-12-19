@@ -18,7 +18,7 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_simulation_support).
+-module(lsim_local_simulations_support).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
@@ -180,9 +180,9 @@ wait_for_completion(Nodes) ->
             Ended = lists:foldl(
                 fun(Node, Acc) ->
                     SimulationEnd = rpc:call(Node,
-                                             application,
-                                             get_env,
-                                             [?APP, simulation_end, false]),
+                                             lsim_config,
+                                             get,
+                                             [simulation_end, false]),
 
                     case SimulationEnd of
                         true ->

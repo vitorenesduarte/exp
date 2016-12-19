@@ -29,7 +29,7 @@
 -export([create_overlay/1,
          get_app_tasks/1]).
 
-%% @docs
+%% @doc
 -spec create_overlay(atom()) -> ok.
 create_overlay(OverlayName) ->
     lager:info("Will create the overlay ~p in ~p", [OverlayName, ?CREATE_OVERLAY_TIME]),

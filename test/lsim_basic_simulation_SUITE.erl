@@ -102,7 +102,7 @@ run(Evaluation) ->
                           {ldb_join_decompositions, JoinDecompositions},
                           {ldb_extended_logging, true}]}],
 
-            lsim_simulation_support:run(Options)
+            lsim_local_simulations_support:run(Options)
         end,
         [line, hyparview]
     ).
