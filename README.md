@@ -1,5 +1,7 @@
 # lsim
 
+[![Build Status](https://travis-ci.org/vitorenesduarte/lsim.svg?branch=master)](https://travis-ci.org/vitorenesduarte/lsim/)
+
 
 #### Docker
 To build an image:
