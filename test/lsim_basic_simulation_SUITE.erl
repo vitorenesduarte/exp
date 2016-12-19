@@ -62,50 +62,61 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_test,
-     delta_based_test,
-     join_decompositions_test,
-     pure_op_based_test
+     state_based_static_test,
+     state_based_partisan_test,
+     delta_based_static_test,
+     delta_based_partisan_test,
+     join_decompositions_static_test,
+     join_decompositions_partisan_test,
+     pure_op_based_static_test,
+     pure_op_based_partisan_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_test(_Config) ->
-    run(state_based).
+state_based_static_test(_Config) ->
+    run(state_based, line).
 
-delta_based_test(_Config) ->
-    run(delta_based).
+state_based_partisan_test(_Config) ->
+    run(state_based, hyparview).
 
-join_decompositions_test(_Config) ->
-    run(join_decompositions).
+delta_based_static_test(_Config) ->
+    run(delta_based, line).
 
-pure_op_based_test(_Config) ->
-    run(pure_op_based).
+delta_based_partisan_test(_Config) ->
+    run(delta_based, hyparview).
+
+join_decompositions_static_test(_Config) ->
+    run(join_decompositions, line).
+
+join_decompositions_partisan_test(_Config) ->
+    run(join_decompositions, hyparview).
+
+pure_op_based_static_test(_Config) ->
+    run(pure_op_based, line).
+
+pure_op_based_partisan_test(_Config) ->
+    run(pure_op_based, hyparview).
 
 %% @private
-run(Evaluation) ->
-    lists:foreach(
-        fun(Overlay) ->
-            PeerService = get_peer_service(Overlay),
-            {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
+run(Evaluation, Overlay) ->
+    PeerService = get_peer_service(Overlay),
+    {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
-            Options = [{node_number, ?NODE_NUMBER},
-                       {overlay, Overlay},
-                       {lsim_settings,
-                        [{lsim_peer_service, PeerService},
-                         {lsim_simulation, basic},
-                         {lsim_node_number, ?NODE_NUMBER}]},
-                       {ldb_settings,
-                         [{ldb_mode, Mode},
-                          {ldb_join_decompositions, JoinDecompositions},
-                          {ldb_extended_logging, true}]}],
+    Options = [{node_number, ?NODE_NUMBER},
+               {overlay, Overlay},
+               {lsim_settings,
+                [{lsim_peer_service, PeerService},
+                 {lsim_simulation, basic},
+                 {lsim_node_number, ?NODE_NUMBER}]},
+               {ldb_settings,
+                 [{ldb_mode, Mode},
+                  {ldb_join_decompositions, JoinDecompositions},
+                  {ldb_extended_logging, true}]}],
 
-            lsim_local_simulations_support:run(Options)
-        end,
-        [line, hyparview]
-    ).
+    lsim_local_simulations_support:run(Options).
 
 %% @private
 get_peer_service(hyparview) ->
