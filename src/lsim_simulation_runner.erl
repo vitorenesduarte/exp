@@ -123,7 +123,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% @private
 simulation_started() ->
     %% @todo Fix this for DCOS runs
-    true.
+    not lsim_config:get(dcos, false).
 
 %% @private
 schedule_event() ->
