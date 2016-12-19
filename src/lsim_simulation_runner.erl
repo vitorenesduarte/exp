@@ -79,6 +79,7 @@ handle_info(event, #state{event_count=Events0,
 
             case Events1 == ?EVENT_NUMBER of
                 true ->
+                    %% If I did all the events I should do
                     schedule_simulation_end();
                 false ->
                     schedule_event()
@@ -100,8 +101,9 @@ handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
 
     case TotalEvents == NodeNumber * ?EVENT_NUMBER of
         true ->
+            %% If everyone did all the events they should do
             ldb_log:info("All events have been observed"),
-            ldb_config:set(simulation_end, true);
+            lsim_config:set(simulation_end, true);
         false ->
             schedule_simulation_end()
     end,
