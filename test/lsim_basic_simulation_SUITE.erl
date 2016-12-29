@@ -119,7 +119,7 @@ run(Evaluation, Overlay) ->
 
             lsim_local_simulations_support:run(Options)
         end,
-        [gset]
+        [gcounter, gset]
     ).
 
 %% @private

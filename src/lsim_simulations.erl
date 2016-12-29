@@ -40,7 +40,7 @@ get_specs(Simulation) ->
             EventFun = fun() ->
                 ldb:update(?KEY, increment)
             end,
-            TotalEventsFun = fun() ->
+            TotalEventsFun = fun(_EventNumber) ->
                 {ok, Value} = ldb:query(?KEY),
                 Value
             end,
