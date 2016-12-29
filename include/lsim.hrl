@@ -13,3 +13,5 @@
 %% defaults
 -define(DEFAULT_PEER_SERVICE, lsim_static_peer_service).
 -define(DEFAULT_MODE, state_based).
+-define(DEFAULT_EVENT_NUMBER, 30).
+-define(DEFAULT_EVENT_INTERVAL, 1000).

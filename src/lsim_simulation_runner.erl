@@ -39,8 +39,6 @@
                 event_fun :: function(),
                 total_events_fun :: function()}).
 
--define(EVENT_NUMBER, 10).
--define(EVENT_INTERVAL, 5000).
 -define(SIMULATION_END_INTERVAL, 10000).
 
 -spec start_link(function(), function(), function()) ->
@@ -77,7 +75,7 @@ handle_info(event, #state{event_count=Events0,
             EventFun(Events1),
             ldb_log:info("Event ~p | Node ~p", [Events1, node()]),
 
-            case Events1 == ?EVENT_NUMBER of
+            case Events1 == event_number() of
                 true ->
                     %% If I did all the events I should do
                     schedule_simulation_end();
@@ -99,7 +97,7 @@ handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
 
     ldb_log:info("Events observed ~p | Node ~p", [TotalEvents, node()]),
 
-    case TotalEvents == NodeNumber * ?EVENT_NUMBER of
+    case TotalEvents == NodeNumber * event_number() of
         true ->
             %% If everyone did all the events they should do
             ldb_log:info("All events have been observed"),
@@ -126,8 +124,12 @@ simulation_started() ->
     not lsim_config:get(dcos, false).
 
 %% @private
+event_number() ->
+    lsim_config:get(lsim_event_number, ?DEFAULT_EVENT_NUMBER).
+
+%% @private
 schedule_event() ->
-    timer:send_after(?EVENT_INTERVAL, event).
+    timer:send_after(?DEFAULT_EVENT_INTERVAL, event).
 
 %% @private
 schedule_simulation_end() ->

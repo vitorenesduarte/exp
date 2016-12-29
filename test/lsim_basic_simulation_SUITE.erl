@@ -111,7 +111,7 @@ run(Evaluation, Overlay) ->
                        {overlay, Overlay},
                        {lsim_settings,
                         [{lsim_peer_service, PeerService},
-                         {lsim_simulation, basic},
+                         {lsim_simulation, DT},
                          {lsim_node_number, ?NODE_NUMBER}]},
                        {ldb_settings,
                         [{ldb_mode, Mode},
