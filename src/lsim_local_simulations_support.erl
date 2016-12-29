@@ -26,9 +26,8 @@
 -export([run/1]).
 
 run(Options) ->
-    Overlay = proplists:get_value(overlay, Options),
     {IToNode, Nodes} = start(Options),
-    construct_overlay(Overlay, IToNode),
+    construct_overlay(Options, IToNode),
     wait_for_completion(Nodes),
     stop(IToNode).
 
@@ -124,7 +123,15 @@ start(Options) ->
 %%          connected to the same node.
 %%          Otherwise use `lsim_overlay' to decide to which
 %%          nodes a node should connect.
-construct_overlay(Overlay, IToNode) ->
+construct_overlay(Options, IToNode) ->
+    Overlay = proplists:get_value(
+        lsim_overlay,
+        proplists:get_value(
+            lsim_settings,
+            Options
+        )
+    ),
+
     IToNodeSpec = lists:map(
         fun({I, Node}) ->
             Spec = rpc:call(Node, ldb_peer_service, myself, []),

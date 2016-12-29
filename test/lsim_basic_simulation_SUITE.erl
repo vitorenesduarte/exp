@@ -104,13 +104,11 @@ pure_op_based_partisan_test(_Config) ->
 run(Evaluation, Overlay) ->
     lists:foreach(
         fun(DT) ->
-            PeerService = get_peer_service(Overlay),
             {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
             Options = [{node_number, ?NODE_NUMBER},
-                       {overlay, Overlay},
                        {lsim_settings,
-                        [{lsim_peer_service, PeerService},
+                        [{lsim_overlay, Overlay},
                          {lsim_simulation, DT},
                          {lsim_node_number, ?NODE_NUMBER},
                          {lsim_node_event_number, 30}]},
@@ -121,14 +119,8 @@ run(Evaluation, Overlay) ->
 
             lsim_local_simulations_support:run(Options)
         end,
-        [gcounter, gset]
+        [gset]
     ).
-
-%% @private
-get_peer_service(hyparview) ->
-    partisan_hyparview_peer_service_manager;
-get_peer_service(_StaticOverlay) ->
-    lsim_static_peer_service.
 
 %% @private
 get_mode_and_join_decompositions(state_based) ->

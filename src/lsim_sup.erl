@@ -46,41 +46,47 @@ init([]) ->
 %% @private
 peer_service_specs() ->
     %% os env vars override possible application env vars
-    %% configure lsim peer service
-    PeerServiceDefault = lsim_config:get(lsim_peer_service, ?DEFAULT_PEER_SERVICE),
-    PeerService = list_to_atom(
-        os:getenv("PEER_SERVICE", atom_to_list(PeerServiceDefault))
+    %% configure lsim overlay
+    LSIMOverlayDefault = lsim_config:get(lsim_overlay, ?DEFAULT_OVERLAY),
+    LSIMOverlay = list_to_atom(
+        os:getenv("LSIM_OVERLAY", atom_to_list(LSIMOverlayDefault))
     ),
-    lsim_config:set(lsim_peer_service, PeerService),
+    lsim_config:set(lsim_overlay, LSIMOverlay),
 
     %% get ip and port
     {Ip, Port} = ip_and_port(),
 
-    Specs = case PeerService of
-        lsim_static_peer_service ->
+    case LSIMOverlay of
+        hyparview ->
+            PeerService = partisan_hyparview_peer_service_manager,
+
+            %% configure partisan manager, ip and port
+            partisan_config:set(partisan_peer_service_manager,
+                                PeerService),
+            partisan_config:set(peer_ip, Ip),
+            partisan_config:set(peer_port, Port),
+
+            %% specs
+            Specs = [{partisan_sup,
+                      {partisan_sup, start_link, []},
+                      permanent, infinity, supervisor, [partisan_sup]}],
+
+            {PeerService, Specs};
+
+				_ ->
+            PeerService = lsim_static_peer_service,
+
             %% configure lsim ip and port
             lsim_config:set(lsim_peer_ip, Ip),
             lsim_config:set(lsim_peer_port, Port),
 
             %% specs
-            [{lsim_static_peer_service,
-              {lsim_static_peer_service, start_link, []},
-              permanent, 5000, worker, [lsim_static_peer_service]}];
+            Specs = [{PeerService,
+                      {PeerService, start_link, []},
+                      permanent, 5000, worker, [PeerService]}],
 
-        partisan_hyparview_peer_service_manager ->
-            %% configure partisan manager, ip and port
-            partisan_config:set(partisan_peer_service_manager,
-                                partisan_hyparview_peer_service_manager),
-            partisan_config:set(peer_ip, Ip),
-            partisan_config:set(peer_port, Port),
-
-            %% specs
-            [{partisan_sup,
-              {partisan_sup, start_link, []},
-              permanent, infinity, supervisor, [partisan_sup]}]
-    end,
-
-    {PeerService, Specs}.
+            {PeerService, Specs}
+    end.
 
 %% @private
 ldb_specs(PeerService) ->

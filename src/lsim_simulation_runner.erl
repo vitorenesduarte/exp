@@ -39,6 +39,7 @@
                 event_fun :: function(),
                 total_events_fun :: function()}).
 
+-define(DEFAULT_EVENT_INTERVAL, 1000).
 -define(SIMULATION_END_INTERVAL, 10000).
 
 -spec start_link(function(), function(), function()) ->
