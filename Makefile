@@ -41,8 +41,8 @@ eunit:
 	${REBAR} as test eunit
 
 ct:
-	for SIM in 	gcounter gset; do
-		pkill -9 beam.smp; LSIM_SIMULATION=${SIM} ${REBAR} as test ct --readable=false
+	for SIM in 	gcounter gset; do \
+		pkill -9 beam.smp; LSIM_SIMULATION=$${SIM} ${REBAR} as test ct --readable=false; \
 	done
 
 cover:
