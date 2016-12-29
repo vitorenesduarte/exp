@@ -28,6 +28,7 @@
 -export([start_link/0,
          transmission/2,
          convergence/0,
+         log_id_and_file/0,
          stop/0]).
 
 %% gen_server callbacks
@@ -56,6 +57,10 @@ transmission(Type, Payload) ->
 convergence() ->
     gen_server:call(?MODULE, convergence, infinity).
 
+-spec log_id_and_file() -> {string(), string()}.
+log_id_and_file() ->
+    gen_server:call(?MODULE, log_id_and_file, infinity).
+
 -spec stop() -> ok.
 stop() ->
     gen_server:call(?MODULE, stop, infinity).
@@ -79,6 +84,10 @@ init([]) ->
 handle_call(convergence, _From, #state{filename=Filename}=State) ->
     record_convergence(Filename),
     {reply, ok, State};
+
+handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
+    Id = simulation_id(),
+    {reply, {Id, Filename}, State};
 
 handle_call(stop, _From, #state{tref=TRef}=State) ->
     {ok, cancel} = timer:cancel(TRef),

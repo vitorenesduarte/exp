@@ -73,7 +73,7 @@ peer_service_specs() ->
               {partisan_sup, start_link, []},
               permanent, infinity, supervisor, [partisan_sup]}];
 
-				_ ->
+        _ ->
             %% configure ldb peer service
             PeerService = lsim_static_peer_service,
             ldb_config:set(ldb_peer_service, PeerService),
