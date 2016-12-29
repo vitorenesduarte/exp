@@ -57,12 +57,13 @@ a static peer service will be used
   - erdos_renyi
   - hyparview
 - __LSIM_NODE_NUMBER__: Check __src/lsim_overlay.erl__ if using
-a static overlay, to see each number of nodes is supported.
+a static overlay, to see which number of nodes is supported for that
+overlay
 - __LSIM_SIMULATION__:
   - gcounter
   - gset
 - __LSIM_NODE_EVENT_NUMBER__: number of events to be performed in
-the simulation. The event interval is 1 second.
+the simulation. The event interval is 1 second
 - __LSIM_SIMULATION_TS__: Unique timestamp across all simulations
 
 
