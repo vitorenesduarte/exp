@@ -64,10 +64,10 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_static_test,
-     state_based_partisan_test,
-     delta_based_static_test,
-     delta_based_partisan_test,
+     %state_based_static_test,
+     %state_based_partisan_test,
+     %delta_based_static_test,
+     %delta_based_partisan_test,
      join_decompositions_static_test,
      join_decompositions_partisan_test%,
      %pure_op_based_static_test,
@@ -79,7 +79,6 @@ all() ->
 %% ===================================================================
 
 state_based_static_test(_Config) ->
-    ct:pal("CONFIG ~p", [_Config]),
     run(state_based, line).
 
 state_based_partisan_test(_Config) ->
@@ -134,4 +133,3 @@ get_mode_and_join_decompositions(pure_op_based) ->
 %% @private
 simulation() ->
     list_to_atom(os:getenv("LSIM_SIMULATION")).
-
