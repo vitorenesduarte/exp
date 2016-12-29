@@ -102,21 +102,26 @@ pure_op_based_partisan_test(_Config) ->
 
 %% @private
 run(Evaluation, Overlay) ->
-    PeerService = get_peer_service(Overlay),
-    {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
+    lists:foreach(
+        fun(DT) ->
+            PeerService = get_peer_service(Overlay),
+            {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
-    Options = [{node_number, ?NODE_NUMBER},
-               {overlay, Overlay},
-               {lsim_settings,
-                [{lsim_peer_service, PeerService},
-                 {lsim_simulation, basic},
-                 {lsim_node_number, ?NODE_NUMBER}]},
-               {ldb_settings,
-                 [{ldb_mode, Mode},
-                  {ldb_join_decompositions, JoinDecompositions},
-                  {ldb_extended_logging, true}]}],
+            Options = [{node_number, ?NODE_NUMBER},
+                       {overlay, Overlay},
+                       {lsim_settings,
+                        [{lsim_peer_service, PeerService},
+                         {lsim_simulation, basic},
+                         {lsim_node_number, ?NODE_NUMBER}]},
+                       {ldb_settings,
+                        [{ldb_mode, Mode},
+                         {ldb_join_decompositions, JoinDecompositions},
+                         {ldb_extended_logging, true}]}],
 
-    lsim_local_simulations_support:run(Options).
+            lsim_local_simulations_support:run(Options)
+        end,
+        [gcounter, gset]
+    ).
 
 %% @private
 get_peer_service(hyparview) ->

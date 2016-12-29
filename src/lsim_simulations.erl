@@ -22,6 +22,8 @@
 
 -include("lsim.hrl").
 
+-define(KEY, "events").
+
 %% lsim_simulations callbacks
 -export([get_specs/1]).
 
@@ -31,17 +33,31 @@ get_specs(Simulation) ->
     case Simulation of
         undefined ->
             [];
-        basic ->
+        gcounter ->
             StartFun = fun() ->
-                ldb:create("SET", gset)
+                ldb:create(?KEY, gcounter)
+            end,
+            EventFun = fun() ->
+                ldb:update(?KEY, increment)
+            end,
+            TotalEventsFun = fun() ->
+                {ok, Value} = ldb:query(?KEY),
+                Value
+            end,
+            create_spec(StartFun,
+                        EventFun,
+                        TotalEventsFun);
+        gset ->
+            StartFun = fun() ->
+                ldb:create(?KEY, gset)
             end,
             EventFun = fun(EventNumber) ->
                 Element = atom_to_list(node()) ++
                           integer_to_list(EventNumber),
-                ldb:update("SET", {add, Element})
+                ldb:update(?KEY, {add, Element})
             end,
             TotalEventsFun = fun() ->
-                {ok, Value} = ldb:query("SET"),
+                {ok, Value} = ldb:query(?KEY),
                 sets:size(Value)
             end,
             create_spec(StartFun,
