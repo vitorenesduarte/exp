@@ -122,6 +122,11 @@ sim_specs() ->
                        lsim_node_event_number,
                        30),
 
+    %% configure unique simulation timestamp
+    lsim_configure_int("LSIM_SIMULATION_TS",
+                       lsim_simulation_ts,
+                       0),
+
     %% specs
     lsim_simulations:get_specs(Simulation).
 
