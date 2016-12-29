@@ -32,8 +32,8 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    {PeerService, PeerServiceSpecs} = peer_service_specs(),
-    LDBSpecs = ldb_specs(PeerService),
+    PeerServiceSpecs = peer_service_specs(),
+    LDBSpecs = ldb_specs(),
     SimSpecs = sim_specs(),
     Children = PeerServiceSpecs ++
                LDBSpecs ++
@@ -44,21 +44,21 @@ init([]) ->
     {ok, {RestartStrategy, Children}}.
 
 %% @private
+%% os env vars override possible application env vars
 peer_service_specs() ->
-    %% os env vars override possible application env vars
     %% configure lsim overlay
-    LSIMOverlayDefault = lsim_config:get(lsim_overlay, ?DEFAULT_OVERLAY),
-    LSIMOverlay = list_to_atom(
-        os:getenv("LSIM_OVERLAY", atom_to_list(LSIMOverlayDefault))
-    ),
-    lsim_config:set(lsim_overlay, LSIMOverlay),
+    Overlay = lsim_configure_var("LSIM_OVERLAY",
+                                 lsim_overlay,
+                                 ?DEFAULT_OVERLAY),
 
     %% get ip and port
     {Ip, Port} = ip_and_port(),
 
-    case LSIMOverlay of
+    case Overlay of
         hyparview ->
+            %% configure ldb peer service
             PeerService = partisan_hyparview_peer_service_manager,
+            ldb_config:set(ldb_peer_service, PeerService),
 
             %% configure partisan manager, ip and port
             partisan_config:set(partisan_peer_service_manager,
@@ -67,46 +67,37 @@ peer_service_specs() ->
             partisan_config:set(peer_port, Port),
 
             %% specs
-            Specs = [{partisan_sup,
-                      {partisan_sup, start_link, []},
-                      permanent, infinity, supervisor, [partisan_sup]}],
-
-            {PeerService, Specs};
+            [{partisan_sup,
+              {partisan_sup, start_link, []},
+              permanent, infinity, supervisor, [partisan_sup]}];
 
 				_ ->
+            %% configure ldb peer service
             PeerService = lsim_static_peer_service,
+            ldb_config:set(ldb_peer_service, PeerService),
 
             %% configure lsim ip and port
             lsim_config:set(lsim_peer_ip, Ip),
             lsim_config:set(lsim_peer_port, Port),
 
             %% specs
-            Specs = [{PeerService,
-                      {PeerService, start_link, []},
-                      permanent, 5000, worker, [PeerService]}],
-
-            {PeerService, Specs}
+            [{PeerService,
+              {PeerService, start_link, []},
+              permanent, 5000, worker, [PeerService]}]
     end.
 
 %% @private
-ldb_specs(PeerService) ->
-    %% os env vars override possible application env vars
+%% os env vars override possible application env vars
+ldb_specs() ->
     %% configure ldb mode
-    LDBModeDefault = ldb_config:get(ldb_mode, ?DEFAULT_MODE),
-    LDBMode = list_to_atom(
-        os:getenv("LDB_MODE", atom_to_list(LDBModeDefault))
-    ),
-    ldb_config:set(ldb_mode, LDBMode),
+    ldb_configure_var("LDB_MODE",
+                      ldb_mode,
+                      ?DEFAULT_MODE),
 
     %% configure join decompositions
-    JDDefault = ldb_config:get(ldb_join_decompositions, false),
-    JD = list_to_atom(
-        os:getenv("LDB_JOIN_DECOMPOSITIONS", atom_to_list(JDDefault))
-    ),
-    ldb_config:set(ldb_join_decompositions, JD),
-
-    %% configure ldb peer service
-    ldb_config:set(ldb_peer_service, PeerService),
+    ldb_configure_var("LDB_JOIN_DECOMPOSITIONS",
+                      ldb_join_decompositions,
+                      false),
 
     %% specs
     [{ldb_sup,
@@ -114,14 +105,22 @@ ldb_specs(PeerService) ->
       permanent, infinity, supervisor, [ldb_sup]}].
 
 %% @private
+%% os env vars override possible application env vars
 sim_specs() ->
-    %% os env vars override possible application env vars
     %% configure lsim simulation
-    SimulationDefault = lsim_config:get(lsim_simulation, undefined),
-    Simulation = list_to_atom(
-        os:getenv("SIMULATION", atom_to_list(SimulationDefault))
-    ),
-    lsim_config:set(lsim_simulation, Simulation),
+    Simulation = lsim_configure_var("LSIM_SIMULATION",
+                                    lsim_simulation,
+                                    undefined),
+
+    %% configure node number
+    lsim_configure_int("LSIM_NODE_NUMBER",
+                       lsim_node_number,
+                       1),
+
+    %% configure node event number
+    lsim_configure_int("LSIM_NODE_EVENT_NUMBER",
+                       lsim_node_event_number,
+                       30),
 
     %% specs
     lsim_simulations:get_specs(Simulation).
@@ -149,3 +148,49 @@ random_port() ->
                      erlang:monotonic_time(),
                      erlang:unique_integer()),
     rand_compat:uniform(10000) + 3000.
+
+%% @private
+ldb_configure_var(Env, Var, Default) ->
+    configure_var(ldb, Env, Var, Default).
+
+%% @private
+lsim_configure_var(Env, Var, Default) ->
+    configure_var(lsim, Env, Var, Default).
+
+%% @private
+lsim_configure_int(Env, Var, Default) ->
+    configure_int(lsim, Env, Var, Default).
+
+%% @private
+configure_var(App, Env, Var, Default) ->
+    To = fun(V) -> atom_to_list(V) end,
+    From = fun(V) -> list_to_atom(V) end,
+    configure(App, Env, Var, Default, To, From).
+
+%% @private
+configure_int(App, Env, Var, Default) ->
+    To = fun(V) -> integer_to_list(V) end,
+    From = fun(V) -> list_to_integer(V) end,
+    configure(App, Env, Var, Default, To, From).
+
+%% @private
+configure(App, Env, Var, Default, To, From) ->
+    Current = case App of
+        ldb ->
+            ldb_config:get(Var, Default);
+        lsim ->
+            lsim_config:get(Var, Default)
+    end,
+
+    Val = From(
+        os:getenv(Env, To(Current))
+    ),
+
+    case App of
+        ldb ->
+            ldb_config:set(Var, Val);
+        lsim ->
+            lsim_config:set(Var, Val)
+    end,
+
+    Val.

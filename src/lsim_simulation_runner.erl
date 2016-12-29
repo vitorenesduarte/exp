@@ -93,12 +93,10 @@ handle_info(event, #state{event_count=Events0,
     {noreply, State#state{event_count=Events}};
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
-    NodeNumber = lsim_config:get(lsim_node_number),
     TotalEvents = TotalEventsFun(),
-
     ldb_log:info("Events observed ~p | Node ~p", [TotalEvents, node()]),
 
-    case TotalEvents == NodeNumber * node_event_number() of
+    case TotalEvents == node_event_number() * node_number() of
         true ->
             %% If everyone did all the events they should do
             ldb_log:info("All events have been observed"),
@@ -123,6 +121,10 @@ code_change(_OldVsn, State, _Extra) ->
 simulation_started() ->
     %% @todo Fix this for DCOS runs
     not lsim_config:get(dcos, false).
+
+%% @private
+node_number() ->
+    lsim_config:get(lsim_node_number).
 
 %% @private
 node_event_number() ->

@@ -67,9 +67,9 @@ all() ->
      delta_based_static_test,
      delta_based_partisan_test,
      join_decompositions_static_test,
-     join_decompositions_partisan_test,
-     pure_op_based_static_test,
-     pure_op_based_partisan_test
+     join_decompositions_partisan_test%,
+     %pure_op_based_static_test,
+     %pure_op_based_partisan_test
     ].
 
 %% ===================================================================
