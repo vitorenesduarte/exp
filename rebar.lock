@@ -16,7 +16,7 @@
   0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"9841428efcec87fb4aca2c6b9eb07b559ff55bc3"}},
+       {ref,"c2948fc06ffb5dd58589a0433442ce332c24ad89"}},
   0},
  {<<"mochiweb">>,
   {git,"https://github.com/mochi/mochiweb.git",
