@@ -47,9 +47,11 @@
 %% ===================================================================
 
 init_per_suite(Config) ->
+    ct:pal("Beginning simulation: ~p", [simulation()]),
     Config.
 
 end_per_suite(Config) ->
+    ct:pal("Ending simulation: ~p", [simulation()]),
     Config.
 
 init_per_testcase(Case, Config) ->
@@ -103,7 +105,7 @@ pure_op_based_partisan_test(_Config) ->
 
 %% @private
 run(Evaluation, Overlay) ->
-    Simulation = list_to_atom(os:getenv("LSIM_SIMULATION")),
+    Simulation = simulation(),
     {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
@@ -128,3 +130,8 @@ get_mode_and_join_decompositions(join_decompositions) ->
     {delta_based, true};
 get_mode_and_join_decompositions(pure_op_based) ->
     {pure_op_based, false}.
+
+%% @private
+simulation() ->
+    list_to_atom(os:getenv("LSIM_SIMULATION")).
+

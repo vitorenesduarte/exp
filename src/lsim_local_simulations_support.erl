@@ -37,7 +37,7 @@ start(Options) ->
     NodeNumber = proplists:get_value(node_number, Options),
 
     InitializerFun = fun(I, Acc) ->
-        ct:pal("Starting node: ~p", [I]),
+        %ct:pal("Starting node: ~p", [I]),
 
         %% Start node
         Config = [{monitor_master, true},
@@ -58,7 +58,7 @@ start(Options) ->
     Nodes = [Node || {_I, Node} <- IToNode],
 
     LoaderFun = fun(Node) ->
-        ct:pal("Loading lsim on node: ~p", [Node]),
+        %ct:pal("Loading lsim on node: ~p", [Node]),
 
         %% Load partisan
         ok = rpc:call(Node, application, load, [partisan]),
@@ -80,7 +80,7 @@ start(Options) ->
     lists:foreach(LoaderFun, Nodes),
 
     ConfigureFun = fun(Node) ->
-        ct:pal("Configuring node: ~p", [Node]),
+        %ct:pal("Configuring node: ~p", [Node]),
 
         %% Configure lsim
         LSimSettings0 = proplists:get_value(lsim_settings, Options),
@@ -145,8 +145,8 @@ construct_overlay(Options, IToNode) ->
 
     NodeNumber = orddict:size(IToNode),
 
-    ct:pal("Nodes ~n~p~n", [IToNode]),
-    ct:pal("Nodes Spec ~n~p~n", [IToNodeSpec]),
+    %ct:pal("Nodes ~n~p~n", [IToNode]),
+    %ct:pal("Nodes Spec ~n~p~n", [IToNodeSpec]),
 
     Graph = case Overlay of
         hyparview ->
@@ -160,13 +160,13 @@ construct_overlay(Options, IToNode) ->
     lists:foreach(
         fun({I, Peers}) ->
             Node = orddict:fetch(I, IToNode),
-            ct:pal("Node ~p~n~n", [Node]),
+            %ct:pal("Node ~p~n~n", [Node]),
 
             lists:foreach(
                 fun(Peer) ->
                     PeerSpec = orddict:fetch(Peer, IToNodeSpec),
 
-                    ct:pal("PeerSpec ~p~n~n", [PeerSpec]),
+                    %ct:pal("PeerSpec ~p~n~n", [PeerSpec]),
 
                     ok = rpc:call(Node,
                                   ldb_peer_service,
@@ -205,7 +205,7 @@ wait_for_completion(Nodes) ->
                 Nodes
             ),
 
-            ct:pal("~p of ~p with simulation as true", [Ended, NodeNumber]),
+            %ct:pal("~p of ~p with simulation as true", [Ended, NodeNumber]),
 
             Ended == NodeNumber
         end,
