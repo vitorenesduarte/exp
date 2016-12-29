@@ -16,7 +16,7 @@
   0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"c2948fc06ffb5dd58589a0433442ce332c24ad89"}},
+       {ref,"f4b544237159f445cc4cec9cef83f408fd5d16df"}},
   0},
  {<<"mochiweb">>,
   {git,"https://github.com/mochi/mochiweb.git",
@@ -52,5 +52,5 @@
   1},
  {<<"types">>,
   {git,"https://github.com/lasp-lang/types",
-       {ref,"6f5d08879b4489893f3928e809357d3661782e36"}},
+       {ref,"ccd8967b74314bc1ffb98a868b3a59aee678b821"}},
   1}].
