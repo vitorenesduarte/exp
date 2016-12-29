@@ -77,6 +77,7 @@ all() ->
 %% ===================================================================
 
 state_based_static_test(_Config) ->
+    ct:pal("CONFIG ~p", [_Config]),
     run(state_based, line).
 
 state_based_partisan_test(_Config) ->
@@ -102,25 +103,21 @@ pure_op_based_partisan_test(_Config) ->
 
 %% @private
 run(Evaluation, Overlay) ->
-    lists:foreach(
-        fun(DT) ->
-            {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
+    Simulation = list_to_atom(os:getenv("LSIM_SIMULATION")),
+    {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
-            Options = [{node_number, ?NODE_NUMBER},
-                       {lsim_settings,
-                        [{lsim_overlay, Overlay},
-                         {lsim_simulation, DT},
-                         {lsim_node_number, ?NODE_NUMBER},
-                         {lsim_node_event_number, 30}]},
-                       {ldb_settings,
-                        [{ldb_mode, Mode},
-                         {ldb_join_decompositions, JoinDecompositions},
-                         {ldb_extended_logging, true}]}],
+    Options = [{node_number, ?NODE_NUMBER},
+               {lsim_settings,
+                [{lsim_overlay, Overlay},
+                 {lsim_simulation, Simulation},
+                 {lsim_node_number, ?NODE_NUMBER},
+                 {lsim_node_event_number, 30}]},
+               {ldb_settings,
+                [{ldb_mode, Mode},
+                 {ldb_join_decompositions, JoinDecompositions},
+                 {ldb_extended_logging, true}]}],
 
-            lsim_local_simulations_support:run(Options)
-        end,
-        [gcounter, gset]
-    ).
+    lsim_local_simulations_support:run(Options).
 
 %% @private
 get_mode_and_join_decompositions(state_based) ->

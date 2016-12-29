@@ -41,7 +41,8 @@ eunit:
 	${REBAR} as test eunit
 
 ct:
-	pkill -9 beam.smp; ${REBAR} as test ct
+	pkill -9 beam.smp; LSIM_SIMULATION=gset ${REBAR} as test ct
+	pkill -9 beam.smp; LSIM_SIMULATION=gcounter ${REBAR} as test ct
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \

@@ -34,9 +34,11 @@ start_link() ->
 init([]) ->
     PeerServiceSpecs = peer_service_specs(),
     LDBSpecs = ldb_specs(),
+    LSimSpecs = lsim_specs(),
     SimSpecs = sim_specs(),
     Children = PeerServiceSpecs ++
                LDBSpecs ++
+               LSimSpecs ++
                SimSpecs,
 
     ldb_log:info("lsim_sup initialized!"),
@@ -103,6 +105,13 @@ ldb_specs() ->
     [{ldb_sup,
       {ldb_sup, start_link, []},
       permanent, infinity, supervisor, [ldb_sup]}].
+
+%% @private
+%% os env vars override possible application env vars
+lsim_specs() ->
+    [{lsim_intrumentation,
+      {lsim_instrumentation, start_link, []},
+      permanent, 5000, worker, [lsim_instrumentation]}].
 
 %% @private
 %% os env vars override possible application env vars

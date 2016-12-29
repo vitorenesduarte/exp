@@ -83,7 +83,10 @@ start(Options) ->
         ct:pal("Configuring node: ~p", [Node]),
 
         %% Configure lsim
-        LSimSettings = proplists:get_value(lsim_settings, Options),
+        LSimSettings0 = proplists:get_value(lsim_settings, Options),
+        LSimSettings1 = LSimSettings0
+                     ++ [{lsim_simulation_ts, timestamp()}],
+
         lists:foreach(
             fun({Property, Value}) ->
                 ok = rpc:call(Node,
@@ -91,7 +94,7 @@ start(Options) ->
                               set,
                               [Property, Value])
             end,
-            LSimSettings
+            LSimSettings1
         ),
 
         %% Configure ldb
@@ -245,7 +248,14 @@ start_erlang_distribution() ->
 codepath() ->
     lists:filter(fun filelib:is_dir/1, code:get_path()).
 
-
 %% @private
 get_node_name(I) ->
     list_to_atom("n" ++ integer_to_list(I)).
+
+%% @private
+timestamp() ->
+    {Mega, Sec, Micro} = erlang:timestamp(),
+    ME = 1000000000000000,
+    SE = 1000000000,
+    MiE = 1000,
+    Mega * ME + Sec * SE + Micro * MiE.

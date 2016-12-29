@@ -28,8 +28,7 @@
 -export([start_link/0,
          transmission/2,
          convergence/0,
-         stop/0,
-         log_id_and_file/0]).
+         stop/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -61,10 +60,6 @@ convergence() ->
 stop() ->
     gen_server:call(?MODULE, stop, infinity).
 
--spec log_id_and_file() -> {string(), string()}.
-log_id_and_file() ->
-    gen_server:call(?MODULE, log_id_and_file, infinity).
-
 %% gen_server callbacks
 init([]) ->
     LogDir = log_dir(),
@@ -89,10 +84,6 @@ handle_call(stop, _From, #state{tref=TRef}=State) ->
     {ok, cancel} = timer:cancel(TRef),
     lager:info("Instrumentation timer disabled!", extended),
     {reply, ok, State#state{tref=undefined}};
-
-handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
-    Id = simulation_id(),
-    {reply, {Id, Filename}, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
@@ -153,7 +144,9 @@ log_dir() ->
 
 %% @private
 simulation_id() ->
-    Simulation = lsim_config:get(lsim_simulation),
+    Simulation = atom_to_list(
+        lsim_config:get(lsim_simulation, undefined)
+    ),
     RunningOnDCOS = lsim_config:get(lsim_dcos_url, undefined) /= undefined,
     LocalOrDCOS = case RunningOnDCOS of
         true ->
@@ -161,13 +154,17 @@ simulation_id() ->
         false ->
             "local"
     end,
-    SimIdentifier = lsim_config:get(lsim_simulation_identifier),
-    SimTimestamp = lsim_config:get(lsim_simulation_timestamp),
+    SimIdentifier = atom_to_list(ldb_config:get(ldb_mode))
+                 ++ "_"
+                 ++ atom_to_list(lsim_config:get(lsim_overlay)),
+    SimTimestamp = integer_to_list(
+        lsim_config:get(lsim_simulation_ts)
+    ),
 
-    Id = atom_to_list(Simulation) ++ "/"
+    Id = Simulation ++ "/"
       ++ LocalOrDCOS ++ "/"
-      ++ atom_to_list(SimIdentifier) ++ "/"
-      ++ atom_to_list(SimTimestamp),
+      ++ SimIdentifier ++ "/"
+      ++ SimTimestamp,
     Id.
 
 %% @private
