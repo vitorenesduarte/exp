@@ -8,8 +8,21 @@
 -type node_spec() :: {ldb_node_id(), node_ip(), node_port()}.
 -type handler() :: term(). %% module
 -type message() :: term().
--define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
 %% defaults
 -define(DEFAULT_OVERLAY, hyparview).
 -define(DEFAULT_MODE, state_based).
+
+%% logging
+-define(LOGGING, list_to_atom("true")). %% dialyzer
+-define(LOG(S),
+        ?LOG(S, [])
+       ).
+-define(LOG(S, Args),
+        case ?LOGGING of
+            true ->
+                lager:info(S, Args);
+            false ->
+                ok
+        end
+       ).

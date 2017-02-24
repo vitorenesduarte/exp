@@ -41,7 +41,7 @@ init([]) ->
                LSimSpecs ++
                SimSpecs,
 
-    ldb_log:info("lsim_sup initialized!"),
+    ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, Children}}.
 
