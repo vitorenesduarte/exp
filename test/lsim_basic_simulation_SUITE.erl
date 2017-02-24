@@ -65,13 +65,13 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_static_test,
-     state_based_partisan_test,
+     state_based_hyparview_test,
      delta_based_static_test,
-     delta_based_partisan_test,
+     delta_based_hyparview_test,
      join_decompositions_static_test,
-     join_decompositions_partisan_test%,
+     join_decompositions_hyparview_test%,
      %pure_op_based_static_test,
-     %pure_op_based_partisan_test
+     %pure_op_based_hyparview_test
     ].
 
 %% ===================================================================
@@ -81,25 +81,25 @@ all() ->
 state_based_static_test(_Config) ->
     run(state_based, line).
 
-state_based_partisan_test(_Config) ->
+state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).
 
 delta_based_static_test(_Config) ->
     run(delta_based, line).
 
-delta_based_partisan_test(_Config) ->
+delta_based_hyparview_test(_Config) ->
     run(delta_based, hyparview).
 
 join_decompositions_static_test(_Config) ->
     run(join_decompositions, line).
 
-join_decompositions_partisan_test(_Config) ->
+join_decompositions_hyparview_test(_Config) ->
     run(join_decompositions, hyparview).
 
 pure_op_based_static_test(_Config) ->
     run(pure_op_based, line).
 
-pure_op_based_partisan_test(_Config) ->
+pure_op_based_hyparview_test(_Config) ->
     run(pure_op_based, hyparview).
 
 %% @private
@@ -112,7 +112,7 @@ run(Evaluation, Overlay) ->
                 [{lsim_overlay, Overlay},
                  {lsim_simulation, Simulation},
                  {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, 30}]},
+                 {lsim_node_event_number, 10}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_join_decompositions, JoinDecompositions},
