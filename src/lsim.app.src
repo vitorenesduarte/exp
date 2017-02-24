@@ -1,6 +1,6 @@
 {application, lsim,
  [
-  {description, "Running LDB on DCOS"},
+  {description, "Running LDB Experiments"},
   {vsn, "0.0.1"},
   {registered, []},
   {included_applications,[ldb]},
@@ -9,9 +9,9 @@
                   stdlib,
                   crypto,
                   bson,
-                  mongodb,
                   lager,
                   rand_compat,
+                  partisan,
                   types
                  ]},
   {mod, {lsim_app, []}},
