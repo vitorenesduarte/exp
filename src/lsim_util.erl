@@ -52,7 +52,7 @@ get_lines(FilePath, FileDescriptor) ->
         eof ->
             [];
         {error, Error} ->
-            ldb_log:warning("Error while reading line from file ~p. Error: ~p", [FilePath, Error]),
+            lager:warning("Error while reading line from file ~p. Error: ~p", [FilePath, Error]),
             [];
         Line ->
             [Line | get_lines(FilePath, FileDescriptor)]

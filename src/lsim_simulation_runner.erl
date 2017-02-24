@@ -61,11 +61,11 @@ init([StartFun, EventFun, TotalEventsFun]) ->
                 total_events_fun=TotalEventsFun}}.
 
 handle_call(Msg, _From, State) ->
-    ldb_log:warning("Unhandled call message: ~p", [Msg]),
+    lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast(Msg, State) ->
-    ldb_log:warning("Unhandled cast message: ~p", [Msg]),
+    lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
 handle_info(event, #state{event_count=Events0,
@@ -108,7 +108,7 @@ handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
     {noreply, State};
 
 handle_info(Msg, State) ->
-    ldb_log:warning("Unhandled info message: ~p", [Msg]),
+    lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->
