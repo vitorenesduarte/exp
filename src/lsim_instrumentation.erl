@@ -92,7 +92,7 @@ handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
 handle_call(stop, _From, #state{tref=TRef}=State) ->
     {ok, cancel} = timer:cancel(TRef),
     lager:info("Instrumentation timer disabled!", extended),
-    {reply, ok, State#state{tref=undefined}};
+    {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
