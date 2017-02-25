@@ -32,65 +32,44 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-    PeerServiceSpecs = peer_service_specs(),
-    LDBSpecs = ldb_specs(),
+    configure_peer_service(),
+    configure_ldb(),
+
     LSimSpecs = lsim_specs(),
     SimSpecs = sim_specs(),
-    Children = PeerServiceSpecs ++
-               LDBSpecs ++
-               LSimSpecs ++
+
+    Children = LSimSpecs ++
                SimSpecs,
 
-    ldb_log:info("lsim_sup initialized!"),
+    ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, Children}}.
 
 %% @private
-%% os env vars override possible application env vars
-peer_service_specs() ->
+configure_peer_service() ->
     %% configure lsim overlay
     Overlay = lsim_configure_var("LSIM_OVERLAY",
                                  lsim_overlay,
                                  ?DEFAULT_OVERLAY),
 
-    %% get ip and port
-    {Ip, Port} = ip_and_port(),
-
-    case Overlay of
+    PeerService = case Overlay of
         hyparview ->
-            %% configure ldb peer service
-            PeerService = partisan_hyparview_peer_service_manager,
-            ldb_config:set(ldb_peer_service, PeerService),
-
-            %% configure partisan manager, ip and port
-            partisan_config:set(partisan_peer_service_manager,
-                                PeerService),
-            partisan_config:set(peer_ip, Ip),
-            partisan_config:set(peer_port, Port),
-
-            %% specs
-            [{partisan_sup,
-              {partisan_sup, start_link, []},
-              permanent, infinity, supervisor, [partisan_sup]}];
-
+            partisan_hyparview_peer_service_manager;
         _ ->
-            %% configure ldb peer service
-            PeerService = lsim_static_peer_service,
-            ldb_config:set(ldb_peer_service, PeerService),
+            partisan_static_peer_service_manager
+    end,
 
-            %% configure lsim ip and port
-            lsim_config:set(lsim_peer_ip, Ip),
-            lsim_config:set(lsim_peer_port, Port),
 
-            %% specs
-            [{PeerService,
-              {PeerService, start_link, []},
-              permanent, 5000, worker, [PeerService]}]
-    end.
+    %% configure ldb peer service
+    ldb_config:set(ldb_peer_service, PeerService),
+
+    %% configure partisan manager
+    partisan_config:set(partisan_peer_service_manager,
+                        PeerService).
 
 %% @private
 %% os env vars override possible application env vars
-ldb_specs() ->
+configure_ldb() ->
     %% configure ldb mode
     ldb_configure_var("LDB_MODE",
                       ldb_mode,
@@ -99,12 +78,7 @@ ldb_specs() ->
     %% configure join decompositions
     ldb_configure_var("LDB_JOIN_DECOMPOSITIONS",
                       ldb_join_decompositions,
-                      false),
-
-    %% specs
-    [{ldb_sup,
-      {ldb_sup, start_link, []},
-      permanent, infinity, supervisor, [ldb_sup]}].
+                      false).
 
 %% @private
 %% os env vars override possible application env vars
@@ -138,30 +112,6 @@ sim_specs() ->
 
     %% specs
     lsim_simulations:get_specs(Simulation).
-
-%% @private
-ip_and_port() ->
-    Ip = case os:getenv("PEER_IP", "undefined") of
-        "undefined" ->
-            {127, 0, 0, 1};
-        PeerIp ->
-            {ok, IPAddress} = inet_parse:address(PeerIp),
-            IPAddress
-    end,
-    Port = case os:getenv("PEER_PORT", "undefined") of
-        "undefined" ->
-            random_port();
-        PeerPort ->
-            list_to_integer(PeerPort)
-    end,
-    {Ip, Port}.
-
-%% @private
-random_port() ->
-    rand_compat:seed(erlang:phash2([node()]),
-                     erlang:monotonic_time(),
-                     erlang:unique_integer()),
-    rand_compat:uniform(10000) + 3000.
 
 %% @private
 ldb_configure_var(Env, Var, Default) ->

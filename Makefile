@@ -40,10 +40,13 @@ eqc:
 eunit:
 	${REBAR} as test eunit
 
-ct:
-	for SIM in 	gcounter gset; do \
-		pkill -9 beam.smp; LSIM_SIMULATION=$${SIM} ${REBAR} as test ct --readable=false; \
-	done
+ct: modes simulations
+
+modes:
+	${REBAR} as test ct --suite=test/lsim_all_modes_SUITE
+
+simulations:
+	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \

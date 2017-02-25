@@ -55,17 +55,17 @@ init([StartFun, EventFun, TotalEventsFun]) ->
     StartFun(),
     schedule_event(),
 
-    ldb_log:info("lsim_simulation_runner initialized"),
+    ?LOG("lsim_simulation_runner initialized"),
     {ok, #state{event_count=0,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun}}.
 
 handle_call(Msg, _From, State) ->
-    ldb_log:warning("Unhandled call message: ~p", [Msg]),
+    lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast(Msg, State) ->
-    ldb_log:warning("Unhandled cast message: ~p", [Msg]),
+    lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
 handle_info(event, #state{event_count=Events0,
@@ -74,7 +74,7 @@ handle_info(event, #state{event_count=Events0,
         true ->
             Events1 = Events0 + 1,
             EventFun(Events1),
-            ldb_log:info("Event ~p | Node ~p", [Events1, node()]),
+            ?LOG("Event ~p | Node ~p", [Events1, node()]),
 
             case Events1 == node_event_number() of
                 true ->
@@ -94,12 +94,12 @@ handle_info(event, #state{event_count=Events0,
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
     TotalEvents = TotalEventsFun(),
-    ldb_log:info("Events observed ~p | Node ~p", [TotalEvents, node()]),
+    ?LOG("Events observed ~p | Node ~p", [TotalEvents, node()]),
 
     case TotalEvents == node_event_number() * node_number() of
         true ->
             %% If everyone did all the events they should do
-            ldb_log:info("All events have been observed"),
+            ?LOG("All events have been observed"),
             lsim_config:set(simulation_end, true);
         false ->
             schedule_simulation_end()
@@ -108,7 +108,7 @@ handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
     {noreply, State};
 
 handle_info(Msg, State) ->
-    ldb_log:warning("Unhandled info message: ~p", [Msg]),
+    lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->

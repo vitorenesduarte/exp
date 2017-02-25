@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_basic_simulation_SUITE).
+-module(lsim_all_modes_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -41,17 +41,20 @@
 -include_lib("kernel/include/inet.hrl").
 
 -define(NODE_NUMBER, 13).
+-define(EVENT_NUMBER, 10).
+-define(SIMULATION, gset).
 
 %% ===================================================================
 %% common_test callbacks
 %% ===================================================================
 
+suite() ->
+    [{timetrap, {hours, 1}}].
+
 init_per_suite(Config) ->
-    ct:pal("Beginning simulation: ~p", [simulation()]),
     Config.
 
 end_per_suite(Config) ->
-    ct:pal("Ending simulation: ~p", [simulation()]),
     Config.
 
 init_per_testcase(Case, Config) ->
@@ -65,13 +68,13 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_static_test,
-     state_based_partisan_test,
+     state_based_hyparview_test,
      delta_based_static_test,
-     delta_based_partisan_test,
+     delta_based_hyparview_test,
      join_decompositions_static_test,
-     join_decompositions_partisan_test%,
+     join_decompositions_hyparview_test%,
      %pure_op_based_static_test,
-     %pure_op_based_partisan_test
+     %pure_op_based_hyparview_test
     ].
 
 %% ===================================================================
@@ -81,38 +84,37 @@ all() ->
 state_based_static_test(_Config) ->
     run(state_based, line).
 
-state_based_partisan_test(_Config) ->
+state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).
 
 delta_based_static_test(_Config) ->
     run(delta_based, line).
 
-delta_based_partisan_test(_Config) ->
+delta_based_hyparview_test(_Config) ->
     run(delta_based, hyparview).
 
 join_decompositions_static_test(_Config) ->
     run(join_decompositions, line).
 
-join_decompositions_partisan_test(_Config) ->
+join_decompositions_hyparview_test(_Config) ->
     run(join_decompositions, hyparview).
 
 pure_op_based_static_test(_Config) ->
     run(pure_op_based, line).
 
-pure_op_based_partisan_test(_Config) ->
+pure_op_based_hyparview_test(_Config) ->
     run(pure_op_based, hyparview).
 
 %% @private
 run(Evaluation, Overlay) ->
-    Simulation = simulation(),
     {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
                 [{lsim_overlay, Overlay},
-                 {lsim_simulation, Simulation},
+                 {lsim_simulation, ?SIMULATION},
                  {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, 30}]},
+                 {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_join_decompositions, JoinDecompositions},
@@ -129,7 +131,3 @@ get_mode_and_join_decompositions(join_decompositions) ->
     {delta_based, true};
 get_mode_and_join_decompositions(pure_op_based) ->
     {pure_op_based, false}.
-
-%% @private
-simulation() ->
-    list_to_atom(os:getenv("LSIM_SIMULATION")).
