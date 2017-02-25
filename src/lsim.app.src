@@ -1,6 +1,6 @@
 {application, lsim,
  [
-  {description, "Running LDB Experiments"},
+  {description, "Running CRDT experiments"},
   {vsn, "0.0.1"},
   {registered, []},
   {included_applications,[]},

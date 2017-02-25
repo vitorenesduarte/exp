@@ -192,7 +192,7 @@ megasize(Size) ->
 
 %% @private
 record_transmission(Filename, Map) ->
-    Timestamp = ldb_util:timestamp(),
+    Timestamp = timestamp(),
     Lines = orddict:fold(
         fun(Type, Size, Acc) ->
             Acc ++ get_line(Type, Timestamp, Size)
@@ -234,3 +234,8 @@ get_transmission_type(delta_send) -> delta_send;
 get_transmission_type(delta_ack) -> delta_send;
 get_transmission_type(tcbcast) -> pure_send;
 get_transmission_type(tcbcast_ack) -> pure_send.
+
+%% @private
+timestamp() ->
+    {Mega, Sec, _Micro} = erlang:timestamp(),
+    Mega * 1000000 + Sec.

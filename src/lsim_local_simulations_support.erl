@@ -182,7 +182,7 @@ wait_for_completion(Nodes) ->
 
     NodeNumber = length(Nodes),
 
-    Result = lsim_util:wait_until(
+    Result = wait_until(
         fun() ->
             Ended = lists:foldl(
                 fun(Node, Acc) ->
@@ -256,3 +256,15 @@ timestamp() ->
     SE = 1000000000,
     MiE = 1000,
     Mega * ME + Sec * SE + Micro * MiE.
+
+%% @doc Wait until `Fun' returns true or `Retry' reaches 0.
+%%      The sleep time between retries is `Delay'.
+wait_until(_Fun, 0, _Delay) -> fail;
+wait_until(Fun, Retry, Delay) when Retry > 0 ->
+    case Fun() of
+        true ->
+            ok;
+        _ ->
+            timer:sleep(Delay),
+            wait_until(Fun, Retry - 1, Delay)
+    end.
