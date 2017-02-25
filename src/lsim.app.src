@@ -8,9 +8,7 @@
                   kernel,
                   stdlib,
                   crypto,
-                  bson,
                   lager,
-                  rand_compat,
                   ldb,
                   partisan
                  ]},
