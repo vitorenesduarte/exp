@@ -40,8 +40,13 @@ eqc:
 eunit:
 	${REBAR} as test eunit
 
-ct:
-	${REBAR} as test ct --readable=false
+ct: all-modes simulations
+
+all-modes:
+	${REBAR} as test ct --suite=lsim_all_modes_SUITE
+
+simulations:
+	${REBAR} as test ct --suite=lsim_simulations_SUITE
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
