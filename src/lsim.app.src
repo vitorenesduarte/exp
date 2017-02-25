@@ -3,7 +3,7 @@
   {description, "Running LDB Experiments"},
   {vsn, "0.0.1"},
   {registered, []},
-  {included_applications,[ldb]},
+  {included_applications,[]},
   {applications, [
                   kernel,
                   stdlib,
@@ -11,9 +11,8 @@
                   bson,
                   lager,
                   rand_compat,
-                  ishikawa,
-                  partisan,
-                  types
+                  ldb,
+                  partisan
                  ]},
   {mod, {lsim_app, []}},
   {modules, []}

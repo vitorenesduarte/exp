@@ -33,12 +33,12 @@ start_link() ->
 
 init([]) ->
     configure_peer_service(),
-    LDBSpecs = ldb_specs(),
+    configure_ldb(),
+
     LSimSpecs = lsim_specs(),
     SimSpecs = sim_specs(),
 
-    Children = LDBSpecs ++
-               LSimSpecs ++
+    Children = LSimSpecs ++
                SimSpecs,
 
     ?LOG("lsim_sup initialized!"),
@@ -69,7 +69,7 @@ configure_peer_service() ->
 
 %% @private
 %% os env vars override possible application env vars
-ldb_specs() ->
+configure_ldb() ->
     %% configure ldb mode
     ldb_configure_var("LDB_MODE",
                       ldb_mode,
@@ -78,12 +78,7 @@ ldb_specs() ->
     %% configure join decompositions
     ldb_configure_var("LDB_JOIN_DECOMPOSITIONS",
                       ldb_join_decompositions,
-                      false),
-
-    %% specs
-    [{ldb_sup,
-      {ldb_sup, start_link, []},
-      permanent, infinity, supervisor, [ldb_sup]}].
+                      false).
 
 %% @private
 %% os env vars override possible application env vars
