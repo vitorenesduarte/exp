@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_basic_simulation_SUITE).
+-module(lsim_all_modes_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -48,12 +48,13 @@
 %% common_test callbacks
 %% ===================================================================
 
+suite() ->
+    [{timetrap, {hours, 1}}].
+
 init_per_suite(Config) ->
-    ct:pal("Beginning simulation: ~p", [simulation()]),
     Config.
 
 end_per_suite(Config) ->
-    ct:pal("Ending simulation: ~p", [simulation()]),
     Config.
 
 init_per_testcase(Case, Config) ->
@@ -106,13 +107,12 @@ pure_op_based_hyparview_test(_Config) ->
 
 %% @private
 run(Evaluation, Overlay) ->
-    Simulation = simulation(),
     {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
                 [{lsim_overlay, Overlay},
-                 {lsim_simulation, Simulation},
+                 {lsim_simulation, ?SIMULATION},
                  {lsim_node_number, ?NODE_NUMBER},
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
