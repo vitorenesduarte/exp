@@ -40,7 +40,9 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(NODE_NUMBER, 3).
+-define(NODE_NUMBER, 13).
+-define(EVENT_NUMBER, 30).
+-define(SIMULATION, gset).
 
 %% ===================================================================
 %% common_test callbacks
@@ -112,7 +114,7 @@ run(Evaluation, Overlay) ->
                 [{lsim_overlay, Overlay},
                  {lsim_simulation, Simulation},
                  {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, 10}]},
+                 {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_join_decompositions, JoinDecompositions},
@@ -129,7 +131,3 @@ get_mode_and_join_decompositions(join_decompositions) ->
     {delta_based, true};
 get_mode_and_join_decompositions(pure_op_based) ->
     {pure_op_based, false}.
-
-%% @private
-simulation() ->
-    list_to_atom(os:getenv("LSIM_SIMULATION")).
