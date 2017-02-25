@@ -41,7 +41,7 @@
 -include_lib("kernel/include/inet.hrl").
 
 -define(NODE_NUMBER, 13).
--define(EVENT_NUMBER, 30).
+-define(EVENT_NUMBER, 10).
 -define(SIMULATION, gset).
 
 %% ===================================================================
@@ -69,10 +69,10 @@ all() ->
     [
      state_based_static_test,
      state_based_hyparview_test%,
-     %delta_based_static_test,
-     %delta_based_hyparview_test,
-     %join_decompositions_static_test,
-     %join_decompositions_hyparview_test%,
+     delta_based_static_test,
+     delta_based_hyparview_test,
+     join_decompositions_static_test,
+     join_decompositions_hyparview_test%,
      %pure_op_based_static_test,
      %pure_op_based_hyparview_test
     ].
