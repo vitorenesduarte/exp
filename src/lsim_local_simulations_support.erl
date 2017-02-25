@@ -59,8 +59,8 @@ start(Options) ->
 
     LoaderFun = fun(Node) ->
         %ct:pal("Loading lsim on node: ~p", [Node]),
-				
-				%% Load partisan
+
+        %% Load partisan
         ok = rpc:call(Node, application, load, [partisan]),
 
         %% Load ldb
