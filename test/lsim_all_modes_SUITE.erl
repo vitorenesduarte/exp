@@ -68,7 +68,7 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_static_test,
-     state_based_hyparview_test%,
+     state_based_hyparview_test,
      delta_based_static_test,
      delta_based_hyparview_test,
      join_decompositions_static_test,
