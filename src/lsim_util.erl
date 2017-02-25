@@ -23,10 +23,8 @@
 -include("lsim.hrl").
 
 %% lsim_util callbacks
--export([wait_until/3,
-         read_lines/1]).
+-export([wait_until/3]).
 
-%% @todo add spec
 %% @doc Wait until `Fun' returns true or `Retry' reaches 0.
 %%      The sleep time between retries is `Delay'.
 wait_until(_Fun, 0, _Delay) -> fail;
@@ -37,23 +35,4 @@ wait_until(Fun, Retry, Delay) when Retry > 0 ->
         _ ->
             timer:sleep(Delay),
             wait_until(Fun, Retry - 1, Delay)
-    end.
-
-%% @doc
--spec read_lines(string()) -> [string()].
-read_lines(FilePath) ->
-    {ok, FileDescriptor} = file:open(FilePath, [read]),
-    Lines = get_lines(FilePath, FileDescriptor),
-    Lines.
-
-%% @private
-get_lines(FilePath, FileDescriptor) ->
-    case io:get_line(FileDescriptor, '') of
-        eof ->
-            [];
-        {error, Error} ->
-            lager:warning("Error while reading line from file ~p. Error: ~p", [FilePath, Error]),
-            [];
-        Line ->
-            [Line | get_lines(FilePath, FileDescriptor)]
     end.
