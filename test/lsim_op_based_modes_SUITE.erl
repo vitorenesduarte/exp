@@ -67,7 +67,11 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      line_three_test,
-     hyparview_three_test
+     ring_three_test,
+     hyparview_three_test%,
+     %line_five_test,
+     %ring_five_test,
+     %hyparview_five_test
     ].
 
 %% ===================================================================
@@ -76,6 +80,9 @@ all() ->
 
 line_three_test(_Config) ->
     run(line, 3).
+
+ring_three_test(_Config) ->
+    run(ring, 3).
 
 hyparview_three_test(_Config) ->
     run(hyparview, 3).
