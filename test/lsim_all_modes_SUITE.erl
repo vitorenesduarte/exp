@@ -40,7 +40,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(NODE_NUMBER, 13).
+-define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 10).
 -define(SIMULATION, gset).
 
