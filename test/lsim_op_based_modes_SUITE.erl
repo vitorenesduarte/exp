@@ -68,10 +68,10 @@ all() ->
     [
      line_three_test,
      ring_three_test,
-     hyparview_three_test%,
-     %line_five_test,
-     %ring_five_test,
-     %hyparview_five_test
+     hyparview_three_test,
+     line_five_test,
+     ring_five_test,
+     hyparview_five_test
     ].
 
 %% ===================================================================
@@ -86,6 +86,15 @@ ring_three_test(_Config) ->
 
 hyparview_three_test(_Config) ->
     run(hyparview, 3).
+
+line_five_test(_Config) ->
+    run(line, 5).
+
+ring_five_test(_Config) ->
+    run(ring, 5).
+
+hyparview_five_test(_Config) ->
+    run(hyparview, 5).
 
 %% @private
 run(Overlay, NodeNumber) ->
