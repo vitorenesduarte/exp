@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_all_modes_SUITE).
+-module(lsim_state_based_modes_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -40,7 +40,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(NODE_NUMBER, 13).
+-define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 10).
 -define(SIMULATION, gset).
 
@@ -67,43 +67,35 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_static_test,
+     state_based_line_test,
      state_based_hyparview_test,
-     delta_based_static_test,
+     delta_based_line_test,
      delta_based_hyparview_test,
-     join_decompositions_static_test,
-     join_decompositions_hyparview_test%,
-     %pure_op_based_static_test,
-     %pure_op_based_hyparview_test
+     join_decompositions_line_test,
+     join_decompositions_hyparview_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_static_test(_Config) ->
+state_based_line_test(_Config) ->
     run(state_based, line).
 
 state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).
 
-delta_based_static_test(_Config) ->
+delta_based_line_test(_Config) ->
     run(delta_based, line).
 
 delta_based_hyparview_test(_Config) ->
     run(delta_based, hyparview).
 
-join_decompositions_static_test(_Config) ->
+join_decompositions_line_test(_Config) ->
     run(join_decompositions, line).
 
 join_decompositions_hyparview_test(_Config) ->
     run(join_decompositions, hyparview).
-
-pure_op_based_static_test(_Config) ->
-    run(pure_op_based, line).
-
-pure_op_based_hyparview_test(_Config) ->
-    run(pure_op_based, hyparview).
 
 %% @private
 run(Evaluation, Overlay) ->
@@ -117,8 +109,7 @@ run(Evaluation, Overlay) ->
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
-                 {ldb_join_decompositions, JoinDecompositions},
-                 {ldb_extended_logging, true}]}],
+                 {ldb_join_decompositions, JoinDecompositions}]}],
 
     lsim_local_simulations_support:run(Options).
 
@@ -128,6 +119,4 @@ get_mode_and_join_decompositions(state_based) ->
 get_mode_and_join_decompositions(delta_based) ->
     {delta_based, false};
 get_mode_and_join_decompositions(join_decompositions) ->
-    {delta_based, true};
-get_mode_and_join_decompositions(pure_op_based) ->
-    {pure_op_based, false}.
+    {delta_based, true}.

@@ -204,7 +204,7 @@ record_transmission(Filename, Map) ->
 
 %% @private
 record_convergence(Filename) ->
-    Timestamp = ldb_util:timestamp(),
+    Timestamp = timestamp(),
     Line = get_line(convergence, Timestamp, 0),
     append_to_file(Filename, Line).
 
