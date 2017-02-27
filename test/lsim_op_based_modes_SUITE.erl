@@ -69,9 +69,6 @@ all() ->
      line_three_test,
      ring_three_test,
      hyparview_three_test,
-     line_five_test,
-     ring_five_test,
-     hyparview_five_test,
      line_seven_test,
      ring_seven_test,
      hyparview_seven_test
@@ -89,15 +86,6 @@ ring_three_test(_Config) ->
 
 hyparview_three_test(_Config) ->
     run(hyparview, 3).
-
-line_five_test(_Config) ->
-    run(line, 5).
-
-ring_five_test(_Config) ->
-    run(ring, 5).
-
-hyparview_five_test(_Config) ->
-    run(hyparview, 5).
 
 line_seven_test(_Config) ->
     run(line, 7).
