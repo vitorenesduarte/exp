@@ -53,7 +53,8 @@ start_link(StartFun, EventFun, TotalEventsFun) ->
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun]) ->
     StartFun(),
-    schedule_event(),
+
+    schedule_first_event(),
 
     ?LOG("lsim_simulation_runner initialized"),
     {ok, #state{event_count=0,
@@ -129,6 +130,12 @@ node_number() ->
 %% @private
 node_event_number() ->
     lsim_config:get(lsim_node_event_number).
+
+%% @private
+schedule_first_event() ->
+    %% @todo hack
+    %% wait for connectedness
+    timer:send_after(?DEFAULT_EVENT_INTERVAL + 5000, event).
 
 %% @private
 schedule_event() ->

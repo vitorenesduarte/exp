@@ -46,7 +46,7 @@ state-based:
 	${REBAR} as test ct --suite=test/lsim_state_based_modes_SUITE
 
 op-based:
-	${REBAR} as test ct --suite=test/lsim_op_based_modes_SUITE
+	${REBAR} as test ct --readable=false --suite=test/lsim_op_based_modes_SUITE
 
 simulations:
 	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
