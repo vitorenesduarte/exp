@@ -1,70 +1,75 @@
-#!/bin/bash
-
-DCOS=$(dcos config show core.dcos_url)
-TOKEN=$(dcos config show core.dcos_acs_token)
+#!/usr/bin/env bash
 
 ENV_VARS=(
   BRANCH
-  LDB_MODE
-  LDB_JOIN_DECOMPOSITIONS
-  LSIM_OVERLAY
-  LSIM_SIMULATION
-  LSIM_NODE_NUMBER
-  LSIM_NODE_EVENT_NUMBER
-  LSIM_SIMULATION_TS
+  NODE_NUMBER
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
 do
   if [ -z "${!ENV_VAR}" ]; then
-    echo ">>> ${ENV_VAR} is not configured. Please export it."
+    echo ">>> ${ENV_VAR} is not configured; please export it."
     exit 1
   fi
 done
 
-echo ">>> Configuring lsims"
-cd /tmp
+# ENV SETUP:
+# Kubernetes server and auth token
+KUBEAPI=$(kubectl config view |
+            grep "server:" |
+            grep -Eo "https://[0-9\.:]+")
+KUBETOKEN=$(kubectl describe secret |
+            grep "token:" |
+            sed -E 's/token:\s+//')
 
-MEMORY=512.0
-CPU=0.5
+# Evaluation timestamp: unix timestamp + nanoseconds
+TIMESTAMP=$(date +%s)$(date +%N)
 
-cat <<EOF > lsims.json
-{
-  "acceptedResourceRoles": [
-    "slave_public"
-  ],
-  "id": "lsims",
-  "dependencies": [],
-  "cpus": $CPU,
-  "mem": $MEMORY,
-  "instances": $NODE_NUMBER,
-  "container": {
-    "type": "DOCKER",
-    "docker": {
-      "image": "vitorenesduarte/lsim",
-      "network": "HOST",
-      "forcePullImage": true,
-      "parameters" : [
-        { "key": "oom-kill-disable", "value": "true" }
-      ]
-    }
-  },
-  "ports": [0],
-  "env" : {
-    "DCOS": "$DCOS",
-    "TOKEN": "$TOKEN",
-  	"BRANCH": "$BRANCH",
-  	"LDB_MODE": "$LDB_MODE",
-  	"LDB_JOIN_DECOMPOSITIONS": "$LDB_JOIN_DECOMPOSITIONS",
-  	"LSIM_OVERLAY": "$LSIM_OVERLAY",
-  	"LSIM_SIMULATION": "$LSIM_SIMULATION",
-  	"LSIM_NODE_NUMBER": "$LSIM_NODE_NUMBER",
-  	"LSIM_NODE_EVENT_NUMBER": "$LSIM_NODE_EVENT_NUMBER",
-  	"LSIM_SIMULATION_TS": "$LSIM_SIMULATION_TS"
-  },
-  "healthChecks": []
-}
+# Port
+PEER_PORT=6866
+
+# DEPLOYMENT:
+# Deployment name
+NAME=lsim-${TIMESTAMP}
+
+# Docker image
+IMAGE=vitorenesduarte/lsim
+
+# YAML file
+FILE=/tmp/$NAME.yaml
+
+cat <<EOF > $FILE
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "${NAME}"
+spec:
+  replicas: ${NODE_NUMBER}
+  template:
+    metadata:
+      labels:
+        timestamp: "${TIMESTAMP}"
+    spec:
+      containers:
+      - name: "${NAME}"
+        image: "${IMAGE}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BRANCH
+          value: "${BRANCH}"
+        - name: IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP 
+        - name: PEER_PORT
+          value: "${PEER_PORT}"
+        - name: KUBEAPI
+          value: "${KUBEAPI}"
+        - name: KUBETOKEN
+          value: "${KUBETOKEN}"
+        - name: TIMESTAMP
+          value: "${TIMESTAMP}"
 EOF
 
-echo ">>> Adding lsims to Marathon"
-curl -s -H "Authorization: token=$TOKEN" -H 'Content-type: application/json' -X POST -d @lsims.json "$DCOS/service/marathon/v2/apps" > /dev/null
+echo "Creating deployment."
+kubectl create -f $FILE
