@@ -1,20 +1,16 @@
 #!/bin/bash
 
-# If we're running in Mesos...
-if [ ! -z "$MESOS_TASK_ID" ]; then
-  # Choose publicly routable IP.
-  if [ -z "$IP" ]; then
-    export IP=$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)
-  fi
-
-  # Peer port
-  export PEER_PORT=${PORT0}
-
-  # Set node name
-  if [ -z "$NODE_NAME" ]; then
-    export NODE_NAME=lsim-${PEER_PORT}@${IP}
-  fi
+# IP
+if [ -z "$IP" ]; then
+  export IP=127.0.0.1
 fi
+
+# Peer Port
+if [ -z "$PEER_PORT" ]; then
+  export PEER_PORT=6866
+fi
+
+export NODE_NAME=lsim-${PEER_PORT}@${IP}
 
 if [ -z "$COOKIE" ]; then
   export COOKIE=lsim
@@ -22,7 +18,6 @@ fi
 
 export RELX_REPLACE_OS_VARS=true
 
-echo "MESOS_TASK_ID: ${MESOS_TASK_ID}"
 echo "IP: ${IP}"
 echo "PEER_PORT: ${PEER_PORT}"
 echo "NODE_NAME: ${NODE_NAME}"
