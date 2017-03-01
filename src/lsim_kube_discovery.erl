@@ -30,6 +30,7 @@
 nodes() ->
     Headers = headers(),
     URL = url(),
+    lager:info("Headers ~p | URL ~p", [Headers, URL]),
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
@@ -41,6 +42,8 @@ nodes() ->
                        [Reason]),
             {error, invalid}
     end,
+
+    lager:info("Reply ~p", [Reply]),
 
     generate_nodes(Reply).
 
@@ -71,6 +74,7 @@ generate_nodes(Reply) ->
         _ ->
             []
     end,
+    lager:info("List ~p", [List]),
     generate_spec(List).
 
 %% @private
@@ -80,6 +84,9 @@ generate_spec(List) ->
             #{<<"spec">> := Spec} = E,
             IP = get_ip(Spec),
             Port = get_port(Spec),
+            lager:info("Spec ~p", [Spec]),
+            lager:info("IP ~p", [IP]),
+            lager:info("Port ~p", [Port]),
             lsim_util:generate_spec(IP, Port)
         end,
         List
