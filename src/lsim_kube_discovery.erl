@@ -30,7 +30,7 @@
 nodes() ->
     Headers = headers(),
     URL = url(),
-    lager:info("Headers ~p | URL ~p", [Headers, URL]),
+    lager:info("Headers ~p | URL ~p~n~n", [Headers, URL]),
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
@@ -43,7 +43,7 @@ nodes() ->
             {error, invalid}
     end,
 
-    lager:info("Reply ~p", [Reply]),
+    lager:info("Reply ~p~n~n", [Reply]),
 
     generate_nodes(Reply).
 
@@ -57,8 +57,8 @@ url() ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
 
-    lager:info("API Server ~p", [APIServer]),
-    lager:info("Timestamp ~p", [Timestamp]),
+    lager:info("API Server ~p~n~n", [APIServer]),
+    lager:info("Timestamp ~p~n~n", [Timestamp]),
 
     APIServer ++ "/api/v1/pods?labelSelector=timestamp%3D"
               ++ integer_to_list(Timestamp).
@@ -77,7 +77,7 @@ generate_nodes(Reply) ->
         _ ->
             []
     end,
-    lager:info("List ~p", [List]),
+    lager:info("List ~p~n~n", [List]),
     generate_spec(List).
 
 %% @private
@@ -85,11 +85,11 @@ generate_spec(List) ->
     lists:map(
         fun(E) ->
             #{<<"spec">> := Spec} = E,
+            lager:info("Spec ~p~n~n", [Spec]),
             IP = get_ip(Spec),
+            lager:info("IP ~p~n~n", [IP]),
             Port = get_port(Spec),
-            lager:info("Spec ~p", [Spec]),
-            lager:info("IP ~p", [IP]),
-            lager:info("Port ~p", [Port]),
+            lager:info("Port ~p~n~n", [Port]),
             lsim_util:generate_spec(IP, Port)
         end,
         List
