@@ -45,9 +45,10 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
-    Overlay = lsim_configure_var("OVERLAY",
-                                 lsim_overlay,
-                                 ?DEFAULT_OVERLAY),
+    Overlay = configure_var(lsim,
+                            "OVERLAY",
+                            lsim_overlay,
+                            ?DEFAULT_OVERLAY),
 
     PeerService = case Overlay of
         hyparview ->
@@ -67,51 +68,60 @@ configure_peer_service() ->
 %% @private
 configure_ldb() ->
     %% configure ldb mode
-    ldb_configure_var("LDB_MODE",
-                      ldb_mode,
-                      ?DEFAULT_MODE),
+    configure_var(ldb,
+                  "LDB_MODE",
+                  ldb_mode,
+                  ?DEFAULT_MODE),
 
     %% configure join decompositions
-    ldb_configure_var("LDB_JOIN_DECOMPOSITIONS",
-                      ldb_join_decompositions,
-                      false).
+    configure_var(ldb,
+                  "LDB_JOIN_DECOMPOSITIONS",
+                  ldb_join_decompositions,
+                  false).
 
 %% @private
 configure_lsim() ->
     %% configure lsim simulation
-    Simulation = lsim_configure_var("SIMULATION",
-                                    lsim_simulation,
-                                    undefined),
+    Simulation = configure_var(lsim,
+                               "SIMULATION",
+                               lsim_simulation,
+                               undefined),
 
     %% configure node number
-    lsim_configure_int("NODE_NUMBER",
-                       lsim_node_number,
-                       1),
+    configure_int(lsim,
+                  "NODE_NUMBER",
+                  lsim_node_number,
+                  1),
 
     %% configure node event number
-    lsim_configure_int("NODE_EVENT_NUMBER",
-                       lsim_node_event_number,
-                       30),
+    configure_int(lsim,
+                  "NODE_EVENT_NUMBER",
+                  lsim_node_event_number,
+                  30),
 
     %% configure unique simulation timestamp
-    lsim_configure_int("TIMESTAMP",
-                       lsim_timestamp,
-                       0),
+    configure_int(lsim,
+                  "TIMESTAMP",
+                  lsim_timestamp,
+                  0),
 
     %% configure api server
-    lsim_configure_var("APISERVER",
-                       lsim_api_server,
-                       undefined),
+    configure_str(lsim,
+                  "APISERVER",
+                  lsim_api_server,
+                  undefined),
 
     %% configure auth token
-    lsim_configure_var("TOKEN",
-                       lsim_token,
-                       undefined),
+    configure_str(lsim,
+                  "TOKEN",
+                  lsim_token,
+                  undefined),
 
     %% configure orchestration
-    lsim_configure_var("ORCHESTRATION",
-                       lsim_orchestration,
-                       undefined),
+    configure_var(lsim,
+                  "ORCHESTRATION",
+                  lsim_orchestration,
+                  undefined),
 
     Simulation.
 
@@ -126,22 +136,15 @@ lsim_specs(Simulation) ->
     InstrumentationSpecs ++ SimulationSpecs.
 
 %% @private
-ldb_configure_var(Env, Var, Default) ->
-    configure_var(ldb, Env, Var, Default).
-
-%% @private
-lsim_configure_var(Env, Var, Default) ->
-    configure_var(lsim, Env, Var, Default).
-
-%% @private
-lsim_configure_int(Env, Var, Default) ->
-    configure_int(lsim, Env, Var, Default).
-
-%% @private
 configure_var(App, Env, Var, Default) ->
     To = fun(V) -> atom_to_list(V) end,
     From = fun(V) -> list_to_atom(V) end,
     configure(App, Env, Var, Default, To, From).
+
+%% @private
+configure_str(App, Env, Var, Default) ->
+    F = fun(V) -> V end,
+    configure(App, Env, Var, Default, F, F).
 
 %% @private
 configure_int(App, Env, Var, Default) ->
