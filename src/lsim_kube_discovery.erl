@@ -84,11 +84,9 @@ generate_nodes(Reply) ->
 generate_spec(List) ->
     lists:map(
         fun(E) ->
-            #{<<"spec">> := Spec} = E,
-            lager:info("Spec ~p~n~n", [Spec]),
-            IP = get_ip(Spec),
+            IP = get_ip(E),
             lager:info("IP ~p~n~n", [IP]),
-            Port = get_port(Spec),
+            Port = get_port(E),
             lager:info("Port ~p~n~n", [Port]),
             lsim_util:generate_spec(IP, Port)
         end,
@@ -96,15 +94,20 @@ generate_spec(List) ->
     ).
 
 %% @private
-get_ip(Spec) ->
-    #{<<"status">> := Status} = Spec,
+get_ip(E) ->
+    #{<<"status">> := Status} = E,
+    lager:info("Status ~p~n~n", [Status]),
     #{<<"podIP">> := IP} = Status,
     decode(IP).
 
 %% @private
-get_port(Spec) ->
+get_port(E) ->
+    #{<<"spec">> := Spec} = E,
+    lager:info("Spec ~p~n~n", [Spec]),
     #{<<"containers">> := [Container|_]} = Spec,
+    lager:info("Container ~p~n~n", [Container]),
     #{<<"env">> := Envs} = Container,
+    lager:info("Envs ~p~n~n", [Envs]),
     PortBinary = lists:foldl(
         fun(Env, Acc) ->
             #{<<"name">> := Name} = Env,
