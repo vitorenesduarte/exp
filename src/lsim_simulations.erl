@@ -71,7 +71,7 @@ get_specs(Simulation) ->
             EventFun = fun(_EventNumber) ->
                 ldb:update(?KEY, increment),
                 Nodes = lsim_discovery:nodes(),
-                lager:info("NODES ~p", Nodes)
+                lager:info("NODES ~p", [Nodes])
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),

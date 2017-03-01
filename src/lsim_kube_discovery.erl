@@ -30,7 +30,6 @@
 nodes() ->
     Headers = headers(),
     URL = url(),
-    lager:info("Headers ~p | URL ~p~n~n", [Headers, URL]),
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
@@ -43,8 +42,6 @@ nodes() ->
             {error, invalid}
     end,
 
-    lager:info("Reply ~p~n~n", [Reply]),
-
     generate_nodes(Reply).
 
 %% @private
@@ -56,9 +53,6 @@ headers() ->
 url() ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
-
-    lager:info("API Server ~p~n~n", [APIServer]),
-    lager:info("Timestamp ~p~n~n", [Timestamp]),
 
     APIServer ++ "/api/v1/pods?labelSelector=timestamp%3D"
               ++ integer_to_list(Timestamp).
@@ -77,7 +71,7 @@ generate_nodes(Reply) ->
         _ ->
             []
     end,
-    lager:info("List ~p~n~n", [List]),
+
     generate_spec(List).
 
 %% @private
@@ -85,9 +79,7 @@ generate_spec(List) ->
     lists:map(
         fun(E) ->
             IP = get_ip(E),
-            lager:info("IP ~p~n~n", [IP]),
             Port = get_port(E),
-            lager:info("Port ~p~n~n", [Port]),
             lsim_util:generate_spec(IP, Port)
         end,
         List
@@ -96,18 +88,15 @@ generate_spec(List) ->
 %% @private
 get_ip(E) ->
     #{<<"status">> := Status} = E,
-    lager:info("Status ~p~n~n", [Status]),
     #{<<"podIP">> := IP} = Status,
     decode(IP).
 
 %% @private
 get_port(E) ->
     #{<<"spec">> := Spec} = E,
-    lager:info("Spec ~p~n~n", [Spec]),
     #{<<"containers">> := [Container|_]} = Spec,
-    lager:info("Container ~p~n~n", [Container]),
     #{<<"env">> := Envs} = Container,
-    lager:info("Envs ~p~n~n", [Envs]),
+
     PortBinary = lists:foldl(
         fun(Env, Acc) ->
             #{<<"name">> := Name} = Env,
