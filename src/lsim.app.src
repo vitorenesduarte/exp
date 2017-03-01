@@ -9,8 +9,6 @@
                   stdlib,
                   crypto,
                   lager,
-                  inets,
-                  sasl,
                   ssl,
                   ldb,
                   jsx,
