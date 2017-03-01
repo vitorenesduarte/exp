@@ -62,6 +62,37 @@ get_specs(Simulation) ->
             end,
             create_spec(StartFun,
                         EventFun,
+                        TotalEventsFun);
+        group ->
+            StartFun = fun() ->
+                Groups = lsim_config:get(groups),
+
+                lists:foreach(
+                    fun(Group) ->
+                        ldb:create(Group, gcounter)
+                    end,
+                    Groups
+                )
+            end,
+
+            EventFun = fun(_EventNumber) ->
+                [Group | _] = lsim_config:get(groups),
+                ldb:update(Group, increment)
+            end,
+
+            TotalEventsFun = fun() ->
+                lists:foldl(
+                    fun(Counter, Acc) ->
+                        {ok, Value} = ldb:query(Counter),
+                        Acc + Value
+                    end,
+                    0,
+                    [g1, g2]
+                )
+            end,
+
+            create_spec(StartFun,
+                        EventFun,
                         TotalEventsFun)
     end.
 

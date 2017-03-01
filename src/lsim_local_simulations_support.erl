@@ -108,6 +108,30 @@ start(Options) ->
     end,
     lists:foreach(ConfigureFun, Nodes),
 
+    GroupConfigFun = fun({I, Node}) ->
+        case I of
+            0 ->
+                ok = rpc:call(Node,
+                              lsim_config,
+                              set,
+                              [groups, [g1, g2]]);
+            _ ->
+                case I rem 2 of
+                    0 ->
+                        ok = rpc:call(Node,
+                                      lsim_config,
+                                      set,
+                                      [groups, [g1]]);
+                    1 ->
+                        ok = rpc:call(Node,
+                                      lsim_config,
+                                      set,
+                                      [groups, [g2]])
+                end
+        end
+    end,
+    lists:foreach(GroupConfigFun, IToNode),
+
     StartFun = fun(Node) ->
         {ok, _} = rpc:call(Node,
                            application,

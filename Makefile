@@ -40,7 +40,7 @@ eqc:
 eunit:
 	${REBAR} as test eunit
 
-ct: state-based op-based simulations
+ct: state-based op-based simulations scale
 
 state-based:
 	${REBAR} as test ct --suite=test/lsim_state_based_modes_SUITE
@@ -50,6 +50,9 @@ op-based:
 
 simulations:
 	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
+
+scale:
+	${REBAR} as test ct --suite=test/lsim_scale_SUITE
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
