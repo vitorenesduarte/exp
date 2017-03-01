@@ -62,6 +62,23 @@ get_specs(Simulation) ->
             end,
             create_spec(StartFun,
                         EventFun,
+                        TotalEventsFun);
+
+        discovery ->
+            StartFun = fun() ->
+                ldb:create(?KEY, gcounter)
+            end,
+            EventFun = fun(_EventNumber) ->
+                ldb:update(?KEY, increment),
+                Nodes = lsim_discovery:nodes(),
+                lager:info("NODES ~p", Nodes)
+            end,
+            TotalEventsFun = fun() ->
+                {ok, Value} = ldb:query(?KEY),
+                Value
+            end,
+            create_spec(StartFun,
+                        EventFun,
                         TotalEventsFun)
     end.
 
