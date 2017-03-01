@@ -21,6 +21,8 @@ $ docker push vitorenesduarte/lsim
 #### Experiments
 
 - __BRANCH__: which lsim branch should instances run
+- __ORCHESTRATION__:
+  - kubernetes
 - __LDB_MODE__:
   - state_based
   - delta_based

@@ -27,6 +27,8 @@ TOKEN=$(kubectl describe secret |
         grep "token:" |
         sed -E 's/token:\s+//')
 
+ORCHESTRATION=kubernetes
+
 # Evaluation timestamp: unix timestamp + nanoseconds
 TIMESTAMP=$(date +%s)$(date +%N)
 
@@ -62,6 +64,8 @@ spec:
         env:
         - name: BRANCH
           value: "${BRANCH}"
+        - name: ORCHESTRATION
+          value: "${ORCHESTRATION}"
         - name: IP
           valueFrom:
             fieldRef:

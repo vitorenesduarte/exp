@@ -108,6 +108,11 @@ configure_lsim() ->
                        lsim_token,
                        undefined),
 
+    %% configure orchestration
+    lsim_configure_var("ORCHESTRATION",
+                       lsim_orchestration,
+                       undefined),
+
     Simulation.
 
 %% @private

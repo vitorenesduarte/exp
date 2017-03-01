@@ -17,16 +17,31 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_peer_discovery).
+-module(lsim_kube_discovery).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
+
+-behaviour(lsim_discovery).
 
 -export([nodes/0]).
 
 -spec nodes() -> [node_spec()].
 nodes() ->
-    Reply = get_nodes(),
+    Headers = headers(),
+    URL = url(),
+    Options = [{body_format, binary}],
+    DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
+
+    Reply = case httpc:request(get, {URL, Headers}, [], Options) of
+        {ok, {{_, 200, _}, _, Body}} ->
+            {ok, DecodeFun(Body)};
+        {error, Reason} ->
+            lager:info("Couldn't get list of nodes. Reason ~p",
+                       [Reason]),
+            {error, invalid}
+    end,
+    
     generate_nodes(Reply).
 
 %% @private
@@ -38,26 +53,9 @@ headers() ->
 url() ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
-    
+
     APIServer ++ "/api/v1/pods?labelSelector=timestamp%3D"
               ++ Timestamp.
-
-%% @private
-get_nodes() ->
-    Headers = headers(),
-    URL = url(),
-    HTTPOptions = [],
-    Options = [{body_format, binary}],
-    DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
-
-    case httpc:request(get, {URL, Headers}, HTTPOptions, Options) of
-        {ok, {{_, 200, _}, _, Body}} ->
-            {ok, DecodeFun(Body)};
-        {error, Reason} ->
-            lager:info("Couldn't get list of nodes. Reason ~p",
-                       [Reason]),
-            {error, invalid}
-    end.
 
 %% @private
 generate_nodes(Reply) ->
