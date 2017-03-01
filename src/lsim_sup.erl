@@ -98,6 +98,16 @@ configure_lsim() ->
                        lsim_timestamp,
                        0),
 
+    %% configure api server
+    lsim_configure_var("APISERVER",
+                       lsim_api_server,
+                       undefined),
+
+    %% configure auth token
+    lsim_configure_var("TOKEN",
+                       lsim_token,
+                       undefined),
+
     Simulation.
 
 %% @private
