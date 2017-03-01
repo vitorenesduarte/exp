@@ -12,6 +12,7 @@
 %% defaults
 -define(DEFAULT_OVERLAY, hyparview).
 -define(DEFAULT_MODE, state_based).
+-define(DEFAULT_ORCHESTRATION, kubernetes).
 
 %% logging
 -define(LOGGING, list_to_atom("true")). %% dialyzer
