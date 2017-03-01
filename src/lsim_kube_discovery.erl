@@ -111,9 +111,9 @@ get_port(E) ->
     PortBinary = lists:foldl(
         fun(Env, Acc) ->
             #{<<"name">> := Name} = Env,
-            #{<<"value">> := Value} = Env,
             case Name of
                 "PEER_PORT" ->
+                    #{<<"value">> := Value} = Env,
                     Value;
                 _ ->
                     Acc
