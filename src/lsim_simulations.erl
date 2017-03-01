@@ -81,14 +81,9 @@ get_specs(Simulation) ->
             end,
 
             TotalEventsFun = fun() ->
-                lists:foldl(
-                    fun(Counter, Acc) ->
-                        {ok, Value} = ldb:query(Counter),
-                        Acc + Value
-                    end,
-                    0,
-                    [g1, g2]
-                )
+                {ok, V1} = ldb:query("g1"),
+                {ok, V2} = ldb:query("g2"),
+                V1 + V2
             end,
 
             create_spec(StartFun,

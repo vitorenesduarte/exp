@@ -114,19 +114,19 @@ start(Options) ->
                 ok = rpc:call(Node,
                               lsim_config,
                               set,
-                              [groups, [g1, g2]]);
+                              [groups, ["g1", "g2"]]);
             _ ->
                 case I rem 2 of
                     0 ->
                         ok = rpc:call(Node,
                                       lsim_config,
                                       set,
-                                      [groups, [g1]]);
+                                      [groups, ["g1"]]);
                     1 ->
                         ok = rpc:call(Node,
                                       lsim_config,
                                       set,
-                                      [groups, [g2]])
+                                      [groups, ["g2"]])
                 end
         end
     end,
