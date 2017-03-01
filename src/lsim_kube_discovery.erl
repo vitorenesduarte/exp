@@ -41,7 +41,7 @@ nodes() ->
                        [Reason]),
             {error, invalid}
     end,
-    
+
     generate_nodes(Reply).
 
 %% @private
@@ -109,7 +109,7 @@ get_port(Spec) ->
         undefined,
         Envs
     ),
-    
+
     decode(PortBinary).
 
 %% @private
