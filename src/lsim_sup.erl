@@ -34,12 +34,9 @@ start_link() ->
 init([]) ->
     configure_peer_service(),
     configure_ldb(),
+    Simulation = configure_lsim(),
 
-    LSimSpecs = lsim_specs(),
-    SimSpecs = sim_specs(),
-
-    Children = LSimSpecs ++
-               SimSpecs,
+    Children = lsim_specs(Simulation),
 
     ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
@@ -48,7 +45,7 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
-    Overlay = lsim_configure_var("LSIM_OVERLAY",
+    Overlay = lsim_configure_var("OVERLAY",
                                  lsim_overlay,
                                  ?DEFAULT_OVERLAY),
 
@@ -68,7 +65,6 @@ configure_peer_service() ->
                         PeerService).
 
 %% @private
-%% os env vars override possible application env vars
 configure_ldb() ->
     %% configure ldb mode
     ldb_configure_var("LDB_MODE",
@@ -81,37 +77,38 @@ configure_ldb() ->
                       false).
 
 %% @private
-%% os env vars override possible application env vars
-lsim_specs() ->
-    [{lsim_intrumentation,
-      {lsim_instrumentation, start_link, []},
-      permanent, 5000, worker, [lsim_instrumentation]}].
-
-%% @private
-%% os env vars override possible application env vars
-sim_specs() ->
+configure_lsim() ->
     %% configure lsim simulation
-    Simulation = lsim_configure_var("LSIM_SIMULATION",
+    Simulation = lsim_configure_var("SIMULATION",
                                     lsim_simulation,
                                     undefined),
 
     %% configure node number
-    lsim_configure_int("LSIM_NODE_NUMBER",
+    lsim_configure_int("NODE_NUMBER",
                        lsim_node_number,
                        1),
 
     %% configure node event number
-    lsim_configure_int("LSIM_NODE_EVENT_NUMBER",
+    lsim_configure_int("NODE_EVENT_NUMBER",
                        lsim_node_event_number,
                        30),
 
     %% configure unique simulation timestamp
-    lsim_configure_int("LSIM_SIMULATION_TS",
-                       lsim_simulation_ts,
+    lsim_configure_int("TIMESTAMP",
+                       lsim_timestamp,
                        0),
 
-    %% specs
-    lsim_simulations:get_specs(Simulation).
+    Simulation.
+
+%% @private
+lsim_specs(Simulation) ->
+    InstrumentationSpecs = [{lsim_intrumentation,
+                             {lsim_instrumentation, start_link, []},
+                             permanent, 5000, worker,
+                             [lsim_instrumentation]}],
+    SimulationSpecs = lsim_simulations:get_specs(Simulation),
+
+    InstrumentationSpecs ++ SimulationSpecs.
 
 %% @private
 ldb_configure_var(Env, Var, Default) ->

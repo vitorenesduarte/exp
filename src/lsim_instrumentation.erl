@@ -167,7 +167,7 @@ simulation_id() ->
                  ++ "_"
                  ++ atom_to_list(lsim_config:get(lsim_overlay)),
     SimTimestamp = integer_to_list(
-        lsim_config:get(lsim_simulation_ts)
+        lsim_config:get(lsim_timestamp)
     ),
 
     Id = Simulation ++ "/"

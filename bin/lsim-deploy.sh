@@ -15,12 +15,12 @@ done
 
 # ENV SETUP:
 # Kubernetes server and auth token
-KUBEAPI=$(kubectl config view |
+SERVERAPI=$(kubectl config view |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
-KUBETOKEN=$(kubectl describe secret |
-            grep "token:" |
-            sed -E 's/token:\s+//')
+TOKEN=$(kubectl describe secret |
+        grep "token:" |
+        sed -E 's/token:\s+//')
 
 # Evaluation timestamp: unix timestamp + nanoseconds
 TIMESTAMP=$(date +%s)$(date +%N)
@@ -63,10 +63,10 @@ spec:
               fieldPath: status.podIP 
         - name: PEER_PORT
           value: "${PEER_PORT}"
-        - name: KUBEAPI
-          value: "${KUBEAPI}"
-        - name: KUBETOKEN
-          value: "${KUBETOKEN}"
+        - name: SERVERAPI
+          value: "${SERVERAPI}"
+        - name: TOKEN
+          value: "${TOKEN}"
         - name: TIMESTAMP
           value: "${TIMESTAMP}"
 EOF

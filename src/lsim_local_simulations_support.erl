@@ -82,7 +82,7 @@ start(Options) ->
         %% Configure lsim
         LSimSettings0 = proplists:get_value(lsim_settings, Options),
         LSimSettings1 = LSimSettings0
-                     ++ [{lsim_simulation_ts, timestamp()}],
+                     ++ [{lsim_timestamp, timestamp()}],
 
         lists:foreach(
             fun({Property, Value}) ->
