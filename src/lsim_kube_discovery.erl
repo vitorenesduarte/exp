@@ -112,7 +112,7 @@ get_port(E) ->
         fun(Env, Acc) ->
             #{<<"name">> := Name} = Env,
             case Name of
-                "PEER_PORT" ->
+                <<"PEER_PORT">> ->
                     #{<<"value">> := Value} = Env,
                     Value;
                 _ ->
