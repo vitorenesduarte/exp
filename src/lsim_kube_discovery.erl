@@ -106,11 +106,10 @@ get_port(Spec) ->
                     Acc
             end
         end,
-        Envs,
-        undefined
+        undefined,
+        Envs
     ),
-
-    %% Assuming it's always defined.
+    
     decode(PortBinary).
 
 %% @private
