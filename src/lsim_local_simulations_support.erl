@@ -28,8 +28,20 @@
 run(Options) ->
     {IToNode, Nodes} = start(Options),
     construct_overlay(Options, IToNode),
+    start_experiment(Nodes),
     wait_for_completion(Nodes),
     stop(IToNode).
+
+%% @private
+start_experiment(Nodes) ->
+    %% wait for connectedness
+    timer:sleep(5000),
+    lists:foreach(
+        fun(Node) ->
+            ok = rpc:call(Node, lsim_simulation_runner, start, [])
+        end,
+        Nodes
+    ).
 
 %% @private Start nodes.
 start(Options) ->
@@ -259,7 +271,8 @@ timestamp() ->
 
 %% @doc Wait until `Fun' returns true or `Retry' reaches 0.
 %%      The sleep time between retries is `Delay'.
-wait_until(_Fun, 0, _Delay) -> fail;
+wait_until(_Fun, 0, _Delay) ->
+    fail;
 wait_until(Fun, Retry, Delay) when Retry > 0 ->
     case Fun() of
         true ->
