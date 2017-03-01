@@ -77,6 +77,10 @@ init([]) ->
     {ok, TRef} = start_transmission_timer(),
 
     lager:info("Instrumentation timer enabled!", extended),
+
+    %% @todo hack
+    timer:send_after(5000, start_experiment),
+
     {ok, #state{tref=TRef,
                 size_per_type=orddict:new(),
                 filename=Filename}}.
@@ -120,6 +124,10 @@ handle_info(transmission,
     {ok, TRef} = start_transmission_timer(),
     record_transmission(Filename, Map),
     {noreply, State#state{tref=TRef}};
+
+handle_info(start_experiment, State) ->
+    lsim_simulation_runner:start(),
+    {noreply, State};
 
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
