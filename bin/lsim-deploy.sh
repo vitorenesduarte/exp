@@ -2,7 +2,12 @@
 
 ENV_VARS=(
   BRANCH
+  LDB_MODE
+  LDB_JOIN_DECOMPOSITIONS
+  OVERLAY
+  SIMULATION
   NODE_NUMBER
+  NODE_EVENT_NUMBER
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -15,7 +20,7 @@ done
 
 # ENV SETUP:
 # Kubernetes server and auth token
-SERVERAPI=$(kubectl config view |
+APISERVER=$(kubectl config view |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
@@ -63,12 +68,24 @@ spec:
               fieldPath: status.podIP 
         - name: PEER_PORT
           value: "${PEER_PORT}"
-        - name: SERVERAPI
-          value: "${SERVERAPI}"
+        - name: APISERVER
+          value: "${APISERVER}"
         - name: TOKEN
           value: "${TOKEN}"
         - name: TIMESTAMP
           value: "${TIMESTAMP}"
+        - name: LDB_MODE
+          value: "${LDB_MODE}"
+        - name: LDB_JOIN_DECOMPOSITIONS
+          value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: OVERLAY
+          value: "${OVERLAY}"
+        - name: SIMULATION
+          value: "${SIMULATION}"
+        - name: NODE_NUMBER
+          value: "${NODE_NUMBER}"
+        - name: NODE_EVENT_NUMBER
+          value: "${NODE_EVENT_NUMBER}"
 EOF
 
 echo "Creating deployment."
