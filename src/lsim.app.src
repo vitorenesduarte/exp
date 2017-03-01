@@ -9,6 +9,7 @@
                   stdlib,
                   crypto,
                   lager,
+                  inets,
                   ldb,
                   partisan
                  ]},
