@@ -57,8 +57,11 @@ url() ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
 
+    lager:info("API Server ~p", [APIServer]),
+    lager:info("Timestamp ~p", [Timestamp]),
+
     APIServer ++ "/api/v1/pods?labelSelector=timestamp%3D"
-              ++ Timestamp.
+              ++ integer_to_list(Timestamp).
 
 %% @private
 generate_nodes(Reply) ->
