@@ -54,35 +54,42 @@ stop() ->
 
 %% @private
 get_tasks(Tag, Port) ->
-    Headers = headers(),
     URL = get_url(Tag),
-    Options = [{body_format, binary}],
-    DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
-
-    Reply = case httpc:request(get, {URL, Headers}, [], Options) of
-        {ok, {{_, 200, _}, _, Body}} ->
-            {ok, DecodeFun(Body)};
-        {error, Reason} ->
-            lager:info("Couldn't get list of nodes. Reason ~p",
-                       [Reason]),
-            {error, invalid}
+    Nodes = case http(get, URL) of
+        {ok, N} ->
+            N;
+        {error, invalid} ->
+            []
     end,
 
-    generate_nodes(Reply, Port).
+    generate_nodes(Nodes, Port).
 
 %% @private
 delete_tasks(Tag) ->
-    Headers = headers(),
     URL = delete_url(Tag),
 
-    case httpc:request(delete, {URL, Headers}, [], []) of
-        {ok, _} ->
-            ok;
-        {error, Reason} ->
-            lager:info("Couldn't get delete deployment ~p. Reason ~p. Trying again in 1 second.",
-                       [Tag, Reason]),
+    case http(delete, URL) of
+        {ok, Body} ->
+            ?LOG("delete ok ~p", [Body]);
+        {error, invalid} ->
+            ?LOG("Delete failed. Trying again in 1 second"),
             timer:sleep(1000),
             delete_tasks(Tag)
+    end.
+
+%% @private
+http(Method, URL) ->
+    Headers = headers(),
+    Options = [{body_format, binary}],
+    DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
+
+    case httpc:request(Method, {URL, Headers}, [], Options) of
+        {ok, {{_, 200, _}, _, Body}} ->
+            {ok, DecodeFun(Body)};
+        {error, Reason} ->
+            lager:info("Couldn't process ~p request ~p. Reason ~p",
+                       [Method, URL, Reason]),
+            {error, invalid}
     end.
 
 %% @private
