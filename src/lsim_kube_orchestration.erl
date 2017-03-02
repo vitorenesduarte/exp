@@ -115,7 +115,8 @@ delete_url(Tag) ->
 
     APIServer ++ "/apis/extensions/v1bet1/namespaces/default/deployments/"
               ++ atom_to_list(Tag) ++ "-"
-              ++ integer_to_list(Timestamp).
+              ++ integer_to_list(Timestamp) ++
+              ++ "?gracePeriodSeconds=0".
 
 %% @private
 generate_nodes(Reply, Port) ->
