@@ -34,9 +34,9 @@ start_link() ->
 init([]) ->
     configure_peer_service(),
     configure_ldb(),
-    Simulation = configure_lsim(),
+    {Simulation, Orchestration} = configure_lsim(),
 
-    Children = lsim_specs(Simulation),
+    Children = lsim_specs(Simulation, Orchestration),
 
     ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
@@ -118,22 +118,31 @@ configure_lsim() ->
                   undefined),
 
     %% configure orchestration
-    configure_var(lsim,
-                  "ORCHESTRATION",
-                  lsim_orchestration,
-                  undefined),
+    Orchestration = configure_var(lsim,
+                                  "ORCHESTRATION",
+                                  lsim_orchestration,
+                                  undefined),
 
-    Simulation.
+    {Simulation, Orchestration}.
 
 %% @private
-lsim_specs(Simulation) ->
+lsim_specs(Simulation, Orchestration) ->
     InstrumentationSpecs = [{lsim_intrumentation,
                              {lsim_instrumentation, start_link, []},
                              permanent, 5000, worker,
                              [lsim_instrumentation]}],
     SimulationSpecs = lsim_simulations:get_specs(Simulation),
 
-    InstrumentationSpecs ++ SimulationSpecs.
+    RSGSpecs = case Orchestration of
+        undefined ->
+            [];
+        _ ->
+             [{lsim_rsg,
+               {lsim_rsg, start_link, []},
+               permanent, 5000, worker, [lsim_rsg]}]
+    end,
+
+    InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.
 
 %% @private
 configure_var(App, Env, Var, Default) ->
