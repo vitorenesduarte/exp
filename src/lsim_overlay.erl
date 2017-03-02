@@ -22,7 +22,8 @@
 
 -include("lsim.hrl").
 
--export([get/2]).
+-export([get/2,
+         to_connect/3]).
 
 %% @doc The first argument can be:
 %%          - `line'
@@ -110,3 +111,59 @@ get(erdos_renyi, 13) ->
      {10, [0, 5, 9]},
      {11, [2, 5, 6, 9]},
      {12, [1, 2, 5]}].
+
+%% @doc The first argument is my node spec,
+%%      the second argument is a list of node specs,
+%%      and the third argument is the overlay.
+-spec to_connect(ldb_node_id(), [node_spec()], atom()) ->
+    [node_spec()].
+to_connect(MyName, Nodes, Overlay) ->
+    Map = list_to_map(Nodes),
+    lager:info("Map ~p~n", [Map]),
+    {IdToName, MyId} = map_to_ids(MyName, Map),
+    lager:info("IdToName ~p | MyId ~p~n", [IdToName, MyId]),
+    NodeNumber = length(Nodes),
+    Topology = get(Overlay, NodeNumber),
+    find_peers(Map, IdToName, MyId, Topology).
+
+%% @private
+list_to_map(Nodes) ->
+    lists:foldl(
+        fun({Name, _, _}=Node, Acc) ->
+            orddict:store(Name, Node, Acc)
+        end,
+        orddict:new(),
+        Nodes
+    ).
+
+%% @private
+map_to_ids(MyName, Map) ->
+    {IdToName, MyId, _} = lists:foldl(
+        fun({Name, _}, {IdToName0, MyId0, Counter0}) ->
+            IdToName1 = orddict:store(Counter0, Name, IdToName0),
+            MyId1 = case MyName == Name of
+                true ->
+                    Counter0;
+                false ->
+                    MyId0
+            end,
+            Counter1 = Counter0 + 1,
+            {IdToName1, MyId1, Counter1}
+        end,
+        {orddict:new(), undefined, 0},
+        Map
+    ),
+
+    {IdToName, MyId}.
+
+%% @private
+find_peers(Map, IdToName, MyId, Topology) ->
+    IdsToConnect = orddict:fetch(MyId, Topology),
+
+    lists:map(
+        fun(PeerId) ->
+            PeerName = orddict:fetch(PeerId, IdToName),
+            orddict:fetch(PeerName, Map)
+        end,
+        IdsToConnect
+    ).
