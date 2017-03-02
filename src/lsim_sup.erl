@@ -145,7 +145,7 @@ lsim_specs(Simulation, Orchestration, RSG) ->
         undefined ->
             [];
         _ ->
-    				BarrierPeerServiceSpecs = [{lsim_barrier_peer_service,
+            BarrierPeerServiceSpecs = [{lsim_barrier_peer_service,
                                         {lsim_barrier_peer_service,
                                          start_link, []},
                                         permanent, 5000, worker,
