@@ -26,12 +26,11 @@
 
 %% @doc Given an IP string and port string
 %%      genenerate the node spec.
--spec generate_spec(list(), list()) -> node_spec().
-generate_spec(IpStr, PortStr) ->
-    NameStr = "lsim-" ++ PortStr ++ "@" ++ IpStr,
+-spec generate_spec(list(), node_port()) -> node_spec().
+generate_spec(IpStr, Port) ->
+    NameStr = "lsim-" ++ integer_to_list(Port) ++ "@" ++ IpStr,
 
     ParsedName = list_to_atom(NameStr),
     {ok, ParsedIp} = inet_parse:address(IpStr),
-    ParsedPort = list_to_integer(PortStr),
 
-    {ParsedName, ParsedIp, ParsedPort}.
+    {ParsedName, ParsedIp, Port}.
