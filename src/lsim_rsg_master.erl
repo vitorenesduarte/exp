@@ -125,7 +125,7 @@ tell(Msg) ->
         fun(Peer) ->
             ?BARRIER_PEER_SERVICE:forward_message(
                Peer,
-               ?MODULE,
+               lsim_rsg,
                Msg
             )
         end,
