@@ -119,9 +119,7 @@ get(erdos_renyi, 13) ->
     [node_spec()].
 to_connect(MyName, Nodes, Overlay) ->
     Map = list_to_map(Nodes),
-    lager:info("Map ~p~n", [Map]),
     {IdToName, MyId} = map_to_ids(MyName, Map),
-    lager:info("IdToName ~p | MyId ~p~n", [IdToName, MyId]),
     NodeNumber = length(Nodes),
     Topology = get(Overlay, NodeNumber),
     find_peers(Map, IdToName, MyId, Topology).

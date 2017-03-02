@@ -68,7 +68,8 @@ handle_info(join, #state{}=State) ->
             ToConnect = lsim_overlay:to_connect(MyName,
                                                 Nodes,
                                                 Overlay),
-            lager:info("ToConnect ~p", [ToConnect]);
+            lager:info("ToConnect ~p. Node ~p", [ToConnect, MyName]),
+            ok = connect(ToConnect);
         false ->
             schedule_join()
     end,
@@ -91,3 +92,17 @@ node_number() ->
 %% @private
 schedule_join() ->
     timer:send_after(?JOIN_INTERVAL, join).
+
+%% @private
+connect([]) ->
+    ok;
+connect([Node|Rest]=All) ->
+    case ldb_peer_service:join(Node) of
+        ok ->
+            connect(Rest);
+        Error ->
+            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in 5 seconds",
+                 [Node, Error]),
+                 timer:sleep(5000),
+                 connect(All)
+    end.
