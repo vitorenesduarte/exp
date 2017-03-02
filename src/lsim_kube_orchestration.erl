@@ -119,18 +119,13 @@ delete_url(Tag) ->
               ++ "?gracePeriodSeconds=0".
 
 %% @private
-generate_nodes(Reply, Port) ->
-    List = case Reply of
-        {ok, Map} ->
-            #{<<"items">> := Items} = Map,
-            case Items of
-                null ->
-                    [];
-                _ ->
-                    Items
-            end;
+generate_nodes(Map, Port) ->
+    #{<<"items">> := Items} = Map,
+    List = case Items of
+        null ->
+            [];
         _ ->
-            []
+            Items
     end,
 
     generate_spec(List, Port).
