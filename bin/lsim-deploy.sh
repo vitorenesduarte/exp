@@ -44,7 +44,7 @@ RSG_NAME=rsg-${TIMESTAMP}
 IMAGE=vitorenesduarte/lsim
 
 # YAML file
-FILE=/tmp/$NAME.yaml
+FILE=/tmp/${TIMESTAMP}.yaml
 
 cat <<EOF > $FILE
 apiVersion: extensions/v1beta1
