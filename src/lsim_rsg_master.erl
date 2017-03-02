@@ -37,7 +37,8 @@
 
 -record(state, {}).
 
--define(PEER_SERVICE, partisan_client_server_peer_service_manager).
+-define(BARRIER_PEER_SERVICE,
+        partisan_client_server_peer_service_manager).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -58,7 +59,7 @@ handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
-handle_info(create_barrier, #state{}=State) ->
+handle_info(create_barrier, State) ->
     Nodes = lsim_discovery:nodes(),
 
     case length(Nodes) == node_number() of
@@ -67,7 +68,7 @@ handle_info(create_barrier, #state{}=State) ->
         false ->
             schedule_create_barrier()
     end,
-    {noreply, State#state{}};
+    {noreply, State};
 
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
@@ -91,7 +92,7 @@ schedule_create_barrier() ->
 connect([]) ->
     ok;
 connect([Node|Rest]=All) ->
-    case ?PEER_SERVICE:join(Node) of
+    case ?BARRIER_PEER_SERVICE:join(Node) of
         ok ->
             connect(Rest);
         Error ->

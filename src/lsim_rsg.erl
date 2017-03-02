@@ -36,8 +36,12 @@
          code_change/3]).
 
 -record(state, {}).
-
--define(JOIN_INTERVAL, 2000).
+    
+-define(BARRIER_PEER_SERVICE,
+        partisan_client_server_peer_service_manager).
+-define(PEER_SERVICE,
+        ldb_peer_service).
+-define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
@@ -45,7 +49,7 @@ start_link() ->
 
 %% gen_server callbacks
 init([]) ->
-    schedule_join(),
+    schedule_create_barrier(),
     ?LOG("lsim_rsg initialized"),
     {ok, #state{}}.
 
@@ -57,26 +61,35 @@ handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
-handle_info(join, #state{}=State) ->
+handle_info(create_barrier, State) ->
+    case lsim_discovery:rsg() of
+        {ok, RSG} ->
+            ok = connect([RSG], ?BARRIER_PEER_SERVICE),
+            schedule_join_peers();
+        {error, not_connected} ->
+            schedule_create_barrier()
+    end,
+
+    {noreply, State};
+
+handle_info(join_peers, State) ->
     MyName = ldb_config:id(),
-    RSG = lsim_discovery:rsg(),
     Nodes = lsim_discovery:nodes(),
     Overlay = lsim_config:get(lsim_overlay),
 
-    case {RSG, length(Nodes) == node_number()} of
-        {{ok, Master}, true}->
+    case length(Nodes) == node_number() of
+        true ->
             %% if all nodes are connected
             ToConnect = lsim_overlay:to_connect(MyName,
                                                 Nodes,
                                                 Overlay),
-            lager:info("MASTER ~p~n", [Master]),
-            ok = connect(ToConnect),
+            ok = connect(ToConnect, ?PEER_SERVICE),
             %% @todo wait for everyone
             lsim_simulation_runner:start();
         _ ->
-            schedule_join()
+            schedule_join_peers()
     end,
-    {noreply, State#state{}};
+    {noreply, State};
 
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
@@ -93,19 +106,23 @@ node_number() ->
     lsim_config:get(lsim_node_number).
 
 %% @private
-schedule_join() ->
-    timer:send_after(?JOIN_INTERVAL, join).
+schedule_create_barrier() ->
+    timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
-connect([]) ->
+schedule_join_peers() ->
+    timer:send_after(?INTERVAL, join_peers).
+
+%% @private
+connect([], _) ->
     ok;
-connect([Node|Rest]=All) ->
-    case ldb_peer_service:join(Node) of
+connect([Node|Rest]=All, PeerService) ->
+    case PeerService:join(Node) of
         ok ->
-            connect(Rest);
+            connect(Rest, PeerService);
         Error ->
             ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
-                 [Node, Error, ?JOIN_INTERVAL]),
-                 timer:sleep(?JOIN_INTERVAL),
-                 connect(All)
+                 [Node, Error, ?INTERVAL]),
+                 timer:sleep(?INTERVAL),
+                 connect(All, PeerService)
     end.

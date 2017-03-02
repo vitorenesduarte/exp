@@ -24,7 +24,8 @@
 
 -export([generate_spec/2]).
 
-%% @doc
+%% @doc Given an IP string and port string
+%%      genenerate the node spec.
 -spec generate_spec(list(), list()) -> node_spec().
 generate_spec(IpStr, PortStr) ->
     NameStr = "lsim-" ++ PortStr ++ "@" ++ IpStr,
