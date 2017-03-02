@@ -145,6 +145,11 @@ lsim_specs(Simulation, Orchestration, RSG) ->
         undefined ->
             [];
         _ ->
+    				BarrierPeerServiceSpecs = [{lsim_barrier_peer_service,
+                                        {lsim_barrier_peer_service,
+                                         start_link, []},
+                                        permanent, 5000, worker,
+                                        [lsim_barrier_peer_service]}],
             Mod = case RSG of
                 true ->
                     lsim_rsg_master;
@@ -152,9 +157,10 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                     lsim_rsg
             end,
 
-            [{Mod,
-              {Mod, start_link, []},
-              permanent, 5000, worker, [Mod]}]
+            BarrierPeerServiceSpecs ++ [{Mod,
+                                         {Mod, start_link, []},
+                                         permanent, 5000, worker,
+                                         [Mod]}]
     end,
 
     InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.
