@@ -24,7 +24,7 @@
 
 -behaviour(gen_server).
 
-%% lsim_simulation_runner callbacks
+%% lsim_rsg_master callbacks
 -export([start_link/0]).
 
 %% gen_server callbacks
@@ -35,7 +35,8 @@
          terminate/2,
          code_change/3]).
 
--record(state, {nodes_ready :: ordsets:ordset(ldb_node_id())}).
+-record(state, {nodes_ready :: ordsets:ordset(ldb_node_id()),
+                nodes_done :: ordsets:ordset(ldb_node_id())}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -48,7 +49,8 @@ start_link() ->
 init([]) ->
     schedule_create_barrier(),
     ?LOG("lsim_rsg_master initialized"),
-    {ok, #state{nodes_ready=ordsets:new()}}.
+    {ok, #state{nodes_ready=ordsets:new(),
+                nodes_done=ordsets:new()}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
@@ -70,6 +72,23 @@ handle_cast({ready, NodeName},
     end,
 
     {noreply, State#state{nodes_ready=NodesReady1}};
+
+handle_cast({done, NodeName},
+            #state{nodes_done=NodesDone0}=State) ->
+
+    ?LOG("Received ~p", [{done, NodeName}]),
+
+    NodesDone1 = ordsets:add_element(NodeName, NodesDone0),
+
+    case ordsets:size(NodesDone1) == node_number() of
+        true ->
+            ?LOG("Everyone is done"),
+            lsim_orchestration:stop();
+        false ->
+            ok
+    end,
+
+    {noreply, State#state{nodes_done=NodesDone1}};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),

@@ -24,8 +24,9 @@
 
 -behaviour(gen_server).
 
-%% lsim_simulation_runner callbacks
--export([start_link/0]).
+%% lsim_rsg callbacks
+-export([start_link/0,
+         simulation_end/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -45,11 +46,19 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+-spec simulation_end() -> ok.
+simulation_end() ->
+    gen_server:call(?MODULE, simulation_end, infinity).
+
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
     ?LOG("lsim_rsg initialized"),
     {ok, #state{}}.
+
+handle_call(simulation_end, _From, State) ->
+    tell({done, ldb_config:id()}),
+    {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),

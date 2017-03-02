@@ -17,13 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_discovery).
+-module(lsim_orchestration).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
 -export([rsg/1,
-         nodes/1]).
+         nodes/1,
+         stop/0]).
 
 %% @doc Returns the specs of the rsg master, given a port.
 -callback rsg(node_port()) ->
@@ -42,6 +43,11 @@ rsg(Port) ->
     [node_spec()].
 nodes(Port) ->
     do(nodes, [Port]).
+
+-spec stop() ->
+    ok.
+stop() ->
+    do(stop, []).
 
 %% @private
 do(Function, Args) ->

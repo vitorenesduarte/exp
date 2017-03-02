@@ -17,15 +17,16 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_kube_discovery).
+-module(lsim_kube_orchestration).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
--behaviour(lsim_discovery).
+-behaviour(lsim_orchestration).
 
 -export([rsg/1,
-         nodes/1]).
+         nodes/1,
+         stop/0]).
 
 -spec rsg(node_port()) ->
     {ok, node_spec()} | {error, not_connected}.
@@ -43,6 +44,11 @@ rsg(Port) ->
     [node_spec()].
 nodes(Port) ->
     get_tasks(lsim, Port).
+
+-spec stop() ->
+    ok.
+stop() ->
+    ok.
 
 %% @private
 get_tasks(Tag, Port) ->

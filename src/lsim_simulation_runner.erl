@@ -102,7 +102,7 @@ handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
         true ->
             %% If everyone did all the events they should do
             ?LOG("All events have been observed"),
-            lsim_config:set(simulation_end, true);
+            end_simulation();
         false ->
             schedule_simulation_end()
     end,
@@ -134,3 +134,12 @@ schedule_event() ->
 %% @private
 schedule_simulation_end() ->
     timer:send_after(?SIMULATION_END_INTERVAL, simulation_end).
+
+%% @private
+end_simulation() ->
+    case lsim_config:get(orchestration) of
+        undefined ->
+            lsim_config:set(simulation_end, true);
+        _ ->
+            lsim_rsg:simulation_end()
+    end.
