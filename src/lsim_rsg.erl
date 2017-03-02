@@ -104,8 +104,8 @@ connect([Node|Rest]=All) ->
         ok ->
             connect(Rest);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in 5 seconds",
-                 [Node, Error]),
-                 timer:sleep(5000),
+            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                 [Node, Error, ?JOIN_INTERVAL]),
+                 timer:sleep(?JOIN_INTERVAL),
                  connect(All)
     end.

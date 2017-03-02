@@ -38,7 +38,7 @@
 -record(state, {}).
 
 -define(PEER_SERVICE, partisan_client_server_peer_service_manager).
--define(JOIN_INTERVAL, 2000).
+-define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
@@ -46,7 +46,7 @@ start_link() ->
 
 %% gen_server callbacks
 init([]) ->
-    schedule_join(),
+    schedule_create_barrier(),
     ?LOG("lsim_rsg_master initialized"),
     {ok, #state{}}.
 
@@ -58,22 +58,14 @@ handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
-handle_info(join, #state{}=State) ->
-    MyName = ldb_config:id(),
+handle_info(create_barrier, #state{}=State) ->
     Nodes = lsim_discovery:nodes(),
-    Overlay = lsim_config:get(lsim_overlay),
 
     case length(Nodes) == node_number() of
         true ->
-            %% if all nodes are connected
-            ToConnect = lsim_overlay:to_connect(MyName,
-                                                Nodes,
-                                                Overlay),
-            ok = connect(ToConnect),
-            %% @todo wait for everyone
-            lsim_simulation_runner:start();
+            ok = connect(Nodes);
         false ->
-            schedule_join()
+            schedule_create_barrier()
     end,
     {noreply, State#state{}};
 
@@ -92,19 +84,19 @@ node_number() ->
     lsim_config:get(lsim_node_number).
 
 %% @private
-schedule_join() ->
-    timer:send_after(?JOIN_INTERVAL, join).
+schedule_create_barrier() ->
+    timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
 connect([]) ->
     ok;
 connect([Node|Rest]=All) ->
-    case ldb_peer_service:join(Node) of
+    case ?PEER_SERVICE:join(Node) of
         ok ->
             connect(Rest);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in 5 seconds",
-                 [Node, Error]),
-                 timer:sleep(5000),
+            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                 [Node, Error, ?INTERVAL]),
+                 timer:sleep(?INTERVAL),
                  connect(All)
     end.
