@@ -113,7 +113,7 @@ delete_url(Tag) ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
 
-    APIServer ++ "/apis/extensions/v1bet1/namespaces/default/deployments/"
+    APIServer ++ "/apis/extensions/v1beta1/namespaces/default/deployments/"
               ++ atom_to_list(Tag) ++ "-"
               ++ integer_to_list(Timestamp)
               ++ "?gracePeriodSeconds=0".
