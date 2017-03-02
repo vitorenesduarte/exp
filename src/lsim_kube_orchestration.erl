@@ -48,6 +48,7 @@ nodes(Port) ->
 -spec stop() ->
     ok.
 stop() ->
+    ?LOG("WILL DELETE"),
     delete_tasks(lsim),
     ok = delete_tasks(rsg),
     ok.
@@ -67,6 +68,7 @@ get_tasks(Tag, Port) ->
 %% @private
 delete_tasks(Tag) ->
     URL = delete_url(Tag),
+    ?LOG("WILL DELETE ~p", [URL]),
 
     case http(delete, URL) of
         {ok, Body} ->
