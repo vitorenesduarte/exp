@@ -68,8 +68,9 @@ handle_info(join, #state{}=State) ->
             ToConnect = lsim_overlay:to_connect(MyName,
                                                 Nodes,
                                                 Overlay),
-            lager:info("ToConnect ~p. Node ~p", [ToConnect, MyName]),
-            ok = connect(ToConnect);
+            ok = connect(ToConnect),
+            %% @todo wait for everyone
+            lsim_simulation_runner:start();
         false ->
             schedule_join()
     end,
