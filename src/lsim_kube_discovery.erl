@@ -24,12 +24,28 @@
 
 -behaviour(lsim_discovery).
 
--export([nodes/0]).
+-export([rsg/0,
+         nodes/0]).
+
+-spec rsg() -> {ok, node_spec()} | {error, not_connected}.
+rsg() ->
+    Nodes = get_tasks(rsg),
+
+    case Nodes of
+        [] ->
+            {error, not_connected};
+        [RSG|_] ->
+            {ok, RSG}
+    end.
 
 -spec nodes() -> [node_spec()].
 nodes() ->
+    get_tasks(lsim).
+
+%% @private
+get_tasks(Tag) ->
     Headers = headers(),
-    URL = url(),
+    URL = url(Tag),
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
@@ -50,12 +66,13 @@ headers() ->
     [{"Authorization", "Bearer " ++ Token}].
 
 %% @private
-url() ->
+url(Tag) ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
 
-    APIServer ++ "/api/v1/pods?labelSelector=timestamp%3D"
-              ++ integer_to_list(Timestamp).
+    APIServer ++ "/api/v1/pods?labelSelector="
+              ++ "timestamp%3D" ++ integer_to_list(Timestamp)
+              ++ ",tag%3D" ++ atom_to_list(Tag).
 
 %% @private
 generate_nodes(Reply) ->

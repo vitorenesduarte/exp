@@ -34,9 +34,9 @@ start_link() ->
 init([]) ->
     configure_peer_service(),
     configure_ldb(),
-    {Simulation, Orchestration} = configure_lsim(),
+    {Simulation, Orchestration, RSG} = configure_lsim(),
 
-    Children = lsim_specs(Simulation, Orchestration),
+    Children = lsim_specs(Simulation, Orchestration, RSG),
 
     ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
@@ -123,10 +123,16 @@ configure_lsim() ->
                                   lsim_orchestration,
                                   undefined),
 
-    {Simulation, Orchestration}.
+    %% configure rsg master
+    RSG = configure_var(lsim,
+                        "RSG",
+                        lsim_rsg,
+                        false),
+
+    {Simulation, Orchestration, RSG}.
 
 %% @private
-lsim_specs(Simulation, Orchestration) ->
+lsim_specs(Simulation, Orchestration, RSG) ->
     InstrumentationSpecs = [{lsim_intrumentation,
                              {lsim_instrumentation, start_link, []},
                              permanent, 5000, worker,
@@ -137,9 +143,16 @@ lsim_specs(Simulation, Orchestration) ->
         undefined ->
             [];
         _ ->
-             [{lsim_rsg,
-               {lsim_rsg, start_link, []},
-               permanent, 5000, worker, [lsim_rsg]}]
+            Mod = case RSG of
+                true ->
+                    lsim_rsg_master;
+                false ->
+                    lsim_rsg
+            end,
+
+            [{Mod,
+              {Mod, start_link, []},
+              permanent, 5000, worker, [Mod]}]
     end,
 
     InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.

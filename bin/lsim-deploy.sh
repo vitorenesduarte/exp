@@ -36,8 +36,9 @@ TIMESTAMP=$(date +%s)$(date +%N)
 PEER_PORT=6866
 
 # DEPLOYMENT:
-# Deployment name
-NAME=lsim-${TIMESTAMP}
+# Deployment names
+LSIM_NAME=lsim-${TIMESTAMP}
+RSG_NAME=rsg-${TIMESTAMP}
 
 # Docker image
 IMAGE=vitorenesduarte/lsim
@@ -49,16 +50,17 @@ cat <<EOF > $FILE
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "${NAME}"
+  name: "${LSIM_NAME}"
 spec:
   replicas: ${NODE_NUMBER}
   template:
     metadata:
       labels:
         timestamp: "${TIMESTAMP}"
+        tag: lsim
     spec:
       containers:
-      - name: "${NAME}"
+      - name: "${LSIM_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: IfNotPresent
         env:
@@ -69,7 +71,7 @@ spec:
         - name: IP
           valueFrom:
             fieldRef:
-              fieldPath: status.podIP 
+              fieldPath: status.podIP
         - name: PEER_PORT
           value: "${PEER_PORT}"
         - name: APISERVER
@@ -90,6 +92,46 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: RSG
+          value: "false"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "${RSG_NAME}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        timestamp: "${TIMESTAMP}"
+        tag: rsg
+    spec:
+      containers:
+      - name: "${RSG_NAME}"
+        image: "${IMAGE}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BRANCH
+          value: "${BRANCH}"
+        - name: ORCHESTRATION
+          value: "${ORCHESTRATION}"
+        - name: IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: PEER_PORT
+          value: "${PEER_PORT}"
+        - name: APISERVER
+          value: "${APISERVER}"
+        - name: TOKEN
+          value: "${TOKEN}"
+        - name: TIMESTAMP
+          value: "${TIMESTAMP}"
+        - name: NODE_NUMBER
+          value: "${NODE_NUMBER}"
+        - name: RSG
+          value: "true"
 EOF
 
 echo "Creating deployment."

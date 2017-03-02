@@ -22,10 +22,18 @@
 
 -include("lsim.hrl").
 
--export([nodes/0]).
+-export([rsg/0,
+         nodes/0]).
+
+%% @doc Returns the specs of the rsg master.
+-callback rsg() -> {ok, node_spec()} | {error, not_connected}.
 
 %% @doc Returns the specs of the running nodes.
 -callback nodes() -> [node_spec()].
+
+-spec rsg() -> {ok, node_spec()} | {error, not_connected}.
+rsg() ->
+    do(rsg, []).
 
 -spec nodes() -> [node_spec()].
 nodes() ->

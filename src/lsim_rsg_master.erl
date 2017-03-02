@@ -17,7 +17,7 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_rsg).
+-module(lsim_rsg_master).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
@@ -46,7 +46,7 @@ start_link() ->
 %% gen_server callbacks
 init([]) ->
     schedule_join(),
-    ?LOG("lsim_rsg initialized"),
+    ?LOG("lsim_rsg_master initialized"),
     {ok, #state{}}.
 
 handle_call(Msg, _From, State) ->
@@ -59,25 +59,23 @@ handle_cast(Msg, State) ->
 
 handle_info(join, #state{}=State) ->
     MyName = ldb_config:id(),
-    RSG = lsim_discovery:rsg(),
     Nodes = lsim_discovery:nodes(),
     Overlay = lsim_config:get(lsim_overlay),
 
-    case {RSG, length(Nodes) == node_number()} of
-        {{ok, Master}, true}->
+    case length(Nodes) == node_number() of
+        true ->
             %% if all nodes are connected
             ToConnect = lsim_overlay:to_connect(MyName,
                                                 Nodes,
                                                 Overlay),
-            lager:info("MASTER ~p~n", [Master]),
             ok = connect(ToConnect),
             %% @todo wait for everyone
             lsim_simulation_runner:start();
-        _ ->
+        false ->
             schedule_join()
     end,
     {noreply, State#state{}};
-
+            
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
