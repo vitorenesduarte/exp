@@ -80,8 +80,8 @@ get_specs(Simulation) ->
             end,
             EventFun = fun(_EventNumber) ->
                 ldb:update(?KEY, increment),
-                Nodes = lsim_orchestration:nodes(?PORT),
-                lager:info("NODES ~p", [Nodes])
+                {ok, Members} = ldb_peer_service:members(),
+                lager:info("MEMBERS ~p", [Members])
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
