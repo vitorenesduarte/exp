@@ -201,7 +201,8 @@ wait_for_completion(Nodes) ->
                     SimulationEnd = rpc:call(Node,
                                              lsim_config,
                                              get,
-                                             [simulation_end, false]),
+                                             [lsim_simulation_end,
+                                              false]),
 
                     case SimulationEnd of
                         true ->

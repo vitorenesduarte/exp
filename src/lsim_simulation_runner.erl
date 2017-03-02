@@ -137,9 +137,9 @@ schedule_simulation_end() ->
 
 %% @private
 end_simulation() ->
-    case lsim_config:get(orchestration) of
+    case lsim_config:get(lsim_orchestration) of
         undefined ->
-            lsim_config:set(simulation_end, true);
+            lsim_config:set(lsim_simulation_end, true);
         _ ->
             lsim_rsg:simulation_end()
     end.
