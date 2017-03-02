@@ -80,7 +80,7 @@ get_specs(Simulation) ->
             end,
             EventFun = fun(_EventNumber) ->
                 ldb:update(?KEY, increment),
-                Nodes = lsim_discovery:nodes(?PORT),
+                Nodes = lsim_orchestration:nodes(?PORT),
                 lager:info("NODES ~p", [Nodes])
             end,
             TotalEventsFun = fun() ->

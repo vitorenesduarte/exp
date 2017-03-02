@@ -95,7 +95,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    Nodes = lsim_discovery:nodes(?BARRIER_PORT),
+    Nodes = lsim_orchestration:nodes(?BARRIER_PORT),
 
     case length(Nodes) == node_number() of
         true ->
