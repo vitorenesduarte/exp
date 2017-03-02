@@ -54,5 +54,5 @@ do(Function, Args) ->
     Orchestration = lsim_config:get(lsim_orchestration),
     case Orchestration of
         kubernetes ->
-            erlang:apply(lsim_kube_discovery, Function, Args)
+            erlang:apply(lsim_kube_orchestration, Function, Args)
     end.
