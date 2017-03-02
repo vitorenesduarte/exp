@@ -35,7 +35,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {}).
+-record(state, {nodes_ready :: ordsets:ordset(ldb_node_id())}).
 
 -define(BARRIER_PEER_SERVICE,
         partisan_client_server_peer_service_manager).
@@ -49,11 +49,28 @@ start_link() ->
 init([]) ->
     schedule_create_barrier(),
     ?LOG("lsim_rsg_master initialized"),
-    {ok, #state{}}.
+    {ok, #state{nodes_ready=ordsets:new()}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
+
+handle_cast({ready, NodeName},
+            #state{nodes_ready=NodesReady0}=State) ->
+
+    ?LOG("Received ~p", [{ready, NodeName}]),
+
+    NodesReady1 = ordsets:add_element(NodeName, NodesReady0),
+
+    case ordsets:size(NodesReady1) == node_number() of
+        true ->
+            ?LOG("Everyone is ready. GO!"),
+            tell(go);
+        false ->
+            ok
+    end,
+
+    {noreply, State#state{nodes_ready=NodesReady1}};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
@@ -101,3 +118,21 @@ connect([Node|Rest]=All) ->
                  timer:sleep(?INTERVAL),
                  connect(All)
     end.
+
+%% @private
+tell(Msg) ->
+    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    lists:foreach(
+        fun(Peer) ->
+            ?BARRIER_PEER_SERVICE:forward_message(
+               Peer,
+               ?MODULE,
+               Msg
+            )
+        end,
+        without_me(Members)
+     ).
+
+%% @private
+without_me(Members) ->
+    Members -- [ldb_config:id()].

@@ -57,6 +57,11 @@ handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
+handle_cast(go, State) ->
+    ?LOG("Received go. Starting simulation."),
+    lsim_simulation_runner:start(),
+    {noreply, State};
+
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
@@ -84,8 +89,8 @@ handle_info(join_peers, State) ->
                                                 Nodes,
                                                 Overlay),
             ok = connect(ToConnect, ?PEER_SERVICE),
-            %% @todo wait for everyone
-            lsim_simulation_runner:start();
+            ?LOG("I, ~p, am READY!", [ldb_config:id()]),
+            tell({ready, ldb_config:id()});
         _ ->
             schedule_join_peers()
     end,
@@ -126,3 +131,21 @@ connect([Node|Rest]=All, PeerService) ->
                  timer:sleep(?INTERVAL),
                  connect(All, PeerService)
     end.
+
+%% @private
+tell(Msg) ->
+    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    lists:foreach(
+        fun(Peer) ->
+            ?BARRIER_PEER_SERVICE:forward_message(
+               Peer,
+               ?MODULE,
+               Msg
+            )
+        end,
+        without_me(Members)
+     ).
+
+%% @private
+without_me(Members) ->
+    Members -- [ldb_config:id()].
