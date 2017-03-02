@@ -75,7 +75,7 @@ handle_info(join, #state{}=State) ->
             schedule_join()
     end,
     {noreply, State#state{}};
-            
+
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
