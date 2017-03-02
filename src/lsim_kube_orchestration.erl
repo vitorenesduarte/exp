@@ -48,12 +48,14 @@ nodes(Port) ->
 -spec stop() ->
     ok.
 stop() ->
+    delete_tasks(lsim),
+    ok = delete_tasks(rsg),
     ok.
 
 %% @private
 get_tasks(Tag, Port) ->
     Headers = headers(),
-    URL = url(Tag),
+    URL = get_url(Tag),
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
@@ -69,18 +71,42 @@ get_tasks(Tag, Port) ->
     generate_nodes(Reply, Port).
 
 %% @private
+delete_tasks(Tag) ->
+    Headers = headers(),
+    URL = delete_url(Tag),
+
+    case httpc:request(delete, {URL, Headers}, [], []) of
+        {ok, _} ->
+            ok;
+        {error, Reason} ->
+            lager:info("Couldn't get delete deployment ~p. Reason ~p. Trying again in 1 second.",
+                       [Tag, Reason]),
+            timer:sleep(1000),
+            delete_tasks(Tag)
+    end.
+
+%% @private
 headers() ->
     Token = lsim_config:get(lsim_token),
     [{"Authorization", "Bearer " ++ Token}].
 
 %% @private
-url(Tag) ->
+get_url(Tag) ->
     APIServer = lsim_config:get(lsim_api_server),
     Timestamp = lsim_config:get(lsim_timestamp),
 
     APIServer ++ "/api/v1/pods?labelSelector="
               ++ "timestamp%3D" ++ integer_to_list(Timestamp)
               ++ ",tag%3D" ++ atom_to_list(Tag).
+
+%% @private
+delete_url(Tag) ->
+    APIServer = lsim_config:get(lsim_api_server),
+    Timestamp = lsim_config:get(lsim_timestamp),
+
+    APIServer ++ "/apis/extensions/v1bet1/namespaces/default/deployments/"
+              ++ atom_to_list(Tag) ++ "-"
+              ++ integer_to_list(Timestamp).
 
 %% @private
 generate_nodes(Reply, Port) ->
