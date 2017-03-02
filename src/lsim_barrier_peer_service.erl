@@ -109,7 +109,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(log, #state{connected=Connected}=State) ->
-    LDBIds = orddict:fetch_keys(Connected),
+    _LDBIds = orddict:fetch_keys(Connected),
     %?LOG("Current connected nodes ~p", [LDBIds]),
     schedule_log(),
     {noreply, State};
