@@ -37,6 +37,7 @@
 
 -record(state, {}).
 
+-define(PEER_SERVICE, partisan_client_server_peer_service_manager).
 -define(JOIN_INTERVAL, 2000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -75,7 +76,7 @@ handle_info(join, #state{}=State) ->
             schedule_join()
     end,
     {noreply, State#state{}};
-            
+
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
