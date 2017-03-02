@@ -37,8 +37,7 @@
 
 -record(state, {nodes_ready :: ordsets:ordset(ldb_node_id())}).
 
--define(BARRIER_PEER_SERVICE,
-        partisan_client_server_peer_service_manager).
+-define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -77,7 +76,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    Nodes = lsim_discovery:nodes(),
+    Nodes = lsim_discovery:nodes(?BARRIER_PORT),
 
     case length(Nodes) == node_number() of
         true ->

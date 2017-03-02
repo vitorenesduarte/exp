@@ -36,11 +36,9 @@
          code_change/3]).
 
 -record(state, {}).
-    
--define(BARRIER_PEER_SERVICE,
-        partisan_client_server_peer_service_manager).
--define(PEER_SERVICE,
-        ldb_peer_service).
+
+-define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
+-define(PEER_SERVICE, ldb_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -67,7 +65,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    case lsim_discovery:rsg() of
+    case lsim_discovery:rsg(?BARRIER_PORT) of
         {ok, RSG} ->
             ok = connect([RSG], ?BARRIER_PEER_SERVICE),
             schedule_join_peers();
@@ -79,7 +77,7 @@ handle_info(create_barrier, State) ->
 
 handle_info(join_peers, State) ->
     MyName = ldb_config:id(),
-    Nodes = lsim_discovery:nodes(),
+    Nodes = lsim_discovery:nodes(?PORT),
     Overlay = lsim_config:get(lsim_overlay),
 
     case length(Nodes) == node_number() of

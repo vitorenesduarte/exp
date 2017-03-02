@@ -24,12 +24,13 @@
 
 -behaviour(lsim_discovery).
 
--export([rsg/0,
-         nodes/0]).
+-export([rsg/1,
+         nodes/1]).
 
--spec rsg() -> {ok, node_spec()} | {error, not_connected}.
-rsg() ->
-    Nodes = get_tasks(rsg),
+-spec rsg(node_port()) ->
+    {ok, node_spec()} | {error, not_connected}.
+rsg(Port) ->
+    Nodes = get_tasks(rsg, Port),
 
     case Nodes of
         [] ->
@@ -38,12 +39,13 @@ rsg() ->
             {ok, RSG}
     end.
 
--spec nodes() -> [node_spec()].
-nodes() ->
-    get_tasks(lsim).
+-spec nodes(node_port()) ->
+    [node_spec()].
+nodes(Port) ->
+    get_tasks(lsim, Port).
 
 %% @private
-get_tasks(Tag) ->
+get_tasks(Tag, Port) ->
     Headers = headers(),
     URL = url(Tag),
     Options = [{body_format, binary}],
@@ -58,7 +60,7 @@ get_tasks(Tag) ->
             {error, invalid}
     end,
 
-    generate_nodes(Reply).
+    generate_nodes(Reply, Port).
 
 %% @private
 headers() ->
@@ -75,7 +77,7 @@ url(Tag) ->
               ++ ",tag%3D" ++ atom_to_list(Tag).
 
 %% @private
-generate_nodes(Reply) ->
+generate_nodes(Reply, Port) ->
     List = case Reply of
         {ok, Map} ->
             #{<<"items">> := Items} = Map,
@@ -89,14 +91,14 @@ generate_nodes(Reply) ->
             []
     end,
 
-    generate_spec(List).
+    generate_spec(List, Port).
 
 %% @private
-generate_spec(List) ->
+generate_spec(List, Port) ->
     lists:map(
         fun(E) ->
             IP = get_ip(E),
-            Port = get_port(E),
+            _Port = get_port(E),
             lsim_util:generate_spec(IP, Port)
         end,
         List
