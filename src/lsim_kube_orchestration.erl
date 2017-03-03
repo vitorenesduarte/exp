@@ -121,8 +121,8 @@ run_http(Method, Request) ->
         {ok, {{_, 200, _}, _, Body}} ->
             {ok, DecodeFun(Body)};
         {error, Reason} ->
-            ?LOG("Couldn't process ~p request ~p. Reason ~p",
-                 [Method, Request, Reason]),
+            ?LOG("Couldn't process ~p request. Reason ~p",
+                 [Method, Reason]),
             {error, invalid}
     end.
 
