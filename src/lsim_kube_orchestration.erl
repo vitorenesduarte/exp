@@ -105,11 +105,10 @@ http(Method, Path) ->
 
 %% @private
 http(Method, Path, Body) ->
-    EncodeFun = fun(Body) -> jsx:encode(Body) end,
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
-    run_http(Method, {URL, Headers, ContentType, EncodeFun(Body)}).
+    run_http(Method, {URL, Headers, ContentType, jsx:encode(Body)}).
 
 %% @private
 run_http(Method, Request) ->
