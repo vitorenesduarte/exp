@@ -134,8 +134,8 @@ connect([Node|Rest]=All, PeerService) ->
         Error ->
             ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
                  [Node, Error, ?INTERVAL]),
-                 timer:sleep(?INTERVAL),
-                 connect(All, PeerService)
+            timer:sleep(?INTERVAL),
+            connect(All, PeerService)
     end.
 
 %% @private
