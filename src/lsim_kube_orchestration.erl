@@ -67,7 +67,7 @@ get_tasks(Tag, Port) ->
 
 %% @private
 delete_tasks(Tag) ->
-    Path = deploy_path() ++ name(Tag),
+    Path = deploy_path() ++ "/" ++ name(Tag),
 
     Result = case http(get, Path) of
         {ok, Body0} ->
