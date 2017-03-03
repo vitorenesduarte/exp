@@ -116,7 +116,7 @@ run_http(Method, Request) ->
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
-    lager:info("REQUEST ~p~n~n~n", [Request]), 
+    lager:info("REQUEST ~p~n~n~n", [Request]),
 
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
@@ -196,6 +196,5 @@ decode(Binary) ->
 %% @private
 set_replicas_as_zero(Map) ->
     Spec0 = maps:get(<<"spec">>, Map),
-    Spec1 = maps:put(<<"replicas">>, <<0>>, Spec0),
+    Spec1 = maps:put(<<"replicas">>, 0, Spec0),
     maps:put(<<"spec">>, Spec1, Map).
-    
