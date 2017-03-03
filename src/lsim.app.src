@@ -9,7 +9,9 @@
                   stdlib,
                   crypto,
                   lager,
+                  ssl,
                   ldb,
+                  jsx,
                   partisan
                  ]},
   {mod, {lsim_app, []}},

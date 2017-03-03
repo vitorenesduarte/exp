@@ -25,7 +25,8 @@
 -behaviour(gen_server).
 
 %% lsim_simulation_runner callbacks
--export([start_link/3]).
+-export([start_link/1,
+         start/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -36,30 +37,37 @@
          code_change/3]).
 
 -record(state, {event_count :: non_neg_integer(),
+                start_fun :: function(),
                 event_fun :: function(),
-                total_events_fun :: function()}).
+                total_events_fun :: function(),
+                check_end_fun :: function()}).
 
 -define(DEFAULT_EVENT_INTERVAL, 1000).
 -define(SIMULATION_END_INTERVAL, 10000).
 
--spec start_link(function(), function(), function()) ->
+-spec start_link([function()]) ->
     {ok, pid()} | ignore | {error, term()}.
-start_link(StartFun, EventFun, TotalEventsFun) ->
-    gen_server:start_link({local, ?MODULE},
-                          ?MODULE,
-                          [StartFun, EventFun, TotalEventsFun],
-                          []).
+start_link(Funs) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Funs, []).
+
+-spec start() -> ok.
+start() ->
+    gen_server:call(?MODULE, start, infinity).
 
 %% gen_server callbacks
-init([StartFun, EventFun, TotalEventsFun]) ->
-    StartFun(),
-
-    schedule_first_event(),
-
+init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
     ?LOG("lsim_simulation_runner initialized"),
     {ok, #state{event_count=0,
+                start_fun=StartFun,
                 event_fun=EventFun,
-                total_events_fun=TotalEventsFun}}.
+                total_events_fun=TotalEventsFun,
+                check_end_fun=CheckEndFun}}.
+
+handle_call(start, _From, #state{start_fun=StartFun}=State) ->
+    StartFun(),
+    schedule_event(),
+
+    {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
@@ -71,37 +79,30 @@ handle_cast(Msg, State) ->
 
 handle_info(event, #state{event_count=Events0,
                           event_fun=EventFun}=State) ->
-    Events = case simulation_started() of
+    Events = Events0 + 1,
+    EventFun(Events),
+    ?LOG("Event ~p | Node ~p", [Events, node()]),
+
+    case Events == node_event_number() of
         true ->
-            Events1 = Events0 + 1,
-            EventFun(Events1),
-            ?LOG("Event ~p | Node ~p", [Events1, node()]),
-
-            case Events1 == node_event_number() of
-                true ->
-                    %% If I did all the events I should do
-                    schedule_simulation_end();
-                false ->
-                    schedule_event()
-            end,
-
-            Events1;
+            %% If I did all the events I should do
+            schedule_simulation_end();
         false ->
-            schedule_event(),
-            Events0
+            schedule_event()
     end,
 
     {noreply, State#state{event_count=Events}};
 
-handle_info(simulation_end, #state{total_events_fun=TotalEventsFun}=State) ->
+handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
+                                   check_end_fun=CheckEndFun}=State) ->
     TotalEvents = TotalEventsFun(),
     ?LOG("Events observed ~p | Node ~p", [TotalEvents, node()]),
 
-    case TotalEvents == node_event_number() * node_number() of
+    case CheckEndFun(node_number(), node_event_number()) of
         true ->
             %% If everyone did all the events they should do
             ?LOG("All events have been observed"),
-            lsim_config:set(simulation_end, true);
+            end_simulation();
         false ->
             schedule_simulation_end()
     end,
@@ -119,11 +120,6 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-simulation_started() ->
-    %% @todo Fix this for DCOS runs
-    not lsim_config:get(dcos, false).
-
-%% @private
 node_number() ->
     lsim_config:get(lsim_node_number).
 
@@ -132,15 +128,18 @@ node_event_number() ->
     lsim_config:get(lsim_node_event_number).
 
 %% @private
-schedule_first_event() ->
-    %% @todo hack
-    %% wait for connectedness
-    timer:send_after(?DEFAULT_EVENT_INTERVAL + 5000, event).
-
-%% @private
 schedule_event() ->
     timer:send_after(?DEFAULT_EVENT_INTERVAL, event).
 
 %% @private
 schedule_simulation_end() ->
     timer:send_after(?SIMULATION_END_INTERVAL, simulation_end).
+
+%% @private
+end_simulation() ->
+    case lsim_config:get(lsim_orchestration) of
+        undefined ->
+            lsim_config:set(lsim_simulation_end, true);
+        _ ->
+            lsim_rsg:simulation_end()
+    end.

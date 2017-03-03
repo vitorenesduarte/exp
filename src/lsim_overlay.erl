@@ -22,7 +22,8 @@
 
 -include("lsim.hrl").
 
--export([get/2]).
+-export([get/2,
+         to_connect/3]).
 
 %% @doc The first argument can be:
 %%          - `line'
@@ -32,6 +33,15 @@
 -spec get(atom(), non_neg_integer()) -> orddict:orddict().
 get(_, 1) ->
     [];
+get(hyparview, N) ->
+    %% In HyParView, everyone connects to a single node.
+    lists:foldl(
+        fun(I, Acc) ->
+            orddict:store(I, [0], Acc)
+        end,
+        [{0, []}],
+        lists:seq(1, N - 1)
+    );
 get(line, 3) ->
     [{0, [1]},
      {1, [0, 2]},
@@ -110,3 +120,57 @@ get(erdos_renyi, 13) ->
      {10, [0, 5, 9]},
      {11, [2, 5, 6, 9]},
      {12, [1, 2, 5]}].
+
+%% @doc The first argument is my node spec,
+%%      the second argument is a list of node specs,
+%%      and the third argument is the overlay.
+-spec to_connect(ldb_node_id(), [node_spec()], atom()) ->
+    [node_spec()].
+to_connect(MyName, Nodes, Overlay) ->
+    Map = list_to_map(Nodes),
+    {IdToName, MyId} = map_to_ids(MyName, Map),
+    NodeNumber = length(Nodes),
+    Topology = get(Overlay, NodeNumber),
+    find_peers(Map, IdToName, MyId, Topology).
+
+%% @private
+list_to_map(Nodes) ->
+    lists:foldl(
+        fun({Name, _, _}=Node, Acc) ->
+            orddict:store(Name, Node, Acc)
+        end,
+        orddict:new(),
+        Nodes
+    ).
+
+%% @private
+map_to_ids(MyName, Map) ->
+    {IdToName, MyId, _} = lists:foldl(
+        fun({Name, _}, {IdToName0, MyId0, Counter0}) ->
+            IdToName1 = orddict:store(Counter0, Name, IdToName0),
+            MyId1 = case MyName == Name of
+                true ->
+                    Counter0;
+                false ->
+                    MyId0
+            end,
+            Counter1 = Counter0 + 1,
+            {IdToName1, MyId1, Counter1}
+        end,
+        {orddict:new(), undefined, 0},
+        Map
+    ),
+
+    {IdToName, MyId}.
+
+%% @private
+find_peers(Map, IdToName, MyId, Topology) ->
+    IdsToConnect = orddict:fetch(MyId, Topology),
+
+    lists:map(
+        fun(PeerId) ->
+            PeerName = orddict:fetch(PeerId, IdToName),
+            orddict:fetch(PeerName, Map)
+        end,
+        IdsToConnect
+    ).

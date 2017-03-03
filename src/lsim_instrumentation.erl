@@ -76,7 +76,8 @@ init([]) ->
 
     {ok, TRef} = start_transmission_timer(),
 
-    lager:info("Instrumentation timer enabled!", extended),
+    ?LOG("lsim_instrumentation initialized"),
+
     {ok, #state{tref=TRef,
                 size_per_type=orddict:new(),
                 filename=Filename}}.
@@ -91,7 +92,7 @@ handle_call(log_id_and_file, _From, #state{filename=Filename}=State) ->
 
 handle_call(stop, _From, #state{tref=TRef}=State) ->
     {ok, cancel} = timer:cancel(TRef),
-    lager:info("Instrumentation timer disabled!", extended),
+    ?LOG("Instrumentation timer disabled!"),
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
@@ -167,7 +168,7 @@ simulation_id() ->
                  ++ "_"
                  ++ atom_to_list(lsim_config:get(lsim_overlay)),
     SimTimestamp = integer_to_list(
-        lsim_config:get(lsim_simulation_ts)
+        lsim_config:get(lsim_timestamp)
     ),
 
     Id = Simulation ++ "/"
