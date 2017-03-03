@@ -72,28 +72,8 @@ get_specs(Simulation) ->
             [StartFun,
              EventFun,
              TotalEventsFun,
-             CheckEndFun];
-
-        discovery ->
-            StartFun = fun() ->
-                ldb:create(?KEY, gcounter)
-            end,
-            EventFun = fun(_EventNumber) ->
-                ldb:update(?KEY, increment),
-                {ok, Members} = ldb_peer_service:members(),
-                lager:info("MEMBERS ~p", [Members])
-            end,
-            TotalEventsFun = fun() ->
-                {ok, Value} = ldb:query(?KEY),
-                Value
-            end,
-            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-                TotalEventsFun() == NodeNumber * NodeEventNumber
-            end,
-            [StartFun,
-             EventFun,
-             TotalEventsFun,
              CheckEndFun]
+
     end,
 
     create_spec(Funs).
