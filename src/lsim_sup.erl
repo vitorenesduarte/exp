@@ -63,9 +63,7 @@ configure_peer_service() ->
 
     %% configure partisan manager
     partisan_config:set(partisan_peer_service_manager,
-                        PeerService),
-    %% @todo
-    partisan_config:set(run_callback, false).
+                        PeerService).
 
 %% @private
 configure_ldb() ->
