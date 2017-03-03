@@ -34,12 +34,9 @@ start_link() ->
 init([]) ->
     configure_peer_service(),
     configure_ldb(),
+    {Simulation, Orchestration, RSG} = configure_lsim(),
 
-    LSimSpecs = lsim_specs(),
-    SimSpecs = sim_specs(),
-
-    Children = LSimSpecs ++
-               SimSpecs,
+    Children = lsim_specs(Simulation, Orchestration, RSG),
 
     ?LOG("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
@@ -48,9 +45,10 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
-    Overlay = lsim_configure_var("LSIM_OVERLAY",
-                                 lsim_overlay,
-                                 ?DEFAULT_OVERLAY),
+    Overlay = configure_var(lsim,
+                            "OVERLAY",
+                            lsim_overlay,
+                            ?DEFAULT_OVERLAY),
 
     PeerService = case Overlay of
         hyparview ->
@@ -68,68 +66,113 @@ configure_peer_service() ->
                         PeerService).
 
 %% @private
-%% os env vars override possible application env vars
 configure_ldb() ->
     %% configure ldb mode
-    ldb_configure_var("LDB_MODE",
-                      ldb_mode,
-                      ?DEFAULT_MODE),
+    configure_var(ldb,
+                  "LDB_MODE",
+                  ldb_mode,
+                  ?DEFAULT_MODE),
 
     %% configure join decompositions
-    ldb_configure_var("LDB_JOIN_DECOMPOSITIONS",
-                      ldb_join_decompositions,
-                      false).
+    configure_var(ldb,
+                  "LDB_JOIN_DECOMPOSITIONS",
+                  ldb_join_decompositions,
+                  false).
 
 %% @private
-%% os env vars override possible application env vars
-lsim_specs() ->
-    [{lsim_intrumentation,
-      {lsim_instrumentation, start_link, []},
-      permanent, 5000, worker, [lsim_instrumentation]}].
-
-%% @private
-%% os env vars override possible application env vars
-sim_specs() ->
+configure_lsim() ->
     %% configure lsim simulation
-    Simulation = lsim_configure_var("LSIM_SIMULATION",
-                                    lsim_simulation,
-                                    undefined),
+    Simulation = configure_var(lsim,
+                               "SIMULATION",
+                               lsim_simulation,
+                               undefined),
 
     %% configure node number
-    lsim_configure_int("LSIM_NODE_NUMBER",
-                       lsim_node_number,
-                       1),
+    configure_int(lsim,
+                  "NODE_NUMBER",
+                  lsim_node_number,
+                  1),
 
     %% configure node event number
-    lsim_configure_int("LSIM_NODE_EVENT_NUMBER",
-                       lsim_node_event_number,
-                       30),
+    configure_int(lsim,
+                  "NODE_EVENT_NUMBER",
+                  lsim_node_event_number,
+                  30),
 
     %% configure unique simulation timestamp
-    lsim_configure_int("LSIM_SIMULATION_TS",
-                       lsim_simulation_ts,
-                       0),
+    configure_int(lsim,
+                  "TIMESTAMP",
+                  lsim_timestamp,
+                  0),
 
-    %% specs
-    lsim_simulations:get_specs(Simulation).
+    %% configure api server
+    configure_str(lsim,
+                  "APISERVER",
+                  lsim_api_server,
+                  undefined),
+
+    %% configure auth token
+    configure_str(lsim,
+                  "TOKEN",
+                  lsim_token,
+                  undefined),
+
+    %% configure orchestration
+    Orchestration = configure_var(lsim,
+                                  "ORCHESTRATION",
+                                  lsim_orchestration,
+                                  undefined),
+
+    %% configure rsg master
+    RSG = configure_var(lsim,
+                        "RSG",
+                        lsim_rsg,
+                        false),
+
+    {Simulation, Orchestration, RSG}.
 
 %% @private
-ldb_configure_var(Env, Var, Default) ->
-    configure_var(ldb, Env, Var, Default).
+lsim_specs(Simulation, Orchestration, RSG) ->
+    InstrumentationSpecs = [{lsim_intrumentation,
+                             {lsim_instrumentation, start_link, []},
+                             permanent, 5000, worker,
+                             [lsim_instrumentation]}],
+    SimulationSpecs = lsim_simulations:get_specs(Simulation),
 
-%% @private
-lsim_configure_var(Env, Var, Default) ->
-    configure_var(lsim, Env, Var, Default).
+    RSGSpecs = case Orchestration of
+        undefined ->
+            [];
+        _ ->
+            BarrierPeerServiceSpecs = [{lsim_barrier_peer_service,
+                                        {lsim_barrier_peer_service,
+                                         start_link, []},
+                                        permanent, 5000, worker,
+                                        [lsim_barrier_peer_service]}],
+            Mod = case RSG of
+                true ->
+                    lsim_rsg_master;
+                false ->
+                    lsim_rsg
+            end,
 
-%% @private
-lsim_configure_int(Env, Var, Default) ->
-    configure_int(lsim, Env, Var, Default).
+            BarrierPeerServiceSpecs ++ [{Mod,
+                                         {Mod, start_link, []},
+                                         permanent, 5000, worker,
+                                         [Mod]}]
+    end,
+
+    InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.
 
 %% @private
 configure_var(App, Env, Var, Default) ->
     To = fun(V) -> atom_to_list(V) end,
     From = fun(V) -> list_to_atom(V) end,
     configure(App, Env, Var, Default, To, From).
+
+%% @private
+configure_str(App, Env, Var, Default) ->
+    F = fun(V) -> V end,
+    configure(App, Env, Var, Default, F, F).
 
 %% @private
 configure_int(App, Env, Var, Default) ->

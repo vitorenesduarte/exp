@@ -30,9 +30,10 @@
 %% @doc
 -spec get_specs(atom()) -> [term()].
 get_specs(Simulation) ->
-    case Simulation of
+    Funs = case Simulation of
         undefined ->
             [];
+
         gcounter ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
@@ -44,9 +45,14 @@ get_specs(Simulation) ->
                 {ok, Value} = ldb:query(?KEY),
                 Value
             end,
-            create_spec(StartFun,
-                        EventFun,
-                        TotalEventsFun);
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
+             CheckEndFun];
+
         gset ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
@@ -60,9 +66,14 @@ get_specs(Simulation) ->
                 {ok, Value} = ldb:query(?KEY),
                 sets:size(Value)
             end,
-            create_spec(StartFun,
-                        EventFun,
-                        TotalEventsFun);
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
+             CheckEndFun];
+
         group ->
             StartFun = fun() ->
                 Groups = lsim_config:get(groups),
@@ -74,28 +85,33 @@ get_specs(Simulation) ->
                     Groups
                 )
             end,
-
             EventFun = fun(_EventNumber) ->
                 [Group | _] = lsim_config:get(groups),
                 ldb:update(Group, increment)
             end,
-
             TotalEventsFun = fun() ->
                 {ok, V1} = ldb:query("g1"),
                 {ok, V2} = ldb:query("g2"),
                 V1 + V2
             end,
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
+             CheckEndFun]
+    end,
 
-            create_spec(StartFun,
-                        EventFun,
-                        TotalEventsFun)
-    end.
+    create_spec(Funs).
 
 %% @private
-create_spec(StartFun, EventFun, TotalEventsFun) ->
-    [{lsim_simulation_runner,
-      {lsim_simulation_runner, start_link,
-       [StartFun,
-        EventFun,
-        TotalEventsFun]},
-      permanent, 5000, worker, [lsim_simulation_runner]}].
+create_spec(Funs) ->
+    case Funs of
+        [] ->
+            [];
+        _ ->
+            [{lsim_simulation_runner,
+              {lsim_simulation_runner, start_link, [Funs]},
+              permanent, 5000, worker, [lsim_simulation_runner]}]
+    end.
