@@ -104,11 +104,12 @@ http(Method, Path) ->
     run_http(Method, {URL, Headers}).
 
 %% @private
-http(Method, Path, Body) ->
+http(Method, Path, Body0) ->
+    Body1 = binary_to_list(jsx:encode(Body0)),
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
-    run_http(Method, {URL, Headers, ContentType, jsx:encode(Body)}).
+    run_http(Method, {URL, Headers, ContentType, Body1}).
 
 %% @private
 run_http(Method, Request) ->
