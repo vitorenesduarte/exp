@@ -40,7 +40,7 @@ eqc:
 eunit:
 	${REBAR} as test eunit
 
-ct: state-based op-based simulations
+ct: state-based simulations
 
 state-based:
 	${REBAR} as test ct --suite=test/lsim_state_based_modes_SUITE
