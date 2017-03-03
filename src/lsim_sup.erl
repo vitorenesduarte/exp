@@ -129,6 +129,12 @@ configure_lsim() ->
                         lsim_rsg,
                         false),
 
+    %% configure logger
+    configure_var(lsim,
+                  "LOGGER",
+                  lsim_logger,
+                  undefined),
+
     {Simulation, Orchestration, RSG}.
 
 %% @private
@@ -139,7 +145,7 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                              [lsim_instrumentation]}],
     SimulationSpecs = lsim_simulations:get_specs(Simulation),
 
-    RSGSpecs = case Orchestration of
+    OrchestrationSpecs = case Orchestration of
         undefined ->
             [];
         _ ->
@@ -148,20 +154,27 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                                          start_link, []},
                                         permanent, 5000, worker,
                                         [lsim_barrier_peer_service]}],
-            Mod = case RSG of
+            RSGMod = case RSG of
                 true ->
                     lsim_rsg_master;
                 false ->
                     lsim_rsg
             end,
 
-            BarrierPeerServiceSpecs ++ [{Mod,
-                                         {Mod, start_link, []},
-                                         permanent, 5000, worker,
-                                         [Mod]}]
+            RSGSpecs = [{RSGMod,
+                         {RSGMod, start_link, []},
+                         permanent, 5000, worker,
+                         [RSGMod]}],
+
+            LoggerSpecs = [{lsim_logger,
+                            {lsim_logger, start_link, []},
+                            permanent, 5000, worker,
+                            [lsim_logger]}],
+
+            BarrierPeerServiceSpecs ++ RSGSpecs ++ LoggerSpecs
     end,
 
-    InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.
+    InstrumentationSpecs ++ SimulationSpecs ++ OrchestrationSpecs.
 
 %% @private
 configure_var(App, Env, Var, Default) ->
