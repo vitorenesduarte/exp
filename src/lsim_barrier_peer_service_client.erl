@@ -58,7 +58,6 @@ handle_info({forward_message, _Handler, _Message}=M,
             #state{socket=Socket}=State) ->
     case gen_tcp:send(Socket, encode(M)) of
         ok ->
-            ?LOG("SENDING ~p", [M]),
             ok;
         Error ->
             ?LOG("Failed to send message: ~p", [Error])
@@ -67,7 +66,6 @@ handle_info({forward_message, _Handler, _Message}=M,
     {noreply, State};
 
 handle_info({tcp, _Socket, Data}, State) ->
-    ?LOG("RECEIVED ~p", [decode(Data)]),
     handle_message(decode(Data)),
     {noreply, State};
 

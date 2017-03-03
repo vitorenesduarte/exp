@@ -40,8 +40,6 @@
 
 -record(state, {connected :: orddict:orddict()}).
 
--define(LOG_INTERVAL, 10000).
-
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).

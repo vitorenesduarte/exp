@@ -37,8 +37,6 @@
 
 -record(state, {listener :: gen_tcp:socket()}).
 
--define(LOG_INTERVAL, 5000).
-
 -spec start_link(node_port()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Port) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [Port], []).
