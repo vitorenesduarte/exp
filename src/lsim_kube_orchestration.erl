@@ -135,7 +135,6 @@ generate_spec(List, Port) ->
     lists:map(
         fun(E) ->
             IP = get_ip(E),
-            %_Port = list_to_integer(get_port(E)),
             lsim_util:generate_spec(IP, Port)
         end,
         List
@@ -146,29 +145,6 @@ get_ip(E) ->
     #{<<"status">> := Status} = E,
     #{<<"podIP">> := IP} = Status,
     decode(IP).
-
-%% @private
-%get_port(E) ->
-%    #{<<"spec">> := Spec} = E,
-%    #{<<"containers">> := [Container|_]} = Spec,
-%    #{<<"env">> := Envs} = Container,
-%
-%    PortBinary = lists:foldl(
-%        fun(Env, Acc) ->
-%            #{<<"name">> := Name} = Env,
-%            case Name of
-%                <<"PEER_PORT">> ->
-%                    #{<<"value">> := Value} = Env,
-%                    Value;
-%                _ ->
-%                    Acc
-%            end
-%        end,
-%        undefined,
-%        Envs
-%    ),
-%
-%    decode(PortBinary).
 
 %% @private
 decode(Binary) ->
