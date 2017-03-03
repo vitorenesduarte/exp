@@ -6,8 +6,6 @@
 #### Experiments
 
 - __BRANCH__: which lsim branch should instances run
-- __ORCHESTRATION__:
-  - kubernetes
 - __LDB_MODE__:
   - state_based
   - delta_based
@@ -27,7 +25,6 @@ hyparview, to see which number of nodes is supported for that overlay
   - gset
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
-- __TIMESTAMP__: Unique timestamp across all simulations
 
 
 #### Kubernetes
