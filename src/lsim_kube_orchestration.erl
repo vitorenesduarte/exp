@@ -115,6 +115,8 @@ run_http(Method, Request) ->
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
+    lager:info("REQUEST ~p", [Request]), 
+
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
             {ok, DecodeFun(Body)};
