@@ -32,3 +32,6 @@
 -define(BARRIER_PORT, 6867).
 -define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
+%% logs
+-type key() :: list().
+-type value() :: binary().
