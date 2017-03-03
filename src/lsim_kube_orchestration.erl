@@ -71,13 +71,13 @@ delete_tasks(Tag) ->
 
     Result = case http(get, Path) of
         {ok, Body0} ->
-            lager:info("BODY0 ~p", [Body0]),
+            lager:info("BODY0 ~p~n~n~n", [Body0]),
             Body1 = set_replicas_as_zero(Body0),
-            lager:info("BODY1 ~p", [Body1]),
+            lager:info("BODY1 ~p~n~n~n", [Body1]),
             PR = http(put, Path, Body1),
-            lager:info("PR ~p", [PR]),
+            lager:info("PR ~p~n~n~n", [PR]),
             DR = http(delete, Path),
-            lager:info("DR ~p", [DR]),
+            lager:info("DR ~p~n~n~n", [DR]),
             case {PR, DR} of
                 {{ok, _}, {ok, _}} ->
                     ok;
@@ -115,7 +115,7 @@ run_http(Method, Request) ->
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
-    lager:info("REQUEST ~p", [Request]), 
+    lager:info("REQUEST ~p~n~n~n", [Request]), 
 
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
