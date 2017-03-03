@@ -49,7 +49,7 @@ nodes(Port) ->
     ok.
 stop() ->
     ?LOG("WILL DELETE"),
-    delete_tasks(lsim),
+    ok = delete_tasks(lsim),
     ok = delete_tasks(rsg),
     ok.
 
@@ -105,10 +105,11 @@ http(Method, Path) ->
 
 %% @private
 http(Method, Path, Body) ->
+    EncodeFun = fun(Body) -> jsx:encode(Body) end,
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
-    run_http(Method, {URL, Headers, ContentType, Body}).
+    run_http(Method, {URL, Headers, ContentType, EncodeFun(Body)}).
 
 %% @private
 run_http(Method, Request) ->
