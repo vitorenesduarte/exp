@@ -154,24 +154,26 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                                          start_link, []},
                                         permanent, 5000, worker,
                                         [lsim_barrier_peer_service]}],
-            RSGMod = case RSG of
+            Specs = case RSG of
                 true ->
-                    lsim_rsg_master;
+                    [{lsim_rsg_master,
+                      {lsim_rsg_master, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_rsg_master]}];
                 false ->
-                    lsim_rsg
+                    Logger = [{lsim_logger,
+                               {lsim_logger, start_link, []},
+                               permanent, 5000, worker,
+                               [lsim_logger]}],
+
+                    Logger ++ [{lsim_rsg,
+                                {lsim_rsg, start_link, []},
+                                permanent, 5000, worker,
+                                [lsim_rsg]}]
             end,
 
-            RSGSpecs = [{RSGMod,
-                         {RSGMod, start_link, []},
-                         permanent, 5000, worker,
-                         [RSGMod]}],
 
-            LoggerSpecs = [{lsim_logger,
-                            {lsim_logger, start_link, []},
-                            permanent, 5000, worker,
-                            [lsim_logger]}],
-
-            BarrierPeerServiceSpecs ++ RSGSpecs ++ LoggerSpecs
+            BarrierPeerServiceSpecs ++ Specs
     end,
 
     InstrumentationSpecs ++ SimulationSpecs ++ OrchestrationSpecs.
