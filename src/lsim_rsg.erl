@@ -141,7 +141,6 @@ connect([Node|Rest]=All, PeerService) ->
 %% @private
 tell(Msg) ->
     {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
-    lager:info("Will tell ~p to ~p", [Msg, without_me(Members)]),
     lists:foreach(
         fun(Peer) ->
             ?BARRIER_PEER_SERVICE:forward_message(

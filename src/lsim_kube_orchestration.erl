@@ -55,8 +55,8 @@ stop() ->
 
 %% @private
 get_tasks(Tag, Port) ->
-    URL = get_url(Tag),
-    Nodes = case http(get, URL) of
+    Path = pods_path() ++ selector(Tag),
+    Nodes = case http(get, Path) of
         {ok, N} ->
             N;
         {error, invalid} ->
@@ -67,30 +67,60 @@ get_tasks(Tag, Port) ->
 
 %% @private
 delete_tasks(Tag) ->
-    URL = delete_url(Tag),
-    ?LOG("WILL DELETE ~p", [URL]),
+    Path = deploy_path() ++ name(Tag),
 
-    case http(delete, URL) of
-        {ok, Body} ->
-            ?LOG("delete ok ~p", [Body]);
+    Result = case http(get, Path) of
+        {ok, Body0} ->
+            lager:info("BODY0 ~p", [Body0]),
+            Body1 = set_replicas_as_zero(Body0),
+            lager:info("BODY1 ~p", [Body1]),
+            PR = http(put, Path, Body1),
+            lager:info("PR ~p", [PR]),
+            DR = http(delete, Path),
+            lager:info("DR ~p", [DR]),
+            case {PR, DR} of
+                {{ok, _}, {ok, _}} ->
+                    ok;
+                _ ->
+                    error
+            end;
         {error, invalid} ->
+            error
+    end,
+
+    case Result of
+        ok ->
+            ok;
+        error ->
             ?LOG("Delete failed. Trying again in 1 second"),
             timer:sleep(1000),
             delete_tasks(Tag)
     end.
 
 %% @private
-http(Method, URL) ->
+http(Method, Path) ->
+    URL = server() ++ Path,
     Headers = headers(),
+    run_http(Method, {URL, Headers}).
+
+%% @private
+http(Method, Path, Body) ->
+    URL = server() ++ Path,
+    Headers = headers(),
+    ContentType = "application/json",
+    run_http(Method, {URL, Headers, ContentType, Body}).
+
+%% @private
+run_http(Method, Request) ->
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
-    case httpc:request(Method, {URL, Headers}, [], Options) of
+    case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
             {ok, DecodeFun(Body)};
         {error, Reason} ->
-            lager:info("Couldn't process ~p request ~p. Reason ~p",
-                       [Method, URL, Reason]),
+            ?LOG("Couldn't process ~p request ~p. Reason ~p",
+                 [Method, Request, Reason]),
             {error, invalid}
     end.
 
@@ -100,23 +130,33 @@ headers() ->
     [{"Authorization", "Bearer " ++ Token}].
 
 %% @private
-get_url(Tag) ->
-    APIServer = lsim_config:get(lsim_api_server),
-    Timestamp = lsim_config:get(lsim_timestamp),
-
-    APIServer ++ "/api/v1/pods?labelSelector="
-              ++ "timestamp%3D" ++ integer_to_list(Timestamp)
-              ++ ",tag%3D" ++ atom_to_list(Tag).
+server() ->
+    lsim_config:get(lsim_api_server).
 
 %% @private
-delete_url(Tag) ->
-    APIServer = lsim_config:get(lsim_api_server),
-    Timestamp = lsim_config:get(lsim_timestamp),
+timestamp() ->
+    integer_to_list(lsim_config:get(lsim_timestamp)).
 
-    APIServer ++ "/apis/extensions/v1beta1/namespaces/default/deployments/"
-              ++ atom_to_list(Tag) ++ "-"
-              ++ integer_to_list(Timestamp)
-              ++ "?gracePeriodSeconds=0".
+%% @private
+pods_path() ->
+    "/api/v1/pods".
+
+%% @private
+selector(Tag) ->
+    "?labelSelector=" ++ "timestamp%3D" ++ timestamp()
+                      ++ ",tag%3D" ++ atom_to_list(Tag).
+
+%% @private
+name(Tag) ->
+    atom_to_list(Tag) ++ "-" ++ timestamp().
+
+%% @private
+prefix() ->
+    "/apis/extensions/v1beta1/namespaces/default".
+
+%% @private
+deploy_path() ->
+    prefix() ++ "/deployments".
 
 %% @private
 generate_nodes(Map, Port) ->
@@ -149,3 +189,10 @@ get_ip(E) ->
 %% @private
 decode(Binary) ->
     binary_to_list(Binary).
+
+%% @private
+set_replicas_as_zero(Map) ->
+    Spec0 = maps:get(<<"spec">>, Map),
+    Spec1 = maps:put(<<"replicas">>, <<0>>, Spec0),
+    maps:put(<<"spec">>, Spec1, Map).
+    
