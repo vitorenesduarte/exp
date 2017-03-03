@@ -65,7 +65,7 @@ handle_call(Msg, _From, State) ->
     {noreply, State}.
 
 handle_cast(go, State) ->
-    ?LOG("Received go. Starting simulation."),
+    ?LOG("Received GO. Starting simulation."),
     lsim_simulation_runner:start(),
     {noreply, State};
 
@@ -96,7 +96,6 @@ handle_info(join_peers, State) ->
                                                 Nodes,
                                                 Overlay),
             ok = connect(ToConnect, ?PEER_SERVICE),
-            ?LOG("I, ~p, am READY!", [ldb_config:id()]),
             tell({ready, ldb_config:id()});
         _ ->
             schedule_join_peers()

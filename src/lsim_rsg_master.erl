@@ -59,7 +59,7 @@ handle_call(Msg, _From, State) ->
 handle_cast({ready, NodeName},
             #state{nodes_ready=NodesReady0}=State) ->
 
-    ?LOG("Received ~p", [{ready, NodeName}]),
+    ?LOG("Received READY from ~p", [NodeName]),
 
     NodesReady1 = ordsets:add_element(NodeName, NodesReady0),
 
@@ -76,13 +76,13 @@ handle_cast({ready, NodeName},
 handle_cast({done, NodeName},
             #state{nodes_done=NodesDone0}=State) ->
 
-    ?LOG("Received ~p", [{done, NodeName}]),
+    ?LOG("Received DONE from ~p", [NodeName]),
 
     NodesDone1 = ordsets:add_element(NodeName, NodesDone0),
 
     case ordsets:size(NodesDone1) == node_number() of
         true ->
-            ?LOG("Everyone is done"),
+            ?LOG("Everyone is done. STOP!"),
             lsim_orchestration:stop();
         false ->
             ok
