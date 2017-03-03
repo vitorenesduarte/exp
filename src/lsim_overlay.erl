@@ -33,6 +33,15 @@
 -spec get(atom(), non_neg_integer()) -> orddict:orddict().
 get(_, 1) ->
     [];
+get(hyparview, N) ->
+    %% In HyParView, everyone connects to a single node.
+    lists:foldl(
+        fun(I, Acc) ->
+            orddict:store(I, [0], Acc)
+        end,
+        [{0, []}],
+        lists:seq(1, N - 1)
+    );
 get(line, 3) ->
     [{0, [1]},
      {1, [0, 2]},
