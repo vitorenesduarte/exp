@@ -48,7 +48,6 @@ nodes(Port) ->
 -spec stop() ->
     ok.
 stop() ->
-    ?LOG("WILL DELETE"),
     ok = delete_tasks(lsim),
     ok = delete_tasks(rsg),
     ok.
@@ -71,13 +70,9 @@ delete_tasks(Tag) ->
 
     Result = case http(get, Path) of
         {ok, Body0} ->
-            lager:info("BODY0 ~p~n~n~n", [Body0]),
             Body1 = set_replicas_as_zero(Body0),
-            lager:info("BODY1 ~p~n~n~n", [Body1]),
             PR = http(put, Path, Body1),
-            lager:info("PR ~p~n~n~n", [PR]),
             DR = http(delete, Path),
-            lager:info("DR ~p~n~n~n", [DR]),
             case {PR, DR} of
                 {{ok, _}, {ok, _}} ->
                     ok;
@@ -115,8 +110,6 @@ http(Method, Path, Body0) ->
 run_http(Method, Request) ->
     Options = [{body_format, binary}],
     DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
-
-    lager:info("REQUEST ~p~n~n~n", [Request]),
 
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
