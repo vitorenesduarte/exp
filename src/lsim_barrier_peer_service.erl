@@ -62,8 +62,6 @@ forward_message(LDBId, Handler, Message) ->
 %% gen_server callbacks
 init([]) ->
     {ok, _} = lsim_barrier_peer_service_server:start_link(?BARRIER_PORT),
-    schedule_log(),
-
     ?LOG("lsim_barrier_peer_service initialized!"),
     {ok, #state{connected=orddict:new()}}.
 
@@ -108,12 +106,6 @@ handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
     {noreply, State}.
 
-handle_info(log, #state{connected=Connected}=State) ->
-    _LDBIds = orddict:fetch_keys(Connected),
-    %?LOG("Current connected nodes ~p", [LDBIds]),
-    schedule_log(),
-    {noreply, State};
-
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
@@ -123,7 +115,3 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%% @private
-schedule_log() ->
-    timer:send_after(?LOG_INTERVAL, log).
