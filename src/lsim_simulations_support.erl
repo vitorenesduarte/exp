@@ -40,5 +40,21 @@ push_metrics(LSimTimeSeries) ->
         false ->
             ?LDB_METRICS:get_time_series()
     end,
-    ?LOG("LSIM ~p~n~nLDB ~p~n~n", [LSimTimeSeries, LDBTimeSeries]),
+
+    PerMessageType = lists:foldl(
+        fun({Timestamp, message, Metrics}, Acc0) ->
+            lists:foldl(
+                fun({MessageType, Size}, Acc1) ->
+                    orddict:append(MessageType, {Timestamp, Size}, Acc1)
+                end,
+                Acc0,
+                Metrics
+            )
+        end,
+        orddict:new(),
+        LDBTimeSeries
+    ),
+
+    lager:info("LSIM ~p~n~nLDB ~p~n~n", [LSimTimeSeries, LDBTimeSeries]),
+    lager:info("PER MT ~p~n~n", [PerMessageType]),
     ok.
