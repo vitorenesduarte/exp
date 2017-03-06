@@ -55,14 +55,12 @@ stop() ->
 %% @private
 get_tasks(Tag, Port) ->
     Path = pods_path() ++ selector(Tag),
-    Nodes = case http(get, Path) of
-        {ok, N} ->
-            N;
+    case http(get, Path) of
+        {ok, Nodes} ->
+            generate_nodes(Nodes, Port);
         {error, invalid} ->
             []
-    end,
-
-    generate_nodes(Nodes, Port).
+    end.
 
 %% @private
 delete_tasks(Tag) ->
