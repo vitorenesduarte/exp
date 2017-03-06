@@ -71,7 +71,7 @@ handle_cast(sim_go, State) ->
 
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),
-    lsim_simulations_support:push_metrics(),
+    lsim_simulations_support:push_ldb_metrics(),
     tell({metrics_done, ldb_config:id()}),
     {noreply, State};
 

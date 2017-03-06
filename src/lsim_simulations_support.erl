@@ -22,24 +22,20 @@
 
 -include("lsim.hrl").
 
--export([push_metrics/0,
-         push_metrics/1]).
+-export([push_lsim_metrics/1,
+         push_ldb_metrics/0]).
 
 -define(LDB_METRICS, ldb_metrics).
 -define(STORE, lsim_metrics_store).
 
--spec push_metrics() -> ok.
-push_metrics() ->
-    push_metrics([]).
+-spec push_lsim_metrics(timestamp()) -> ok.
+push_lsim_metrics(StartTime) ->
+    lager:info("TS ~p~n~n", [StartTime]),
+    ok.
 
--spec push_metrics(list()) -> ok.
-push_metrics(LSimTimeSeries) ->
-    LDBTimeSeries = case lsim_config:get(lsim_rsg) of
-        true ->
-            [];
-        false ->
-            ?LDB_METRICS:get_time_series()
-    end,
+-spec push_ldb_metrics() -> ok.
+push_ldb_metrics() ->
+    TimeSeries = ?LDB_METRICS:get_time_series(),
 
     PerMessageType = lists:foldl(
         fun({Timestamp, message, Metrics}, Acc0) ->
@@ -52,9 +48,15 @@ push_metrics(LSimTimeSeries) ->
             )
         end,
         orddict:new(),
-        LDBTimeSeries
+        TimeSeries
     ),
 
-    lager:info("LSIM ~p~n~nLDB ~p~n~n", [LSimTimeSeries, LDBTimeSeries]),
+    lager:info("TS ~p~n~n", [TimeSeries]),
     lager:info("PER MT ~p~n~n", [PerMessageType]),
     ok.
+
+%% @private
+%prefix() ->
+%    Simulation = lsim_config:get(lsim_simulation),
+%    Timestamp = lsim_config:get(lsim_timestamp),
+%    atom_to_list(Simulation) ++ "/" ++ integer_to_list(Timestamp).

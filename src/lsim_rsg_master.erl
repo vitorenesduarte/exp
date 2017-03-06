@@ -38,7 +38,7 @@
 -record(state, {connect_done:: ordsets:ordset(ldb_node_id()),
                 sim_done :: ordsets:ordset(ldb_node_id()),
                 metrics_done :: ordsets:ordset(ldb_node_id()),
-                time_series :: list()}).
+                start_time :: timestamp()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -54,28 +54,31 @@ init([]) ->
     {ok, #state{connect_done=ordsets:new(),
                 sim_done=ordsets:new(),
                 metrics_done=ordsets:new(),
-                time_series=[]}}.
+                start_time=0}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast({connect_done, NodeName},
-            #state{connect_done=ConnectDone0}=State) ->
+            #state{connect_done=ConnectDone0,
+                   start_time=T0}=State) ->
 
     ?LOG("Received CONNECT DONE from ~p", [NodeName]),
 
     ConnectDone1 = ordsets:add_element(NodeName, ConnectDone0),
 
-    case ordsets:size(ConnectDone1) == node_number() of
+    T1 = case ordsets:size(ConnectDone1) == node_number() of
         true ->
             ?LOG("Everyone is CONNECT DONE. SIM GO!"),
-            tell(sim_go);
+            tell(sim_go),
+            ldb_util:unix_timestamp();
         false ->
-            ok
+            T0
     end,
 
-    {noreply, State#state{connect_done=ConnectDone1}};
+    {noreply, State#state{connect_done=ConnectDone1,
+                          start_time=T1}};
 
 handle_cast({sim_done, NodeName},
             #state{sim_done=SimDone0}=State) ->
@@ -96,7 +99,7 @@ handle_cast({sim_done, NodeName},
 
 handle_cast({metrics_done, NodeName},
             #state{metrics_done=MetricsDone0,
-                   time_series=TimeSeries}=State) ->
+                   start_time=StartTime}=State) ->
 
     ?LOG("Received METRICS DONE from ~p", [NodeName]),
 
@@ -105,7 +108,7 @@ handle_cast({metrics_done, NodeName},
     case ordsets:size(MetricsDone1) == node_number() of
         true ->
             ?LOG("Everyone is METRICS DONE. STOP!!!"),
-            lsim_simulations_support:push_metrics(TimeSeries),
+            lsim_simulations_support:push_lsim_metrics(StartTime),
             lsim_orchestration:stop_tasks([lsim, rsg]);
         false ->
             ok
