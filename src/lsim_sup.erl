@@ -77,6 +77,12 @@ configure_ldb() ->
     configure_var(ldb,
                   "LDB_JOIN_DECOMPOSITIONS",
                   ldb_join_decompositions,
+                  false),
+
+    %% configure metrics
+    configure_var(ldb,
+                  "LDB_METRICS",
+                  ldb_metrics,
                   false).
 
 %% @private

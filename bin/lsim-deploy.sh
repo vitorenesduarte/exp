@@ -87,6 +87,8 @@ spec:
           value: "${LDB_MODE}"
         - name: LDB_JOIN_DECOMPOSITIONS
           value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: LDB_METRICS
+          value: "true"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION
