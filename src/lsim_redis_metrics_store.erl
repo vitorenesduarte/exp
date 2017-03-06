@@ -17,13 +17,13 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_redis_logger).
+-module(lsim_redis_metrics_store).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
 -behaviour(gen_server).
--behaviour(lsim_logger).
+-behaviour(lsim_metrics_store).
 
 %% lsim_logger callbacks
 -export([start_link/0,

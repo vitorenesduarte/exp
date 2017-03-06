@@ -28,7 +28,7 @@ TOKEN=$(kubectl describe secret |
         sed -E 's/token:\s+//')
 
 ORCHESTRATION=kubernetes
-LOGGER=redis
+METRICS_STORE=redis
 
 # Evaluation timestamp: unix timestamp + nanoseconds
 TIMESTAMP=$(date +%s)$(date +%N)
@@ -69,8 +69,8 @@ spec:
           value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
-        - name: LOGGER
-          value: "${LOGGER}"
+        - name: METRICS_STORE
+          value: "${METRICS_STORE}"
         - name: IP
           valueFrom:
             fieldRef:

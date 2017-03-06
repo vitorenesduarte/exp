@@ -135,10 +135,10 @@ configure_lsim() ->
                         lsim_rsg,
                         false),
 
-    %% configure logger
+    %% configure metrics store
     configure_var(lsim,
-                  "LOGGER",
-                  lsim_logger,
+                  "METRICS_STORE",
+                  lsim_metrics_store,
                   undefined),
 
     {Simulation, Orchestration, RSG}.
@@ -167,15 +167,15 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                       permanent, 5000, worker,
                       [lsim_rsg_master]}];
                 false ->
-                    Logger = [{lsim_logger,
-                               {lsim_logger, start_link, []},
-                               permanent, 5000, worker,
-                               [lsim_logger]}],
+                    Store = [{lsim_metrics_store,
+                              {lsim_metrics_store, start_link, []},
+                              permanent, 5000, worker,
+                              [lsim_metrics_store]}],
 
-                    Logger ++ [{lsim_rsg,
-                                {lsim_rsg, start_link, []},
-                                permanent, 5000, worker,
-                                [lsim_rsg]}]
+                    Store ++ [{lsim_rsg,
+                               {lsim_rsg, start_link, []},
+                               permanent, 5000, worker,
+                               [lsim_rsg]}]
             end,
 
 

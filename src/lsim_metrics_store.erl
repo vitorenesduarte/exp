@@ -17,7 +17,7 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_logger).
+-module(lsim_metrics_store).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
@@ -41,8 +41,8 @@ put(Key, Value) ->
 
 %% @private
 do(Function, Args) ->
-    Logger = lsim_config:get(lsim_logger),
-    case Logger of
+    Store = lsim_config:get(lsim_metrics_store),
+    case Store of
         redis ->
-            erlang:apply(lsim_redis_logger, Function, Args)
+            erlang:apply(lsim_redis_metrics_store, Function, Args)
     end.
