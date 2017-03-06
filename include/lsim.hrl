@@ -30,6 +30,7 @@
 %% barrier
 -define(PORT, 6866).
 -define(BARRIER_PORT, 6867).
+-define(REDIS_PORT, 6379).
 -define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
 %% logs

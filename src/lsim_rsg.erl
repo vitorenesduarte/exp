@@ -80,7 +80,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    case lsim_orchestration:rsg(?BARRIER_PORT) of
+    case lsim_orchestration:get_task(rsg, ?BARRIER_PORT, true) of
         {ok, RSG} ->
             ok = connect([RSG], ?BARRIER_PEER_SERVICE),
             schedule_join_peers();
@@ -92,7 +92,7 @@ handle_info(create_barrier, State) ->
 
 handle_info(join_peers, State) ->
     MyName = ldb_config:id(),
-    Nodes = lsim_orchestration:nodes(?PORT),
+    Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
     case length(Nodes) == node_number() of

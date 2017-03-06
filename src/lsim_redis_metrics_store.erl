@@ -78,8 +78,17 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% @private
 get_redis_config() ->
-    RedisHost = os:getenv("REDIS_SERVICE_HOST", "127.0.0.1"),
-    RedisPort = list_to_integer(
-        os:getenv("REDIS_SERVICE_PORT", "6379")
-    ),
-    {RedisHost, RedisPort}.
+    case lsim_orchestration:get_task(redis, ?REDIS_PORT, false) of
+        {ok, {_, IpAddress, Port}} ->
+            Ip = stringify(IpAddress),
+            {Ip, Port};
+        {error, not_connected} ->
+            ?LOG("Redis not connected. Trying again in 5 seconds."),
+            timer:sleep(5000),
+            get_redis_config()
+    end.
+
+%% @private
+stringify({A, B, C, D}) ->
+    To = fun(V) -> integer_to_list(V) end,
+    To(A) ++ "." ++ To(B) ++ "." ++ To(C) ++ "." ++ To(D).

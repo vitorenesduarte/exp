@@ -106,7 +106,7 @@ handle_cast({metrics_done, NodeName},
         true ->
             ?LOG("Everyone is METRICS DONE. STOP!!!"),
             lsim_simulations_support:push_metrics(TimeSeries),
-            lsim_orchestration:stop();
+            lsim_orchestration:stop_tasks([lsim, rsg]);
         false ->
             ok
     end,
@@ -118,7 +118,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    Nodes = lsim_orchestration:nodes(?BARRIER_PORT),
+    Nodes = lsim_orchestration:get_tasks(lsim, ?BARRIER_PORT, true),
 
     case length(Nodes) == node_number() of
         true ->
