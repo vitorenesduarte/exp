@@ -146,28 +146,17 @@ deploy_path() ->
 %% @private
 generate_nodes(Map, Port) ->
     #{<<"items">> := Items} = Map,
-    List = case Items of
-        null ->
-            [];
-        _ ->
-            Items
-    end,
-
-    generate_spec(List, Port).
-
-%% @private
-generate_spec(List, Port) ->
     lists:map(
-        fun(E) ->
-            IP = get_ip(E),
-            lsim_util:generate_spec(IP, Port)
+        fun(Item) ->
+            Ip = get_ip(Item),
+            lsim_util:generate_spec(Ip, Port)
         end,
-        List
+        Items
     ).
 
 %% @private
-get_ip(E) ->
-    #{<<"status">> := Status} = E,
+get_ip(Item) ->
+    #{<<"status">> := Status} = Item,
     #{<<"podIP">> := IP} = Status,
     decode(IP).
 
