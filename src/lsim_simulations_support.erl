@@ -33,7 +33,12 @@ push_metrics() ->
     push_metrics([]).
 
 -spec push_metrics(list()) -> ok.
-push_metrics(LSimTS) ->
-    LDBTS = ?LDB_METRICS:get_time_series(),
-    ?LOG("LSIM ~p~n~nLDB ~p~n~n", [LSimTS, LDBTS]),
+push_metrics(LSimTimeSeries) ->
+    LDBTimeSeries = case lsim_config:get(lsim_rsg) of
+        true ->
+            [];
+        false ->
+            ?LDB_METRICS:get_time_series()
+    end,
+    ?LOG("LSIM ~p~n~nLDB ~p~n~n", [LSimTimeSeries, LDBTimeSeries]),
     ok.
