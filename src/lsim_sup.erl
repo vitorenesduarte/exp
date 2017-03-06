@@ -160,26 +160,26 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                                          start_link, []},
                                         permanent, 5000, worker,
                                         [lsim_barrier_peer_service]}],
-            Specs = case RSG of
+
+            Store = [{lsim_metrics_store,
+                      {lsim_metrics_store, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_metrics_store]}],
+
+            RSGSpecs = case RSG of
                 true ->
                     [{lsim_rsg_master,
                       {lsim_rsg_master, start_link, []},
                       permanent, 5000, worker,
                       [lsim_rsg_master]}];
                 false ->
-                    Store = [{lsim_metrics_store,
-                              {lsim_metrics_store, start_link, []},
-                              permanent, 5000, worker,
-                              [lsim_metrics_store]}],
-
-                    Store ++ [{lsim_rsg,
-                               {lsim_rsg, start_link, []},
-                               permanent, 5000, worker,
-                               [lsim_rsg]}]
+                    [{lsim_rsg,
+                      {lsim_rsg, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_rsg]}]
             end,
 
-
-            BarrierPeerServiceSpecs ++ Specs
+            BarrierPeerServiceSpecs ++ Store ++ RSGSpecs
     end,
 
     InstrumentationSpecs ++ SimulationSpecs ++ OrchestrationSpecs.
