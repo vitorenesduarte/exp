@@ -35,8 +35,10 @@
          terminate/2,
          code_change/3]).
 
--record(state, {nodes_ready :: ordsets:ordset(ldb_node_id()),
-                nodes_done :: ordsets:ordset(ldb_node_id())}).
+-record(state, {connect_done:: ordsets:ordset(ldb_node_id()),
+                sim_done :: ordsets:ordset(ldb_node_id()),
+                metrics_done :: ordsets:ordset(ldb_node_id()),
+                time_series :: list()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -49,46 +51,67 @@ start_link() ->
 init([]) ->
     schedule_create_barrier(),
     ?LOG("lsim_rsg_master initialized"),
-    {ok, #state{nodes_ready=ordsets:new(),
-                nodes_done=ordsets:new()}}.
+    {ok, #state{connect_done=ordsets:new(),
+                sim_done=ordsets:new(),
+                metrics_done=ordsets:new(),
+                time_series=[]}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
-handle_cast({ready, NodeName},
-            #state{nodes_ready=NodesReady0}=State) ->
+handle_cast({connect_done, NodeName},
+            #state{connect_done=ConnectDone0}=State) ->
 
-    ?LOG("Received READY from ~p", [NodeName]),
+    ?LOG("Received CONNECT DONE from ~p", [NodeName]),
 
-    NodesReady1 = ordsets:add_element(NodeName, NodesReady0),
+    ConnectDone1 = ordsets:add_element(NodeName, ConnectDone0),
 
-    case ordsets:size(NodesReady1) == node_number() of
+    case ordsets:size(ConnectDone1) == node_number() of
         true ->
-            ?LOG("Everyone is ready. GO!"),
-            tell(go);
+            ?LOG("Everyone is CONNECT DONE. SIM GO!"),
+            tell(sim_go);
         false ->
             ok
     end,
 
-    {noreply, State#state{nodes_ready=NodesReady1}};
+    {noreply, State#state{connect_done=ConnectDone1}};
 
-handle_cast({done, NodeName},
-            #state{nodes_done=NodesDone0}=State) ->
+handle_cast({sim_done, NodeName},
+            #state{sim_done=SimDone0}=State) ->
 
-    ?LOG("Received DONE from ~p", [NodeName]),
+    ?LOG("Received SIM DONE from ~p", [NodeName]),
 
-    NodesDone1 = ordsets:add_element(NodeName, NodesDone0),
+    SimDone1 = ordsets:add_element(NodeName, SimDone0),
 
-    case ordsets:size(NodesDone1) == node_number() of
+    case ordsets:size(SimDone1) == node_number() of
         true ->
-            ?LOG("Everyone is done. STOP!"),
+            ?LOG("Everyone is SIM DONE. METRICS GO!"),
+            tell(metrics_go);
+        false ->
+            ok
+    end,
+
+    {noreply, State#state{sim_done=SimDone1}};
+
+handle_cast({metrics_done, NodeName},
+            #state{metrics_done=MetricsDone0,
+                   time_series=TimeSeries}=State) ->
+
+    ?LOG("Received METRICS DONE from ~p", [NodeName]),
+
+    MetricsDone1 = ordsets:add_element(NodeName, MetricsDone0),
+
+    case ordsets:size(MetricsDone1) == node_number() of
+        true ->
+            ?LOG("Everyone is METRICS DONE. STOP!!!"),
+            lsim_simulations_support:push_metrics(TimeSeries),
             lsim_orchestration:stop();
         false ->
             ok
     end,
 
-    {noreply, State#state{nodes_done=NodesDone1}};
+    {noreply, State#state{metrics_done=MetricsDone1}};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),

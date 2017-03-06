@@ -57,16 +57,22 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call(simulation_end, _From, State) ->
-    tell({done, ldb_config:id()}),
+    tell({sim_done, ldb_config:id()}),
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
-handle_cast(go, State) ->
-    ?LOG("Received GO. Starting simulation."),
+handle_cast(sim_go, State) ->
+    ?LOG("Received SIM GO. Starting simulation."),
     lsim_simulation_runner:start(),
+    {noreply, State};
+
+handle_cast(metrics_go, State) ->
+    ?LOG("Received METRICS GO. Pushing metrics."),
+    lsim_simulations_support:push_metrics(),
+    tell({metrics_done, ldb_config:id()}),
     {noreply, State};
 
 handle_cast(Msg, State) ->
@@ -96,7 +102,7 @@ handle_info(join_peers, State) ->
                                                 Nodes,
                                                 Overlay),
             ok = connect(ToConnect, ?PEER_SERVICE),
-            tell({ready, ldb_config:id()});
+            tell({connect_done, ldb_config:id()});
         _ ->
             schedule_join_peers()
     end,

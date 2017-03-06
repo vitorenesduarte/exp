@@ -17,24 +17,23 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_config).
+-module(lsim_simulations_support).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
--export([get/1,
-         get/2,
-         set/2]).
+-export([push_metrics/0,
+         push_metrics/1]).
 
--spec get(atom()) -> term().
-get(Property) ->
-    {ok, Value} = application:get_env(?APP, Property),
-    Value.
+-define(LDB_METRICS, ldb_metrics).
+-define(STORE, lsim_metrics_store).
 
--spec get(atom(), term()) -> term().
-get(Property, Default) ->
-    application:get_env(?APP, Property, Default).
+-spec push_metrics() -> ok.
+push_metrics() ->
+    push_metrics([]).
 
--spec set(atom(), term()) -> ok.
-set(Property, Value) ->
-    application:set_env(?APP, Property, Value).
+-spec push_metrics(list()) -> ok.
+push_metrics(LSimTS) ->
+    LDBTS = ?LDB_METRICS:get_time_series(),
+    ?LOG("LSIM ~p~n~nLDB ~p~n~n", [LSimTS, LDBTS]),
+    ok.

@@ -25,7 +25,7 @@
 -behaviour(gen_server).
 -behaviour(lsim_metrics_store).
 
-%% lsim_logger callbacks
+%% lsim_metrics_store callbacks
 -export([start_link/0,
          put/2]).
 
@@ -49,12 +49,9 @@ put(Key, Value) ->
 
 %% gen_server callbacks
 init([]) ->
-    RedisHost = os:getenv("REDIS_SERVICE_HOST", "127.0.0.1"),
-    RedisPort = list_to_integer(
-        os:getenv("REDIS_SERVICE_PORT", "6379")
-    ),
-    {ok, Redis} = eredis:start_link(RedisHost, RedisPort),
-    ?LOG("lsim_redis_logger initialized"),
+    {Host, Port} = get_redis_config(),
+    {ok, Redis} = eredis:start_link(Host, Port),
+    ?LOG("lsim_redis_metrics_store initialized"),
     {ok, #state{redis=Redis}}.
 
 handle_call({put, Key, Value}, _From, #state{redis=Redis}=State) ->
@@ -78,3 +75,11 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% @private
+get_redis_config() ->
+    RedisHost = os:getenv("REDIS_SERVICE_HOST", "127.0.0.1"),
+    RedisPort = list_to_integer(
+        os:getenv("REDIS_SERVICE_PORT", "6379")
+    ),
+    {RedisHost, RedisPort}.

@@ -25,7 +25,7 @@
 -export([start_link/0,
          put/2]).
 
-%% @doc Start the logger.
+%% @doc Start the store.
 -callback start_link() -> {ok, pid()} | ignore | {error, term()}.
 
 %% @doc Stores some `value()' associated with some `key()'.
