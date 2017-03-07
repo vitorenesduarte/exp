@@ -30,11 +30,14 @@
 
 -spec push_lsim_metrics(timestamp()) -> ok.
 push_lsim_metrics(StartTime) ->
-    lager:info("TS ~p~n~n", [StartTime]),
+    FilePath = file_path(rsg),
+    File = "start," ++ integer_to_list(StartTime),
+    store(FilePath, File),
     ok.
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
+    FilePath = file_path(ldb_config:id()),
     TimeSeries = ?LDB_METRICS:get_time_series(),
 
     PerMessageType = lists:foldl(
@@ -51,12 +54,37 @@ push_ldb_metrics() ->
         TimeSeries
     ),
 
-    lager:info("TS ~p~n~n", [TimeSeries]),
-    lager:info("PER MT ~p~n~n", [PerMessageType]),
+    File = orddict:fold(
+        fun(MessageType, Metrics, Acc0) ->
+            lists:foldl(
+                fun({Timestamp, Size}, Acc1) ->
+                    Acc1 ++ integer_to_list(Timestamp) ++ ","
+                         ++ atom_to_list(MessageType) ++ ","
+                         ++ integer_to_list(Size)
+                         ++ "\n"
+                end,
+                Acc0,
+                Metrics
+            )
+        end,
+        "",
+        PerMessageType
+    ),
+
+    store(FilePath, File),
     ok.
 
 %% @private
-%prefix() ->
-%    Simulation = lsim_config:get(lsim_simulation),
-%    Timestamp = lsim_config:get(lsim_timestamp),
-%    atom_to_list(Simulation) ++ "/" ++ integer_to_list(Timestamp).
+file_path(Name) ->
+    Simulation = lsim_config:get(lsim_simulation),
+    Timestamp = lsim_config:get(lsim_timestamp),
+    Filename = atom_to_list(Simulation) ++ "/" 
+            ++ integer_to_list(Timestamp) ++ "/"
+            ++ atom_to_list(Name) ++ ".csv",
+    Filename.
+
+%% @private
+store(FilePath, File) ->
+    lager:info("FilePath ~p~n | File ~p~n", [File, FilePath]),
+    Binary = list_to_binary(File),
+    ok = ?STORE:put(FilePath, Binary).
