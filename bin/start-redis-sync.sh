@@ -7,7 +7,7 @@ POD_NAME=$(kubectl describe pod redis |
 PORT=6379
 DIR=$(dirname $0)
 
-kubectl port-forward ${POD_NAME} ${PORT}:${PORT} & PROXY_PID=$!
+kubectl port-forward ${POD_NAME} ${PORT}:${PORT} & TUNNEL_PID=$!
 
 echo "Port forwarding starting..."
 sleep 3
@@ -16,5 +16,5 @@ sleep 3
 
 echo "All files downloaded!"
 
-kill ${PROXY_PID}
+kill ${TUNNEL_PID}
 

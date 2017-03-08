@@ -27,6 +27,7 @@
 
 -define(LDB_METRICS, ldb_metrics).
 -define(STORE, lsim_metrics_store).
+-define(SEP, ",").
 
 -spec push_lsim_metrics(timestamp()) -> ok.
 push_lsim_metrics(StartTime) ->
@@ -58,10 +59,10 @@ push_ldb_metrics() ->
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
                 fun({Timestamp, Size}, Acc1) ->
-                    Acc1 ++ integer_to_list(Timestamp) ++ ","
-                         ++ atom_to_list(MessageType) ++ ","
-                         ++ integer_to_list(Size)
-                         ++ "\n"
+                    L = [integer_to_list(Timestamp),
+                         atom_to_list(MessageType),
+                         integer_to_list(Size)],
+                    Acc1 ++ lists:flatten(lists:join(?SEP, L)) ++ "\n"
                 end,
                 Acc0,
                 Metrics
@@ -85,6 +86,5 @@ file_path(Name) ->
 
 %% @private
 store(FilePath, File) ->
-    lager:info("FilePath ~p~n | File ~p~n", [File, FilePath]),
     Binary = list_to_binary(File),
     ok = ?STORE:put(FilePath, Binary).
