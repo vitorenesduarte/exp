@@ -17,24 +17,32 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_config).
+-module(lsim_metrics_store).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
 
 -include("lsim.hrl").
 
--export([get/1,
-         get/2,
-         set/2]).
+-export([start_link/0,
+         put/2]).
 
--spec get(atom()) -> term().
-get(Property) ->
-    {ok, Value} = application:get_env(?APP, Property),
-    Value.
+%% @doc Start the store.
+-callback start_link() -> {ok, pid()} | ignore | {error, term()}.
 
--spec get(atom(), term()) -> term().
-get(Property, Default) ->
-    application:get_env(?APP, Property, Default).
+%% @doc Stores some `value()' associated with some `key()'.
+-callback put(key(), value()) -> ok.
 
--spec set(atom(), term()) -> ok.
-set(Property, Value) ->
-    application:set_env(?APP, Property, Value).
+-spec start_link() -> {ok, pid()} | ignore | {error, term()}.
+start_link() ->
+    do(start_link, []).
+
+-spec put(key(), value()) -> ok.
+put(Key, Value) ->
+    do(put, [Key, Value]).
+
+%% @private
+do(Function, Args) ->
+    Store = lsim_config:get(lsim_metrics_store),
+    case Store of
+        redis ->
+            erlang:apply(lsim_redis_metrics_store, Function, Args)
+    end.

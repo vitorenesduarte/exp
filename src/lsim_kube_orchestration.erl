@@ -24,48 +24,31 @@
 
 -behaviour(lsim_orchestration).
 
--export([rsg/1,
-         nodes/1,
-         stop/0]).
+-export([get_tasks/3,
+         stop_tasks/1]).
 
--spec rsg(node_port()) ->
-    {ok, node_spec()} | {error, not_connected}.
-rsg(Port) ->
-    Nodes = get_tasks(rsg, Port),
-
-    case Nodes of
-        [] ->
-            {error, not_connected};
-        [RSG|_] ->
-            {ok, RSG}
-    end.
-
--spec nodes(node_port()) ->
-    [node_spec()].
-nodes(Port) ->
-    get_tasks(lsim, Port).
-
--spec stop() ->
-    ok.
-stop() ->
-    ok = delete_tasks(lsim),
-    ok = delete_tasks(rsg),
-    ok.
-
-%% @private
-get_tasks(Tag, Port) ->
-    Path = pods_path() ++ selector(Tag),
-    Nodes = case http(get, Path) of
-        {ok, N} ->
-            N;
+-spec get_tasks(atom(), node_port(), boolean()) -> [node_spec()].
+get_tasks(Tag, Port, FilterByTimestamp) ->
+    Path = pods_path() ++ selector(Tag, FilterByTimestamp),
+    case http(get, Path) of
+        {ok, Nodes} ->
+            generate_nodes(Nodes, Port);
         {error, invalid} ->
             []
-    end,
+    end.
 
-    generate_nodes(Nodes, Port).
+-spec stop_tasks([atom()]) -> ok.
+stop_tasks(Tags) ->
+    lists:foreach(
+        fun(Tag) ->
+            ok = delete_task(Tag)
+        end,
+        Tags
+    ),
+    ok.
 
 %% @private
-delete_tasks(Tag) ->
+delete_task(Tag) ->
     Path = deploy_path() ++ "/" ++ name(Tag),
 
     Result = case http(get, Path) of
@@ -89,7 +72,7 @@ delete_tasks(Tag) ->
         error ->
             ?LOG("Delete failed. Trying again in 1 second"),
             timer:sleep(1000),
-            delete_tasks(Tag)
+            delete_task(Tag)
     end.
 
 %% @private
@@ -100,10 +83,10 @@ http(Method, Path) ->
 
 %% @private
 http(Method, Path, Body0) ->
-    Body1 = binary_to_list(jsx:encode(Body0)),
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
+    Body1 = binary_to_list(jsx:encode(Body0)),
     run_http(Method, {URL, Headers, ContentType, Body1}).
 
 %% @private
@@ -138,9 +121,15 @@ pods_path() ->
     "/api/v1/pods".
 
 %% @private
-selector(Tag) ->
-    "?labelSelector=" ++ "timestamp%3D" ++ timestamp()
-                      ++ ",tag%3D" ++ atom_to_list(Tag).
+selector(Tag, FilterByTimestamp) ->
+    Selector = "?labelSelector=" ++ "tag%3D" ++ atom_to_list(Tag),
+
+    case FilterByTimestamp of
+        true ->
+            Selector ++ ",timestamp%3D" ++ timestamp();
+        false ->
+            Selector
+    end.
 
 %% @private
 name(Tag) ->
@@ -157,28 +146,17 @@ deploy_path() ->
 %% @private
 generate_nodes(Map, Port) ->
     #{<<"items">> := Items} = Map,
-    List = case Items of
-        null ->
-            [];
-        _ ->
-            Items
-    end,
-
-    generate_spec(List, Port).
-
-%% @private
-generate_spec(List, Port) ->
     lists:map(
-        fun(E) ->
-            IP = get_ip(E),
-            lsim_util:generate_spec(IP, Port)
+        fun(Item) ->
+            Ip = get_ip(Item),
+            lsim_util:generate_spec(Ip, Port)
         end,
-        List
+        Items
     ).
 
 %% @private
-get_ip(E) ->
-    #{<<"status">> := Status} = E,
+get_ip(Item) ->
+    #{<<"status">> := Status} = Item,
     #{<<"podIP">> := IP} = Status,
     decode(IP).
 

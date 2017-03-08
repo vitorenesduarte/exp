@@ -12,7 +12,8 @@
                   ssl,
                   ldb,
                   jsx,
-                  partisan
+                  partisan,
+                  eredis
                  ]},
   {mod, {lsim_app, []}},
   {modules, []}

@@ -8,6 +8,7 @@
 -type node_spec() :: {ldb_node_id(), node_ip(), node_port()}.
 -type handler() :: term(). %% module
 -type message() :: term().
+-type timestamp() :: non_neg_integer().
 
 %% defaults
 -define(DEFAULT_OVERLAY, hyparview).
@@ -30,5 +31,9 @@
 %% barrier
 -define(PORT, 6866).
 -define(BARRIER_PORT, 6867).
+-define(REDIS_PORT, 6379).
 -define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
+%% logs
+-type key() :: list().
+-type value() :: binary().

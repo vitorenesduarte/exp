@@ -28,6 +28,7 @@ TOKEN=$(kubectl describe secret |
         sed -E 's/token:\s+//')
 
 ORCHESTRATION=kubernetes
+METRICS_STORE=redis
 
 # Evaluation timestamp: unix timestamp + nanoseconds
 TIMESTAMP=$(date +%s)$(date +%N)
@@ -68,6 +69,8 @@ spec:
           value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
+        - name: METRICS_STORE
+          value: "${METRICS_STORE}"
         - name: IP
           valueFrom:
             fieldRef:
@@ -84,6 +87,8 @@ spec:
           value: "${LDB_MODE}"
         - name: LDB_JOIN_DECOMPOSITIONS
           value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: LDB_METRICS
+          value: "true"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION
@@ -116,20 +121,30 @@ spec:
           value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
+        - name: METRICS_STORE
+          value: "${METRICS_STORE}"
         - name: IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: PEER_PORT
-          value: "${PEER_PORT}"
         - name: APISERVER
           value: "${APISERVER}"
         - name: TOKEN
           value: "${TOKEN}"
         - name: TIMESTAMP
           value: "${TIMESTAMP}"
+        - name: LDB_MODE
+          value: "${LDB_MODE}"
+        - name: LDB_JOIN_DECOMPOSITIONS
+          value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: OVERLAY
+          value: "${OVERLAY}"
+        - name: SIMULATION
+          value: "${SIMULATION}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
+        - name: NODE_EVENT_NUMBER
+          value: "${NODE_EVENT_NUMBER}"
         - name: RSG
           value: "true"
 EOF

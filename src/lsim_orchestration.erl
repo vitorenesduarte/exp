@@ -22,32 +22,37 @@
 
 -include("lsim.hrl").
 
--export([rsg/1,
-         nodes/1,
-         stop/0]).
+-export([get_task/3,
+         get_tasks/3,
+         stop_tasks/1]).
 
-%% @doc Returns the specs of the rsg master, given a port.
--callback rsg(node_port()) ->
+%% @doc Returns the specs of tag, given a name, a port, and
+%%      filtering by timestamp if the third argument is true.
+-callback get_tasks(atom(), node_port(), boolean()) -> [node_spec()].
+
+%% @doct Stop tasks, given a list of tags
+-callback stop_tasks([atom()]) -> ok.
+
+
+-spec get_task(atom(), node_port(), boolean()) ->
     {ok, node_spec()} | {error, not_connected}.
+get_task(Tag, Port, FilterByTimestamp) ->
+    Nodes = get_tasks(Tag, Port, FilterByTimestamp),
 
-%% @doc Returns the specs of the running nodes, given a port.
--callback nodes(node_port()) ->
-    [node_spec()].
+    case Nodes of
+        [] ->
+            {error, not_connected};
+        [Task|_] ->
+            {ok, Task}
+    end.
 
--spec rsg(node_port()) ->
-    {ok, node_spec()} | {error, not_connected}.
-rsg(Port) ->
-    do(rsg, [Port]).
+-spec get_tasks(atom(), node_port(), boolean()) -> [node_spec()].
+get_tasks(Tag, Port, FilterByTimestamp) ->
+    do(get_tasks, [Tag, Port, FilterByTimestamp]).
 
--spec nodes(node_port()) ->
-    [node_spec()].
-nodes(Port) ->
-    do(nodes, [Port]).
-
--spec stop() ->
-    ok.
-stop() ->
-    do(stop, []).
+-spec stop_tasks([atom()]) -> ok.
+stop_tasks(Tags) ->
+    do(stop_tasks, [Tags]).
 
 %% @private
 do(Function, Args) ->

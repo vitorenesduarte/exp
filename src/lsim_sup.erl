@@ -77,6 +77,12 @@ configure_ldb() ->
     configure_var(ldb,
                   "LDB_JOIN_DECOMPOSITIONS",
                   ldb_join_decompositions,
+                  false),
+
+    %% configure metrics
+    configure_var(ldb,
+                  "LDB_METRICS",
+                  ldb_metrics,
                   false).
 
 %% @private
@@ -129,6 +135,12 @@ configure_lsim() ->
                         lsim_rsg,
                         false),
 
+    %% configure metrics store
+    configure_var(lsim,
+                  "METRICS_STORE",
+                  lsim_metrics_store,
+                  undefined),
+
     {Simulation, Orchestration, RSG}.
 
 %% @private
@@ -139,7 +151,7 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                              [lsim_instrumentation]}],
     SimulationSpecs = lsim_simulations:get_specs(Simulation),
 
-    RSGSpecs = case Orchestration of
+    OrchestrationSpecs = case Orchestration of
         undefined ->
             [];
         _ ->
@@ -148,20 +160,29 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                                          start_link, []},
                                         permanent, 5000, worker,
                                         [lsim_barrier_peer_service]}],
-            Mod = case RSG of
+
+            Store = [{lsim_metrics_store,
+                      {lsim_metrics_store, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_metrics_store]}],
+
+            RSGSpecs = case RSG of
                 true ->
-                    lsim_rsg_master;
+                    [{lsim_rsg_master,
+                      {lsim_rsg_master, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_rsg_master]}];
                 false ->
-                    lsim_rsg
+                    [{lsim_rsg,
+                      {lsim_rsg, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_rsg]}]
             end,
 
-            BarrierPeerServiceSpecs ++ [{Mod,
-                                         {Mod, start_link, []},
-                                         permanent, 5000, worker,
-                                         [Mod]}]
+            BarrierPeerServiceSpecs ++ Store ++ RSGSpecs
     end,
 
-    InstrumentationSpecs ++ SimulationSpecs ++ RSGSpecs.
+    InstrumentationSpecs ++ SimulationSpecs ++ OrchestrationSpecs.
 
 %% @private
 configure_var(App, Env, Var, Default) ->

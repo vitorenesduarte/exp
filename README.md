@@ -13,6 +13,7 @@
 - __LDB_JOIN_DECOMPOSITIONS__: when set to _true_, applies
 join-decompositions to the received delta groups (this will only
 have an effect if __LBD_MODE=delta_based__)
+- __LDB_METRICS__: metrics are recorded if _true_
 - __OVERLAY__:
   - hyparview
   - line
