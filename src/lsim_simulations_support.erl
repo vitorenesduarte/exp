@@ -78,7 +78,7 @@ push_ldb_metrics() ->
 file_path(Name) ->
     Simulation = lsim_config:get(lsim_simulation),
     Timestamp = lsim_config:get(lsim_timestamp),
-    Filename = atom_to_list(Simulation) ++ "/" 
+    Filename = atom_to_list(Simulation) ++ "/"
             ++ integer_to_list(Timestamp) ++ "/"
             ++ atom_to_list(Name) ++ ".csv",
     Filename.
