@@ -41,7 +41,7 @@
 -include_lib("kernel/include/inet.hrl").
 
 -define(NODE_NUMBER, 3).
--define(EVENT_NUMBER, 10).
+-define(EVENT_NUMBER, 5).
 
 %% ===================================================================
 %% common_test callbacks
