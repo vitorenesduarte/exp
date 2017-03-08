@@ -107,6 +107,8 @@ file_path(Name) ->
 
 %% @private
 get_configs(App, Vars) ->
+    lager:info("App ~p~n", [App]),
+    lager:info("Vars ~p~n", [Vars]),
     lists:map(
         fun(Var) ->
             Mod = case App of
@@ -115,6 +117,7 @@ get_configs(App, Vars) ->
                 lsim ->
                     lsim_config
             end,
+            lager:info("Mod ~p~n", [Mod]),
             lager:info("~p~n~n", [{Var, Mod:get(App, Var)}]),
             {Var, Mod:get(App, Var)}
         end,
