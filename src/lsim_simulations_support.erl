@@ -115,7 +115,7 @@ get_configs(App, Vars) ->
                 lsim ->
                     lsim_config
             end,
-            {Var, Mod:get(App, Var)}
+            {Var, Mod:get(Var)}
         end,
         Vars
     ).
