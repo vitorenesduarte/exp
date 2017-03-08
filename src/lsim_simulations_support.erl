@@ -31,14 +31,36 @@
 
 -spec push_lsim_metrics(timestamp()) -> ok.
 push_lsim_metrics(StartTime) ->
+    LDBVars = [ldb_mode,
+               ldb_join_decompositions],
+    LDBConfigs = get_configs(ldb, LDBVars),
+
+    LSimVars = [lsim_overlay,
+                lsim_node_number,
+                lsim_simulation,
+                lsim_node_event_number],
+    LSimConfigs = get_configs(lsim, LSimVars),
+
+    All = [{start_time, StartTime}]
+       ++ LDBConfigs
+       ++ LSimConfigs,
+
     FilePath = file_path(rsg),
-    File = "start," ++ integer_to_list(StartTime),
+    File = lists:foldl(
+        fun({K, V}, Acc) ->
+            List = [str(K),
+                    str(V)],
+            Acc ++ csv_line(List)
+        end,
+        "",
+        All
+    ),
+
     store(FilePath, File),
     ok.
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    FilePath = file_path(ldb_config:id()),
     TimeSeries = ?LDB_METRICS:get_time_series(),
 
     PerMessageType = lists:foldl(
@@ -55,14 +77,15 @@ push_ldb_metrics() ->
         TimeSeries
     ),
 
+    FilePath = file_path(ldb_config:id()),
     File = orddict:fold(
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
                 fun({Timestamp, Size}, Acc1) ->
-                    L = [integer_to_list(Timestamp),
-                         atom_to_list(MessageType),
-                         integer_to_list(Size)],
-                    Acc1 ++ lists:flatten(lists:join(?SEP, L)) ++ "\n"
+                    List = [str(Timestamp),
+                            str(MessageType),
+                            str(Size)],
+                    Acc1 ++ csv_line(List)
                 end,
                 Acc0,
                 Metrics
@@ -78,9 +101,34 @@ push_ldb_metrics() ->
 %% @private
 file_path(Name) ->
     Timestamp = lsim_config:get(lsim_timestamp),
-    Filename = integer_to_list(Timestamp) ++ "/"
-            ++ atom_to_list(Name) ++ ".csv",
+    Filename = str(Timestamp) ++ "/"
+            ++ str(Name) ++ ".csv",
     Filename.
+
+%% @private
+get_configs(App, Vars) ->
+    lists:map(
+        fun(Var) ->
+            Mod = case App of
+                ldb ->
+                    ldb_config;
+                lsim ->
+                    lsim_config
+            end,
+            {Var, Mod:get(App, Var)}
+        end,
+        Vars
+    ).
+
+%% @private
+str(V) when is_atom(V) ->
+    atom_to_list(V);
+str(V) when is_integer(V) ->
+    integer_to_list(V).
+
+%% @private
+csv_line(List) ->
+    lists:flatten(lists:join(?SEP, List)) ++ "\n".
 
 %% @private
 store(FilePath, File) ->
