@@ -115,6 +115,7 @@ get_configs(App, Vars) ->
                 lsim ->
                     lsim_config
             end,
+            lager:info("~p~n~n", [{Var, Mod:get(App, Var)}]),
             {Var, Mod:get(App, Var)}
         end,
         Vars
