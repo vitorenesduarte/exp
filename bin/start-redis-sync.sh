@@ -6,13 +6,14 @@ POD_NAME=$(kubectl describe pod redis |
 
 PORT=6379
 DIR=$(dirname $0)
+LOG_DIR=${DIR}/../priv/evaluation/logs
 
 kubectl port-forward ${POD_NAME} ${PORT}:${PORT} & TUNNEL_PID=$!
 
 echo "Port forwarding starting..."
 sleep 3
 
-./$DIR/redis-sync.erl
+LOG_DIR=$LOG_DIR ./$DIR/redis-sync.erl
 
 echo "All files downloaded!"
 

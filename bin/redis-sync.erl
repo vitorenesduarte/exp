@@ -8,12 +8,12 @@ main(_) ->
     %% get all the redis keys
     {ok, Keys} = eredis:q(Redis, ["KEYS", "*"]),
 
-    %% clear log folder
-    os:cmd("rm -rf " ++ log_folder()),
+    %% clear log dir
+    os:cmd("rm -rf " ++ log_dir()),
 
     lists:foreach(
         fun(Filename) ->
-            %% for all the keys (files), save them in the log folder
+            %% for all the keys (files), save them in the log dir
             {ok, File} = eredis:q(Redis, ["GET", Filename]),
             save(Filename, File)
         end,
@@ -28,8 +28,8 @@ redis_connection() ->
     Redis.
 
 %% @private
-log_folder() ->
-    "/tmp/logs".
+log_dir() ->
+    os:getenv("LOG_DIR").
 
 %% @private
 save(Filename, File) ->
@@ -39,4 +39,4 @@ save(Filename, File) ->
 
 %% @private
 get_path(Filename) ->
-    log_folder() ++ "/" ++ binary_to_list(Filename).
+    log_dir() ++ "/" ++ binary_to_list(Filename).
