@@ -145,10 +145,6 @@ configure_lsim() ->
 
 %% @private
 lsim_specs(Simulation, Orchestration, RSG) ->
-    InstrumentationSpecs = [{lsim_intrumentation,
-                             {lsim_instrumentation, start_link, []},
-                             permanent, 5000, worker,
-                             [lsim_instrumentation]}],
     SimulationSpecs = lsim_simulations:get_specs(Simulation),
 
     OrchestrationSpecs = case Orchestration of
@@ -182,7 +178,7 @@ lsim_specs(Simulation, Orchestration, RSG) ->
             BarrierPeerServiceSpecs ++ Store ++ RSGSpecs
     end,
 
-    InstrumentationSpecs ++ SimulationSpecs ++ OrchestrationSpecs.
+    SimulationSpecs ++ OrchestrationSpecs.
 
 %% @private
 configure_var(App, Env, Var, Default) ->
