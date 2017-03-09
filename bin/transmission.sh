@@ -1,24 +1,27 @@
-BRANCH=master \
-LDB_MODE=state_based \
-LDB_JOIN_DECOMPOSITIONS=false \
-OVERLAY=ring \
-SIMULATION=gset \
-NODE_NUMBER=3 \
-NODE_EVENT_NUMBER=50 ./bin/lsim-deploy.sh
+declare -A CONFIG
+CONFIG[0]="state_based;false"
+CONFIG[1]="delta_based;false"
+CONFIG[2]="delta_based;true"
 
-BRANCH=master \
-LDB_MODE=delta_based \
-LDB_JOIN_DECOMPOSITIONS=false \
-OVERLAY=ring \
-SIMULATION=gset \
-NODE_NUMBER=3 \
-NODE_EVENT_NUMBER=50 ./bin/lsim-deploy.sh
+DIR=$(dirname $0)
+SCRIPT=$DIR/lsim-deploy.sh
+BRANCH=master
+OVERLAY=ring
+SIMULATION=gset
+NODE_NUMBER=3
+NODE_EVENT_NUMBER=50
 
-BRANCH=master \
-LDB_MODE=delta_based \
-LDB_JOIN_DECOMPOSITIONS=true \
-OVERLAY=ring \
-SIMULATION=gset \
-NODE_NUMBER=3 \
-NODE_EVENT_NUMBER=50 ./bin/lsim-deploy.sh
+for i in "${CONFIG[@]}"
+do
+  R=(${i//;/ })
+  LDB_MODE=${R[0]}
+  LDB_JOIN_DECOMPOSITIONS=${R[1]}
 
+  BRANCH=${BRANCH} \
+    LDB_MODE=${LDB_MODE} \
+    LDB_JOIN_DECOMPOSITIONS=${LDB_JOIN_DECOMPOSITIONS} \
+    OVERLAY=${OVERLAY} \
+    SIMULATION=${SIMULATION} \
+    NODE_NUMBER=${NODE_NUMBER} \
+    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${SCRIPT}
+done
