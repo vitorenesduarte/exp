@@ -4,7 +4,7 @@ CONFIG[1]="delta_based;false"
 CONFIG[2]="delta_based;true"
 
 DIR=$(dirname $0)
-SCRIPT=$DIR/lsim-deploy.sh
+SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=master
 OVERLAY=ring
 SIMULATION=gset

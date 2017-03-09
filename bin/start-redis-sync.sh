@@ -13,7 +13,7 @@ kubectl port-forward ${POD_NAME} ${PORT}:${PORT} & TUNNEL_PID=$!
 echo "Port forwarding starting..."
 sleep 3
 
-LOG_DIR=$LOG_DIR ./$DIR/redis-sync.erl
+LOG_DIR=${LOG_DIR} ./$DIR/redis-sync.erl
 
 echo "All files downloaded!"
 
