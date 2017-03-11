@@ -10,8 +10,9 @@ for(package in packages) {
 }
 
 # list directories
-Dirs <- setdiff(list.dirs("logs"), c("."))
-Dirs
+log_dir = "logs"
+dirs <- setdiff(list.dirs(log_dir), c(log_dir))
+dirs
 
 h <- hash()
 h
