@@ -1,0 +1,2 @@
+transmission:
+	Rscript transmission.R
