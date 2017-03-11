@@ -46,6 +46,7 @@ push_lsim_metrics(StartTime) ->
        ++ LSimConfigs,
 
     FilePath = file_path(rsg),
+    Header = csv_line(["config", "value"]),
     File = lists:foldl(
         fun({K, V}, Acc) ->
             List = [str(K),
@@ -56,7 +57,7 @@ push_lsim_metrics(StartTime) ->
         All
     ),
 
-    store(FilePath, File),
+    store(FilePath, Header, File),
     ok.
 
 -spec push_ldb_metrics() -> ok.
@@ -78,6 +79,7 @@ push_ldb_metrics() ->
     ),
 
     FilePath = file_path(ldb_config:id()),
+    Header = csv_line(["timestamp", "type", "size"]),
     File = orddict:fold(
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
@@ -95,7 +97,7 @@ push_ldb_metrics() ->
         PerMessageType
     ),
 
-    store(FilePath, File),
+    store(FilePath, Header, File),
     ok.
 
 %% @private
@@ -131,6 +133,6 @@ csv_line(List) ->
     lists:flatten(lists:join(?SEP, List)) ++ "\n".
 
 %% @private
-store(FilePath, File) ->
-    Binary = list_to_binary(File),
+store(FilePath, Header, File) ->
+    Binary = list_to_binary(Header ++ File),
     ok = ?STORE:put(FilePath, Binary).
