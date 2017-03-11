@@ -11,15 +11,37 @@ load <- function(package) {
 
 # Load a list of dependencies.
 load_dependencies <- function(packages) {
-  for(package in packages) {
-    load(package)
-  }
+  Map(load, packages)
 }
 
-# Given a log directory name (e.g. "logs/1489232739370465988"
-# returns only the timestamp
-get_timestamp <- function(dir) {
-  unlist(strsplit(dir, "/"))[2]
+# Given a directory with all the metrics (from all runs)
+# return a map from run to list of files
+get_metric_files <- function(metrics_dir) {
+  m <- hash()
+
+  dirs <- setdiff(
+    list.dirs(metrics_dir),
+    c(metrics_dir)
+  )
+
+  for(dir in dirs) {
+    metrics <- list.files(dir)
+    .set(m, dir, metrics)
+  }
+
+  m
+}
+
+#
+average <- function(m) {
+  for(dir in keys(m)) {
+    for(file in m[[dir]]) {
+      path <- paste(dir, file, sep="/")
+      a <- read.csv(path)
+      print(path)
+      print(a)
+    }
+  }
 }
 
 # main function
@@ -28,18 +50,13 @@ main <- function() {
   packages <- c("hash")
   load_dependencies(packages)
 
-  # list directories
-  log_dir = "logs"
-  dirs <- setdiff(list.dirs(log_dir), c(log_dir))
+  # get all files
+  metrics_dir = "metrics"
+  m <- get_metric_files(metrics_dir)
+  print(m)
 
-  h <- hash()
-  for(dir in dirs) {
-    logs <- list.files(dir)
-    timestamp <- get_timestamp(dir)
-    .set(h, timestamp, logs)
-  }
-
-  print(h)
+  # average
+  average(m)
 }
 
 main()
