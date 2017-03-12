@@ -17,7 +17,7 @@ load_dependencies <- function(packages) {
 # Given a directory with all the metrics (from all runs)
 # return a map from run to list of files
 get_metric_files <- function(metrics_dir) {
-  m <- hash()
+  m <- list()
 
   dirs <- setdiff(
     list.dirs(metrics_dir),
@@ -26,7 +26,7 @@ get_metric_files <- function(metrics_dir) {
 
   for(dir in dirs) {
     metrics <- list.files(dir)
-    .set(m, dir, metrics)
+    m[[dir]] <- metrics
   }
 
   m
@@ -34,7 +34,7 @@ get_metric_files <- function(metrics_dir) {
 
 #
 average <- function(m) {
-  for(dir in keys(m)) {
+  for(dir in names(m)) {
     for(file in m[[dir]]) {
       path <- paste(dir, file, sep="/")
       a <- read.csv(path)
@@ -47,7 +47,7 @@ average <- function(m) {
 # main function
 main <- function() {
   # install and load needed packages
-  packages <- c("hash")
+  packages <- c("rjson")
   load_dependencies(packages)
 
   # get all files
@@ -57,6 +57,10 @@ main <- function() {
 
   # average
   average(m)
+
+  json_data <- fromJSON(file="a.json")
+  print(json_data)
+  print(json_data$start_time)
 }
 
 main()
