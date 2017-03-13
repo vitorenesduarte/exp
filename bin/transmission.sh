@@ -6,7 +6,7 @@ CONFIG[2]="delta_based;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
-BRANCH=master
+BRANCH=$(git branch | grep "*" | awk '{print $2}')
 OVERLAY=ring
 SIMULATION=gset
 NODE_NUMBER=3
