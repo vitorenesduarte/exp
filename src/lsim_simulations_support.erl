@@ -73,7 +73,6 @@ push_ldb_metrics() ->
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
                 fun({Timestamp, Size}, Acc1) ->
-                    lager:info("ACC1 ~p~n", [Acc1]),
                     V = [{timestamp, Timestamp},
                          {size, Size}],
                     orddict:append(MessageType, V, Acc1)
