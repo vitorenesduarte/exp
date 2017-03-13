@@ -46,18 +46,9 @@ push_lsim_metrics(StartTime) ->
        ++ LSimConfigs,
 
     FilePath = file_path(rsg),
-    Header = csv_line(["config", "value"]),
-    File = lists:foldl(
-        fun({K, V}, Acc) ->
-            List = [str(K),
-                    str(V)],
-            Acc ++ csv_line(List)
-        end,
-        "",
-        All
-    ),
+    File = ldb_json:encode(All),
 
-    store(FilePath, Header, File),
+    store(FilePath, File),
     ok.
 
 -spec push_ldb_metrics() -> ok.
@@ -78,26 +69,27 @@ push_ldb_metrics() ->
         TimeSeries
     ),
 
-    FilePath = file_path(ldb_config:id()),
-    Header = csv_line(["timestamp", "type", "size"]),
-    File = orddict:fold(
+    All = orddict:fold(
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
                 fun({Timestamp, Size}, Acc1) ->
-                    List = [str(Timestamp),
-                            str(MessageType),
-                            str(Size)],
-                    Acc1 ++ csv_line(List)
+                    lager:info("ACC1 ~p~n", [Acc1]),
+                    V = [{timestamp, Timestamp},
+                         {size, Size}],
+                    orddict:append(MessageType, V, Acc1)
                 end,
                 Acc0,
                 Metrics
             )
         end,
-        "",
+        orddict:new(),
         PerMessageType
     ),
 
-    store(FilePath, Header, File),
+    FilePath = file_path(ldb_config:id()),
+    File = ldb_json:encode(All),
+
+    store(FilePath, File),
     ok.
 
 %% @private
@@ -129,10 +121,5 @@ str(V) when is_integer(V) ->
     integer_to_list(V).
 
 %% @private
-csv_line(List) ->
-    lists:flatten(lists:join(?SEP, List)) ++ "\n".
-
-%% @private
-store(FilePath, Header, File) ->
-    Binary = list_to_binary(Header ++ File),
-    ok = ?STORE:put(FilePath, Binary).
+store(FilePath, File) ->
+    ok = ?STORE:put(FilePath, File).

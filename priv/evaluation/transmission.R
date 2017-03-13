@@ -37,8 +37,7 @@ average <- function(m) {
   for(dir in names(m)) {
     for(file in m[[dir]]) {
       path <- paste(dir, file, sep="/")
-      a <- read.csv(path)
-      print(path)
+      a <- fromJSON(file=path)
       print(a)
     }
   }
@@ -57,10 +56,6 @@ main <- function() {
 
   # average
   average(m)
-
-  json_data <- fromJSON(file="a.json")
-  print(json_data)
-  print(json_data$start_time)
 }
 
 main()
