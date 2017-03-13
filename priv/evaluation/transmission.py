@@ -70,16 +70,38 @@ def group_by_config(d):
             read_json(config_path)
         )
 
-        # create empty list if key not already in dictionary
+        # create empty dictionary if key not already in dictionary
         if not k in r:
-            r[k] = []
+            r[k] = {}
 
         for file in d[dir]:
-            # store start time and file name
-            p = (start_time, file)
-            r[k].append(p)
+            # read metric file and remove start_time to all timestamps
+            j = read_json(file)
+            for type in j:
+                for m in j[type]:
+                    m["timestamp"] -= start_time
+
+                # create empty list if type not already in dictionary
+                if not type in r[k]:
+                    r[k][type] = []
+
+                # store metrics by type
+                r[k][type].append(j[type])
 
     return r
+
+def assume_unknown_values(d):
+    """
+    """
+    r = {}
+
+    for key in d:
+        print(key)
+        for type in d[key]:
+            print(type)
+            for run in d[key][type]:
+                s(run)
+                print("\n\n")
 
 def s(d):
     print(json.dumps(d, sort_keys=True, indent=2))
@@ -89,5 +111,6 @@ def main():
     s(d)
     d = group_by_config(d)
     s(d)
+    d = assume_unknown_values(d)
 
 main()
