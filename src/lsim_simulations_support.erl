@@ -95,7 +95,7 @@ push_ldb_metrics() ->
 file_path(Name) ->
     Timestamp = lsim_config:get(lsim_timestamp),
     Filename = str(Timestamp) ++ "/"
-            ++ str(Name) ++ ".csv",
+            ++ str(Name) ++ ".json",
     Filename.
 
 %% @private
