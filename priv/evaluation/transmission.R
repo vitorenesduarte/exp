@@ -37,7 +37,7 @@ average <- function(m) {
   for(dir in names(m)) {
     for(file in m[[dir]]) {
       path <- paste(dir, file, sep="/")
-      a <- fromJSON(file=path)
+      a <- fromJSON(path)
       print(a)
     }
   }
@@ -46,7 +46,7 @@ average <- function(m) {
 # main function
 main <- function() {
   # install and load needed packages
-  packages <- c("rjson")
+  packages <- c("jsonlite")
   load_dependencies(packages)
 
   # get all files
