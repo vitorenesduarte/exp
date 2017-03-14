@@ -4,6 +4,7 @@ log/
 *.swp
 src/*.swp
 priv/evaluation/metrics/
+priv/evaluation/processed/
 priv/evaluation/plots/
 .DS_Store
 priv/.DS_Store

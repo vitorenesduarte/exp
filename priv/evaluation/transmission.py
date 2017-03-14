@@ -3,6 +3,7 @@
 import os, os.path, json
 
 METRIC_DIR = "metrics"
+PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 
 def ls(dir):
@@ -48,12 +49,20 @@ def key(config):
     Create a key from a config file.
     """
 
-    # remove start time from config
-    start_time = config.pop("start_time")
+    # get start_time from config
+    start_time = config["start_time"]
+
+    keys = [
+        "lsim_simulation",
+        "lsim_overlay",
+        "lsim_node_number",
+        "ldb_mode",
+        "ldb_join_decompositions",
+        "lsim_node_event_number"
+    ]
 
     l = []
-    for k in config:
-        l.append(k)
+    for k in keys:
         l.append(str(config[k]))
 
     k = "-".join(l)
@@ -108,19 +117,11 @@ def get_higher_ts(runs):
 
     return higher
 
-def get_ts_bounds(run):
+def get_first_ts(run):
     """
-    Find the first and last timestamp of a run.
+    Find the first timestamp of a run.
     """
-    first = run[0]["timestamp"]
-    last = run[-1]["timestamp"]
-    return (first, last)
-
-def get_last_size(run):
-    """
-    Find the last size of a type.
-    """
-    return run[-1]["size"]
+    return run[0]["timestamp"]
 
 def create_metric(ts, size):
     """
@@ -144,34 +145,95 @@ def assume_unknown_values(d):
 
             for run in d[key][type]:
 
-                # find the first and last timestamp of this run
-                (first_ts, last_ts) = get_ts_bounds(run)
-
-                # find the last size of this run
-                last_size = get_last_size(run)
+                # find the first timestamp of this run
+                first_ts = get_first_ts(run)
 
                 # create fake values from timestamp 0 to first_ts
                 for i in range(0, first_ts):
                     metric = create_metric(i, 0)
                     run.insert(i, metric)
 
-                # create fake values from last_ts to higher_ts
-                for i in range(last_ts + 1, higher_ts + 1):
-                    metric = create_metric(i, last_size)
-                    run.append(metric)
+                # create fake values for unkown timestamps
+                last_size = 0
+                for i in range(0, higher_ts + 1):
+                    if i >= len(run) or run[i]["timestamp"] != i:
+                        # if timestamp not found
+                        # create metric with last known value
+                        metric = create_metric(i, last_size)
+                        run.insert(i, metric)
+                    else:
+                        # else update last known value
+                        last_size = run[i]["size"]
 
     return d
 
-def s(d):
-    print(json.dumps(d, sort_keys=True, indent=2))
+def average(d):
+    """
+    Average runs.
+    """
+
+    for key in d:
+        for type in d[key]:
+            # number of runs
+            runs_number = len(d[key][type])
+            # number of metrics
+            metrics_number = len(d[key][type][0])
+
+            # list where we'll store the sum of the sizes
+            sum = [0 for i in range(0, metrics_number)]
+
+            for run in d[key][type]:
+                for i in range(0, metrics_number):
+                    sum[i] += run[i]["size"]
+
+            # avg of sum
+            avg = [v / runs_number for v in sum]
+
+            # store avg
+            d[key][type] = avg
+
+    return d
+
+def save_file(path, content):
+    """
+    Save content in path.
+    """
+
+    # ensure directory exists
+    os.makedirs(
+        os.path.dirname(path),
+        exist_ok=True
+    )
+
+    # write content
+    with open(path, "w") as fd:
+        fd.write(content)
+
+def dump(d, key_to_config):
+    """
+    Save average to files.
+    """
+
+    for key in d:
+        for type in d[key]:
+            # get config file path
+            config = key_to_config[key]
+            avg = d[key][type]
+
+            file = type + ".json"
+            path = os.path.join(*[PROCESSED_DIR, key, file])
+            content = json.dumps(avg)
+
+            save_file(path, content)
 
 def main():
+    """
+    Main.
+    """
     d = get_metric_files()
-    #s(d)
     (d, key_to_config) = group_by_config(d)
-    #s(d)
     d = assume_unknown_values(d)
-    #s(d)
-    s(key_to_config)
+    d = average(d)
+    dump(d, key_to_config)
 
 main()
