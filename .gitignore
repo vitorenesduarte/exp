@@ -3,7 +3,8 @@ _build/
 log/
 *.swp
 src/*.swp
-priv/evaluation/logs/
+priv/evaluation/metrics/
+priv/evaluation/processed/
 priv/evaluation/plots/
 .DS_Store
 priv/.DS_Store

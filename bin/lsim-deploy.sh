@@ -47,7 +47,7 @@ IMAGE=vitorenesduarte/lsim
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
 
-cat <<EOF > $FILE
+cat <<EOF > ${FILE}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -150,4 +150,4 @@ spec:
 EOF
 
 echo "Creating deployment."
-kubectl create -f $FILE
+kubectl create -f ${FILE}

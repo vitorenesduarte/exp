@@ -86,17 +86,16 @@ http(Method, Path, Body0) ->
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
-    Body1 = binary_to_list(jsx:encode(Body0)),
+    Body1 = binary_to_list(ldb_json:encode(Body0)),
     run_http(Method, {URL, Headers, ContentType, Body1}).
 
 %% @private
 run_http(Method, Request) ->
     Options = [{body_format, binary}],
-    DecodeFun = fun(Body) -> jsx:decode(Body, [return_maps]) end,
 
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
-            {ok, DecodeFun(Body)};
+            {ok, ldb_json:decode(Body)};
         {error, Reason} ->
             ?LOG("Couldn't process ~p request. Reason ~p",
                  [Method, Reason]),
@@ -145,7 +144,7 @@ deploy_path() ->
 
 %% @private
 generate_nodes(Map, Port) ->
-    #{<<"items">> := Items} = Map,
+    Items = maps:get(items, Map),
     lists:map(
         fun(Item) ->
             Ip = get_ip(Item),
@@ -156,16 +155,12 @@ generate_nodes(Map, Port) ->
 
 %% @private
 get_ip(Item) ->
-    #{<<"status">> := Status} = Item,
-    #{<<"podIP">> := IP} = Status,
-    decode(IP).
-
-%% @private
-decode(Binary) ->
-    binary_to_list(Binary).
+    Status = maps:get(status, Item),
+    IP = maps:get(podIP, Status),
+    binary_to_list(IP).
 
 %% @private
 set_replicas_as_zero(Map) ->
-    Spec0 = maps:get(<<"spec">>, Map),
-    Spec1 = maps:put(<<"replicas">>, 0, Spec0),
-    maps:put(<<"spec">>, Spec1, Map).
+    Spec0 = maps:get(spec, Map),
+    Spec1 = maps:put(replicas, 0, Spec0),
+    maps:put(spec, Spec1, Map).
