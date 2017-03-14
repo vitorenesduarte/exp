@@ -3,8 +3,8 @@
 declare -A CONFIG
 #ldb_mode;ldb_join_decompositions
 CONFIG[0]="state_based;false"
-#CONFIG[1]="delta_based;false"
-#CONFIG[2]="delta_based;true"
+CONFIG[1]="delta_based;false"
+CONFIG[2]="delta_based;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
