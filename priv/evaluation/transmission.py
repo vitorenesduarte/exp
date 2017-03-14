@@ -64,12 +64,16 @@ def group_by_config(d):
     Given metric files, group them by config file.
     """
     r = {}
+    key_to_config = {}
     
     for dir in d:
         config_path = os.path.join(dir, CONFIG_FILE)
         (start_time, k) = key(
             read_json(config_path)
         )
+        
+        # store config file
+        key_to_config[k] = config_path
 
         # create empty dictionary if key not already in dictionary
         if not k in r:
@@ -91,7 +95,7 @@ def group_by_config(d):
                 # store metrics by type
                 r[k][type].append(j[type])
 
-    return r
+    return (r, key_to_config)
 
 def get_higher_ts(runs):
     """
@@ -164,9 +168,10 @@ def s(d):
 def main():
     d = get_metric_files()
     #s(d)
-    d = group_by_config(d)
+    (d, key_to_config) = group_by_config(d)
     #s(d)
     d = assume_unknown_values(d)
     #s(d)
+    s(key_to_config)
 
 main()
