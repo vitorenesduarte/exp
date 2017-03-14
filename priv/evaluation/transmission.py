@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os, os.path, json
+import shutil
+
 
 METRIC_DIR = "metrics"
 PROCESSED_DIR = "processed"
@@ -58,9 +60,9 @@ def key(config):
         "lsim_simulation",
         "lsim_overlay",
         "lsim_node_number",
+        "lsim_node_event_number",
         "ldb_mode",
-        "ldb_join_decompositions",
-        "lsim_node_event_number"
+        "ldb_join_decompositions"
     ]
 
     l = []
@@ -227,13 +229,15 @@ def dump(d, key_to_config):
     Save average to files.
     """
 
+    # clear folder
+    shutil.rmtree(PROCESSED_DIR)
+
     for key in d:
         # get config file path
         config = key_to_config[key]
         avg = d[key]
 
-        file = key + ".json"
-        path = os.path.join(*[PROCESSED_DIR, file])
+        path = os.path.join(*[PROCESSED_DIR, key])
         content = json.dumps(avg)
 
         save_file(path, content)
