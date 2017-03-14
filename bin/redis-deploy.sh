@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+RUNNING=$(kubectl get pods | grep redis)
+
+if [ ! -z "$RUNNING" ]; then
+  echo "Redis already running. Exiting."
+  exit
+fi
+
 # YAML file
 FILE=/tmp/redis.yaml
 
