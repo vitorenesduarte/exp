@@ -57,6 +57,10 @@ push_ldb_metrics() ->
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
+    lager:info("TS ~p~n",[TimeSeries]),
+    lager:info("TTS ~p~n",[TransmissionTS]),
+    lager:info("MTS ~p~n",[MemoryTS]),
+
     PerMessageType = lists:foldl(
         fun({Timestamp, transmission, Metrics}, Acc0) ->
             lists:foldl(
@@ -87,6 +91,8 @@ push_ldb_metrics() ->
         PerMessageType
     ),
 
+    lager:info("All0 ~p~n",[All0]),
+
     All1 = lists:foldl(
         fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
             V = [{ts, Timestamp},
@@ -98,8 +104,12 @@ push_ldb_metrics() ->
         MemoryTS
     ),
 
+    lager:info("All1 ~p~n",[All1]),
+
     FilePath = file_path(ldb_config:id()),
     File = ldb_json:encode(All1),
+
+    lager:info("FILE ~p~n", [File]),
 
     store(FilePath, File),
     ok.
