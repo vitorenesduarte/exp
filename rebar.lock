@@ -5,7 +5,7 @@
  {<<"ishikawa">>,{pkg,<<"ishikawa">>,<<"0.0.1">>},0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},0},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
- {<<"ldb">>,{pkg,<<"ldb">>,<<"0.0.6">>},0},
+ {<<"ldb">>,{pkg,<<"ldb">>,<<"0.0.7">>},0},
  {<<"partisan">>,{pkg,<<"partisan">>,<<"0.2.0">>},0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
