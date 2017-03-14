@@ -5,6 +5,8 @@ import os, os.path, json
 METRIC_DIR = "metrics"
 PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
+TS="timestamp"
+SIZE="size"
 
 def ls(dir):
     """
@@ -95,7 +97,7 @@ def group_by_config(d):
             # remove start_time
             for type in j:
                 for m in j[type]:
-                    m["timestamp"] -= start_time
+                    m[TS] -= start_time
 
                 # create empty list if type not already in dictionary
                 if not type in r[k]:
@@ -113,7 +115,7 @@ def get_higher_ts(runs):
     higher = 0
     for run in runs:
         for metric in run:
-            higher = max(higher, metric["timestamp"])
+            higher = max(higher, metric[TS])
 
     return higher
 
@@ -121,15 +123,15 @@ def get_first_ts(run):
     """
     Find the first timestamp of a run.
     """
-    return run[0]["timestamp"]
+    return run[0][TS]
 
 def create_metric(ts, size):
     """
     Create metric from timestamp and size.
     """
     metric = {}
-    metric["timestamp"] = ts
-    metric["size"] = size
+    metric[TS] = ts
+    metric[SIZE] = size
     return metric
 
 def assume_unknown_values(d):
@@ -156,14 +158,14 @@ def assume_unknown_values(d):
                 # create fake values for unkown timestamps
                 last_size = 0
                 for i in range(0, higher_ts + 1):
-                    if i >= len(run) or run[i]["timestamp"] != i:
+                    if i >= len(run) or run[i][TS] != i:
                         # if timestamp not found
                         # create metric with last known value
                         metric = create_metric(i, last_size)
                         run.insert(i, metric)
                     else:
                         # else update last known value
-                        last_size = run[i]["size"]
+                        last_size = run[i][SIZE]
 
     return d
 
@@ -184,7 +186,7 @@ def average(d):
 
             for run in d[key][type]:
                 for i in range(0, metrics_number):
-                    sum[i] += run[i]["size"]
+                    sum[i] += run[i][SIZE]
 
             # avg of sum
             avg = [v / runs_number for v in sum]
