@@ -196,6 +196,17 @@ def average(d):
 
     return d
 
+def aggregate(d):
+    """
+    Aggregate types of the same run.
+    """
+
+    for key in d:
+        s = [sum(x) for x in zip(*d[key].values())]
+        d[key] = s
+
+    return d
+
 def save_file(path, content):
     """
     Save content in path.
@@ -217,16 +228,15 @@ def dump(d, key_to_config):
     """
 
     for key in d:
-        for type in d[key]:
-            # get config file path
-            config = key_to_config[key]
-            avg = d[key][type]
+        # get config file path
+        config = key_to_config[key]
+        avg = d[key]
 
-            file = type + ".json"
-            path = os.path.join(*[PROCESSED_DIR, key, file])
-            content = json.dumps(avg)
+        file = key + ".json"
+        path = os.path.join(*[PROCESSED_DIR, file])
+        content = json.dumps(avg)
 
-            save_file(path, content)
+        save_file(path, content)
 
 def main():
     """
@@ -236,6 +246,7 @@ def main():
     (d, key_to_config) = group_by_config(d)
     d = assume_unknown_values(d)
     d = average(d)
+    d = aggregate(d)
     dump(d, key_to_config)
 
 main()
