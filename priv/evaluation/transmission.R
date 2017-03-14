@@ -14,26 +14,6 @@ load_dependencies <- function(packages) {
   Map(load, packages)
 }
 
-# Remove element from list
-rm_elem <- function(e, l) {
-  setdiff(l, c(e))
-}
-
-# Given a directory with all the metrics (from all runs)
-# return a map from run to list of files
-get_metric_files <- function(metrics_dir) {
-  m <- list()
-
-  dirs <- rm_elem(metrics_dir, list.dirs(metrics_dir))
-
-  for(dir in dirs) {
-    metrics <- list.files(dir)
-    m[[dir]] <- metrics
-  }
-
-  m
-}
-
 # given the directory name and the file name
 # return the json file
 json <- function(dir, file) {
@@ -41,87 +21,77 @@ json <- function(dir, file) {
   fromJSON(file_path)
 }
 
-# create a key from rsg file
-key <- function(rsg) {
-  v <- c()
-  for(key in names(rsg)) {
-    v <- c(v, key)
-    v <- c(v, rsg[[key]])
-  }
-  paste(v, collapse="_")
+# compute label name given key.
+get_labels <- function(keys) {
+  labels = list()
+  labels[["state_based_False"]] = "State-Based"
+  labels[["delta_based_False"]] = "Delta-Based"
+  labels[["delta_based_True"]] = "Delta-Based+"
+  lapply(
+    keys,
+    function(key) {
+      mode_and_jd <- paste(
+          strsplit(key, "-")[[1]][5:6],
+          collapse="_"
+      )
+
+      labels[[mode_and_jd]]
+    }
+  )
 }
 
-#
-average <- function(m) {
-  rsg_file = "rsg.json"
-  to_average = list()
+# draw!
+draw <- function(dir) {
+  files <- list.files(dir)
 
-  for(dir in names(m)) {
-    files <- rm_elem(rsg_file, m[[dir]])
-
-    rsg <- json(dir, rsg_file)
-    start_time <- rsg[["start_time"]]
-    rsg[["start_time"]] <- NULL
-    key <- key(rsg)
-
-    cat("start_time ", start_time, "\n")
-    cat("key ", key, "\n")
-
-    for(file in files) {
-      m <-json(dir, file)
-      types <- names(m)
-      for(type in types) {
-        # subtract start time to all timestamps
-        m[[type]][["timestamp"]] <-
-          m[[type]][["timestamp"]] - start_time
-
-        # save in to_average
-        current <- to_average[[key]][[type]]
-        new <- c(current, m[[type]])
-        to_average[[key]][[type]] <- new
-      }
+  # read all files
+  lines <- lapply(
+    files,
+    function(file) {
+      json(dir, file)
     }
+  )
 
-    for(a in names(to_average)) {
-      print(a)
-      print(length(to_average[[a]]))
-      for(b in names(to_average[[a]])) {
-        print(b)
-        print(length(to_average[[a]][[b]]))
-        for(c in to_average[[a]][[b]]) {
-          print(c)
-        }
-      }
-    }
+  # find the y max for all
+  ymaximums = lapply(lines, max)
+  maxy = Reduce(max, ymaximums)
+  maxx = Reduce(max, lapply(lines, length))
 
-    "all_timestamps <- c()
-    all_json <- list()
+  # open device
+  png(filename="r.png")
 
-    for(file in files) {
-      m <- json(dir, file)
-      all_json[[path]] <- m
+  # draw the first line
+  first_file <- files[[1]]
+  first_line <- json(dir, first_file)
 
-      all_timestamps <- Reduce(
-        function(acc, type) {
-          union(
-            acc,
-            "
-            #m[[type]][["timestamp"]]
-            "
-          )
-        },
-        names(m),
-        all_timestamps
-      )
-    }
+  # offset for labels
+  offset = 15
 
-    print(all_timestamps)
-    all_timestamps <- sort(all_timestamps)
+  plot(
+    first_line,
+    type="l", # lines
+    xlim=c(0, maxx + offset), # max x
+    ylim=c(0, maxy), # max y
+    xlab="Time (s)",, # x axis label
+    ylab="Transmission (B)" # y axis label
+  )
 
-    print(all_timestamps)
-    print(length(all_timestamps))
-    "
+  # draw the rest of the lines
+  for(i in 2:length(files)) { 
+    file <- files[[i]]
+    line <- json(dir, file)
+    lines(line)
   }
+  
+  text(
+    x=rep(maxx, length(lines)),
+    y=ymaximums,
+    pos=4,
+    labels=get_labels(files)
+  )
+
+  # close device
+  dev.off()
 }
 
 # main function
@@ -130,13 +100,9 @@ main <- function() {
   packages <- c("jsonlite")
   load_dependencies(packages)
 
-  # get all files
-  metrics_dir = "metrics"
-  m <- get_metric_files(metrics_dir)
-  print(m)
-
-  # average
-  average(m)
+  # draw!
+  metrics_dir <- "processed"
+  draw(metrics_dir)
 }
 
 main()
