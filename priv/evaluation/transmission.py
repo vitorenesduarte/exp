@@ -7,7 +7,7 @@ import shutil
 METRIC_DIR = "metrics"
 PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
-TS="timestamp"
+TS="ts"
 SIZE="size"
 
 def ls(dir):
