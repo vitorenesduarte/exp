@@ -88,7 +88,7 @@ push_ldb_metrics() ->
     ),
 
     All1 = lists:foldl(
-        fun({Timestamp, memory, {CRDTSize, RestSize}, Acc0) ->
+        fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
             V = [{ts, Timestamp},
                  {csize, CRDTSize},
                  {rsize, RestSize}],
