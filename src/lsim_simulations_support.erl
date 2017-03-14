@@ -54,9 +54,11 @@ push_lsim_metrics(StartTime) ->
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
     TimeSeries = ?LDB_METRICS:get_time_series(),
+    TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
+    MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
     PerMessageType = lists:foldl(
-        fun({Timestamp, message, Metrics}, Acc0) ->
+        fun({Timestamp, transmission, Metrics}, Acc0) ->
             lists:foldl(
                 fun({MessageType, Size}, Acc1) ->
                     orddict:append(MessageType, {Timestamp, Size}, Acc1)
@@ -66,10 +68,10 @@ push_ldb_metrics() ->
             )
         end,
         orddict:new(),
-        TimeSeries
+        TransmissionTS
     ),
 
-    All = orddict:fold(
+    All0 = orddict:fold(
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
                 fun({Timestamp, Size}, Acc1) ->
@@ -85,11 +87,31 @@ push_ldb_metrics() ->
         PerMessageType
     ),
 
+    All1 = lists:foldl(
+        fun({Timestamp, memory, {CRDTSize, RestSize}, Acc0) ->
+            V = [{ts, Timestamp},
+                 {csize, CRDTSize},
+                 {rsize, RestSize}],
+            orddict:append(memory, V, Acc0)
+        end,
+        All0,
+        MemoryTS
+    ),
+
     FilePath = file_path(ldb_config:id()),
-    File = ldb_json:encode(All),
+    File = ldb_json:encode(All1),
 
     store(FilePath, File),
     ok.
+
+%% @private
+filter_by_ts_class(Class, TS) ->
+    lists:filter(
+        fun({_, MClass, _}) ->
+                MClass == Class
+        end,
+        TS
+    ).
 
 %% @private
 file_path(Name) ->
