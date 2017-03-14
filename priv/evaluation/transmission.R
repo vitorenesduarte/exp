@@ -14,10 +14,10 @@ load_dependencies <- function(packages) {
   Map(load, packages)
 }
 
-# given the directory name and the file name
+# given the vector of subpaths,
 # return the json file
-json <- function(dir, file) {
-  file_path <- paste(dir, file, sep="/")
+json <- function(v) {
+  file_path <- paste(v, collapse="/")
   fromJSON(file_path)
 }
 
@@ -45,24 +45,23 @@ draw <- function(dir) {
   files <- list.files(dir)
 
   # read all files
-  lines <- lapply(
+  ls <- lapply(
     files,
     function(file) {
-      json(dir, file)
+      json(c(dir, file, "transmission"))
     }
   )
 
   # find the y max for all
-  ymaximums = lapply(lines, max)
+  ymaximums = lapply(ls, max)
   maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(lines, length))
+  maxx = Reduce(max, lapply(ls, length))
 
   # open device
   png(filename="r.png")
 
   # draw the first line
-  first_file <- files[[1]]
-  first_line <- json(dir, first_file)
+  first_line <- ls[[1]]
 
   # offset for labels
   offset = 15
@@ -77,10 +76,8 @@ draw <- function(dir) {
   )
 
   # draw the rest of the lines
-  for(i in 2:length(files)) { 
-    file <- files[[i]]
-    line <- json(dir, file)
-    lines(line)
+  for(i in 2:length(ls)) { 
+    lines(ls[[i]])
   }
   
   text(

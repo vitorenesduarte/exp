@@ -1,4 +1,4 @@
 transmission:
-	python transmission.py
+	python preprocess.py
 	Rscript transmission.R
 	eog r.png &
