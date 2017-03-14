@@ -77,7 +77,6 @@ def group_by_config(d):
     Given metric files, group them by config file.
     """
     r = {}
-    key_to_config = {}
     
     for dir in d:
         config_path = os.path.join(dir, CONFIG_FILE)
@@ -85,9 +84,6 @@ def group_by_config(d):
             read_json(config_path)
         )
         
-        # store config file
-        key_to_config[k] = config_path
-
         # create empty dictionary if key not already in dictionary
         if not k in r:
             r[k] = {}
@@ -108,7 +104,7 @@ def group_by_config(d):
                 # store metrics by type
                 r[k][type].append(j[type])
 
-    return (r, key_to_config)
+    return r
 
 def get_higher_ts(runs):
     """
@@ -224,7 +220,7 @@ def save_file(path, content):
     with open(path, "w") as fd:
         fd.write(content)
 
-def dump(d, key_to_config):
+def dump(d):
     """
     Save average to files.
     """
@@ -234,7 +230,6 @@ def dump(d, key_to_config):
 
     for key in d:
         # get config file path
-        config = key_to_config[key]
         avg = d[key]
 
         path = os.path.join(*[PROCESSED_DIR, key])
@@ -247,10 +242,10 @@ def main():
     Main.
     """
     d = get_metric_files()
-    (d, key_to_config) = group_by_config(d)
+    d = group_by_config(d)
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
-    dump(d, key_to_config)
+    dump(d)
 
 main()
