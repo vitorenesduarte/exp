@@ -41,7 +41,7 @@ get_labels <- function(keys) {
 }
 
 # draw!
-draw <- function(dir) {
+splot <- function(dir) {
   files <- list.files(dir)
 
   # read all files
@@ -91,15 +91,41 @@ draw <- function(dir) {
   dev.off()
 }
 
+pplot <- function(dir) {
+  ls <- list()
+  files <- list.files(dir)
+
+  for(file in files){
+    j <- json(c(dir, file, "transmission"))
+    ls[[file]] <- j
+  }
+
+  df <- data.frame(sapply(ls, c))
+  maxx = Reduce(max, lapply(ls, length))
+  df[["time"]] <- c(0:(maxx-1))
+  m <- melt(df, id.vars="time")
+
+  p = ggplot(
+    m,
+    aes(
+      x=time,
+      y=value,
+      colour=variable
+    )
+  ) + geom_line() + labs(x="Time (s)",y="Transmission (B)")
+
+  ggsave(filename="r.png", plot=p)
+}
+
 # main function
 main <- function() {
   # install and load needed packages
-  packages <- c("jsonlite")
+  packages <- c("jsonlite", "ggplot2", "reshape")
   load_dependencies(packages)
 
   # draw!
   metrics_dir <- "processed"
-  draw(metrics_dir)
+  pplot(metrics_dir)
 }
 
 main()
