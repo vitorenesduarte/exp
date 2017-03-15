@@ -1,45 +1,3 @@
-# Given a package name,
-# install it (if not already installed) and load it.
-load <- function(package) {
-  mirror <- "http://cran.us.r-project.org"
-
-  if(!require(package, character.only=TRUE)) {
-    install.packages(package, repos=mirror, dependencies=TRUE)
-    require(package, character.only=TRUE)
-  }
-}
-
-# Load a list of dependencies.
-load_dependencies <- function(packages) {
-  Map(load, packages)
-}
-
-# given the vector of subpaths,
-# return the json file
-json <- function(v) {
-  file_path <- paste(v, collapse="/")
-  fromJSON(file_path)
-}
-
-# compute label name given key.
-get_labels <- function(keys) {
-  labels = list()
-  labels[["state_based_False"]] = "State-Based"
-  labels[["delta_based_False"]] = "Delta-Based"
-  labels[["delta_based_True"]] = "Delta-Based+"
-  lapply(
-    keys,
-    function(key) {
-      mode_and_jd <- paste(
-          strsplit(key, "-")[[1]][5:6],
-          collapse="_"
-      )
-
-      labels[[mode_and_jd]]
-    }
-  )
-}
-
 # draw!
 splot <- function(dir) {
   files <- list.files(dir)
@@ -92,6 +50,7 @@ splot <- function(dir) {
 }
 
 pplot <- function(dir) {
+  load_dependencies(c("jsonlite", "ggplot2", "reshape"))
   ls <- list()
   files <- list.files(dir)
 
@@ -119,10 +78,7 @@ pplot <- function(dir) {
 
 # main function
 main <- function() {
-  # install and load needed packages
-  packages <- c("jsonlite", "ggplot2", "reshape")
-  load_dependencies(packages)
-
+  source("util.R")
   # draw!
   metrics_dir <- "processed"
   pplot(metrics_dir)
