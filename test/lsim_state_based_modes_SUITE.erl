@@ -94,7 +94,7 @@ delta_based_hyparview_test(_Config) ->
 delta_based_revisited_line_test(_Config) ->
     run(delta_based_revisited, line).
 
-delta_based_revisted_hyparview_test(_Config) ->
+delta_based_revisited_hyparview_test(_Config) ->
     run(delta_based_revisited, hyparview).
 
 %% @private
