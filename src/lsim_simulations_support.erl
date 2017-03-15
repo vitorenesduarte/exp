@@ -32,7 +32,8 @@
 -spec push_lsim_metrics(timestamp()) -> ok.
 push_lsim_metrics(StartTime) ->
     LDBVars = [ldb_mode,
-               ldb_join_decompositions],
+               ldb_redundant_dgroups,
+               ldb_dgroup_back_propagation],
     LDBConfigs = get_configs(ldb, LDBVars),
 
     LSimVars = [lsim_overlay,
