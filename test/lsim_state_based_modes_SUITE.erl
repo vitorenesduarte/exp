@@ -71,8 +71,8 @@ all() ->
      state_based_hyparview_test,
      delta_based_line_test,
      delta_based_hyparview_test,
-     join_decompositions_line_test,
-     join_decompositions_hyparview_test
+     delta_based_revisited_line_test,
+     delta_based_revisited_hyparview_test
     ].
 
 %% ===================================================================
@@ -91,15 +91,15 @@ delta_based_line_test(_Config) ->
 delta_based_hyparview_test(_Config) ->
     run(delta_based, hyparview).
 
-join_decompositions_line_test(_Config) ->
-    run(join_decompositions, line).
+delta_based_revisited_line_test(_Config) ->
+    run(delta_based_revisited, line).
 
-join_decompositions_hyparview_test(_Config) ->
-    run(join_decompositions, hyparview).
+delta_based_revisted_hyparview_test(_Config) ->
+    run(delta_based_revisited, hyparview).
 
 %% @private
 run(Evaluation, Overlay) ->
-    {Mode, JoinDecompositions} = get_mode_and_join_decompositions(Evaluation),
+    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
@@ -109,14 +109,15 @@ run(Evaluation, Overlay) ->
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
-                 {ldb_join_decompositions, JoinDecompositions}]}],
+                 {ldb_redundant_dgroups, Redundant},
+                 {ldb_dgroup_back_propagation, BackPropagation}]}],
 
     lsim_local_simulations_support:run(Options).
 
 %% @private
-get_mode_and_join_decompositions(state_based) ->
-    {state_based, false};
-get_mode_and_join_decompositions(delta_based) ->
-    {delta_based, false};
-get_mode_and_join_decompositions(join_decompositions) ->
-    {delta_based, true}.
+get_config(state_based) ->
+    {state_based, false, false};
+get_config(delta_based) ->
+    {delta_based, false, false};
+get_config(delta_based_revisited) ->
+    {delta_based, true, true}.
