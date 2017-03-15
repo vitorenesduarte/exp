@@ -84,7 +84,6 @@ gcounter_test(_Config) ->
 run(Simulation) ->
     Overlay = hyparview,
     Mode = state_based,
-    JoinDecompositions = false,
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
@@ -93,8 +92,6 @@ run(Simulation) ->
                  {lsim_node_number, ?NODE_NUMBER},
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode},
-                 {ldb_join_decompositions, JoinDecompositions},
-                 {ldb_extended_logging, true}]}],
+                [{ldb_mode, Mode}]}],
 
     lsim_local_simulations_support:run(Options).

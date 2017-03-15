@@ -99,7 +99,6 @@ hyparview_seven_test(_Config) ->
 %% @private
 run(Overlay, NodeNumber) ->
     Mode = pure_op_based,
-    JoinDecompositions = false,
 
     Options = [{node_number, NodeNumber},
                {lsim_settings,
@@ -108,7 +107,6 @@ run(Overlay, NodeNumber) ->
                  {lsim_node_number, NodeNumber},
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode},
-                 {ldb_join_decompositions, JoinDecompositions}]}],
+                [{ldb_mode, Mode}]}],
 
     lsim_local_simulations_support:run(Options).

@@ -3,7 +3,8 @@
 ENV_VARS=(
   BRANCH
   LDB_MODE
-  LDB_JOIN_DECOMPOSITIONS
+  LDB_REDUNDANT_DGROUPS
+  LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
   SIMULATION
   NODE_NUMBER
@@ -85,8 +86,10 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_JOIN_DECOMPOSITIONS
-          value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: LDB_REDUNDANT_DGROUPS
+          value: "${LDB_REDUNDANT_DGROUPS}"
+        - name: LDB_DGROUP_BACK_PROPAGATION
+          value: "${LDB_DGROUP_BACK_PROPAGATION}"
         - name: LDB_METRICS
           value: "true"
         - name: OVERLAY
@@ -135,8 +138,10 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_JOIN_DECOMPOSITIONS
-          value: "${LDB_JOIN_DECOMPOSITIONS}"
+        - name: LDB_REDUNDANT_DGROUPS
+          value: "${LDB_REDUNDANT_DGROUPS}"
+        - name: LDB_DGROUP_BACK_PROPAGATION
+          value: "${LDB_DGROUP_BACK_PROPAGATION}"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION
