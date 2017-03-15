@@ -1,5 +1,6 @@
 # draw!
 splot <- function(dir) {
+  load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
   # read all files
@@ -16,18 +17,20 @@ splot <- function(dir) {
   maxx = Reduce(max, lapply(ls, length))
 
   # open device
+  #png(filename="r.png", width=700,height=500)
   png(filename="r.png")
 
   # draw the first line
   first_line <- ls[[1]]
 
-  # offset for labels
-  offset = 15
+  # get colors
+  cols<-brewer.pal(name="Set1",n=length(ls))
 
   plot(
     first_line,
+    col=cols[[1]],
     type="l", # lines
-    xlim=c(0, maxx + offset), # max x
+    xlim=c(0, maxx), # max x
     ylim=c(0, maxy), # max y
     xlab="Time (s)",, # x axis label
     ylab="Transmission (B)" # y axis label
@@ -35,14 +38,15 @@ splot <- function(dir) {
 
   # draw the rest of the lines
   for(i in 2:length(ls)) { 
-    lines(ls[[i]])
+    lines(ls[[i]], col=cols[[i]])
   }
-  
-  text(
-    x=rep(maxx, length(lines)),
-    y=ymaximums,
-    pos=4,
-    labels=get_labels(files)
+
+  # legend
+  legend(
+    x="topleft",
+    legend=get_labels(files),
+    col=cols,
+    pch=15
   )
 
   # close device
@@ -81,7 +85,7 @@ main <- function() {
   source("util.R")
   # draw!
   metrics_dir <- "processed"
-  pplot(metrics_dir)
+  splot(metrics_dir)
 }
 
 main()

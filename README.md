@@ -12,7 +12,6 @@
   - pure_op_based
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
-- __LDB_METRICS__: boolean
 - __OVERLAY__:
   - hyparview
   - line
