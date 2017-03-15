@@ -18,7 +18,6 @@ have an effect if __LBD_MODE=delta_based__)
   - hyparview
   - line
   - ring
-  - erdos_renyi
 - __NODE_NUMBER__: Check __src/lsim_overlay.erl__, if not using
 hyparview, to see which number of nodes is supported for that overlay
 - __SIMULATION__:

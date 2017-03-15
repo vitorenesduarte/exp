@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 declare -A CONFIG
 #ldb_mode;ldb_join_decompositions
 CONFIG[0]="state_based;false"
@@ -11,6 +13,9 @@ OVERLAY=ring
 SIMULATION=gset
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
+
+# start redis
+${DIR}/redis-deploy.sh
 
 for i in "${CONFIG[@]}"
 do

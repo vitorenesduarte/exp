@@ -1,68 +1,25 @@
-# Given a package name,
-# install it (if not already installed) and load it.
-load <- function(package) {
-  mirror <- "http://cran.us.r-project.org"
-
-  if(!require(package, character.only=TRUE)) {
-    install.packages(package, repos=mirror, dependencies=TRUE)
-    require(package, character.only=TRUE)
-  }
-}
-
-# Load a list of dependencies.
-load_dependencies <- function(packages) {
-  Map(load, packages)
-}
-
-# given the directory name and the file name
-# return the json file
-json <- function(dir, file) {
-  file_path <- paste(dir, file, sep="/")
-  fromJSON(file_path)
-}
-
-# compute label name given key.
-get_labels <- function(keys) {
-  labels = list()
-  labels[["state_based_False"]] = "State-Based"
-  labels[["delta_based_False"]] = "Delta-Based"
-  labels[["delta_based_True"]] = "Delta-Based+"
-  lapply(
-    keys,
-    function(key) {
-      mode_and_jd <- paste(
-          strsplit(key, "-")[[1]][5:6],
-          collapse="_"
-      )
-
-      labels[[mode_and_jd]]
-    }
-  )
-}
-
 # draw!
-draw <- function(dir) {
+splot <- function(dir) {
   files <- list.files(dir)
 
   # read all files
-  lines <- lapply(
+  ls <- lapply(
     files,
     function(file) {
-      json(dir, file)
+      json(c(dir, file, "transmission"))
     }
   )
 
   # find the y max for all
-  ymaximums = lapply(lines, max)
+  ymaximums = lapply(ls, max)
   maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(lines, length))
+  maxx = Reduce(max, lapply(ls, length))
 
   # open device
   png(filename="r.png")
 
   # draw the first line
-  first_file <- files[[1]]
-  first_line <- json(dir, first_file)
+  first_line <- ls[[1]]
 
   # offset for labels
   offset = 15
@@ -77,10 +34,8 @@ draw <- function(dir) {
   )
 
   # draw the rest of the lines
-  for(i in 2:length(files)) { 
-    file <- files[[i]]
-    line <- json(dir, file)
-    lines(line)
+  for(i in 2:length(ls)) { 
+    lines(ls[[i]])
   }
   
   text(
@@ -94,15 +49,39 @@ draw <- function(dir) {
   dev.off()
 }
 
+pplot <- function(dir) {
+  load_dependencies(c("ggplot2", "reshape"))
+  ls <- list()
+  files <- list.files(dir)
+
+  for(file in files){
+    j <- json(c(dir, file, "transmission"))
+    ls[[file]] <- j
+  }
+
+  df <- data.frame(sapply(ls, c))
+  maxx = Reduce(max, lapply(ls, length))
+  df[["time"]] <- c(0:(maxx-1))
+  m <- melt(df, id.vars="time")
+
+  p = ggplot(
+    m,
+    aes(
+      x=time,
+      y=value,
+      colour=variable
+    )
+  ) + geom_line() + labs(x="Time (s)",y="Transmission (B)")
+
+  ggsave(filename="r.png", plot=p)
+}
+
 # main function
 main <- function() {
-  # install and load needed packages
-  packages <- c("jsonlite")
-  load_dependencies(packages)
-
+  source("util.R")
   # draw!
   metrics_dir <- "processed"
-  draw(metrics_dir)
+  pplot(metrics_dir)
 }
 
 main()

@@ -3,7 +3,6 @@
 import os, os.path, json
 import shutil
 
-
 METRIC_DIR = "metrics"
 PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
@@ -77,7 +76,6 @@ def group_by_config(d):
     Given metric files, group them by config file.
     """
     r = {}
-    key_to_config = {}
     
     for dir in d:
         config_path = os.path.join(dir, CONFIG_FILE)
@@ -85,9 +83,6 @@ def group_by_config(d):
             read_json(config_path)
         )
         
-        # store config file
-        key_to_config[k] = config_path
-
         # create empty dictionary if key not already in dictionary
         if not k in r:
             r[k] = {}
@@ -108,7 +103,7 @@ def group_by_config(d):
                 # store metrics by type
                 r[k][type].append(j[type])
 
-    return (r, key_to_config)
+    return r
 
 def get_higher_ts(runs):
     """
@@ -136,6 +131,29 @@ def create_metric(ts, size):
     metric[SIZE] = size
     return metric
 
+def bottom_size(type):
+    """
+    Return bottom size depending on the type passed as input.
+    """
+    one = ["state", "delta", "delta_ack"]
+    two = ["memory"]
+
+    if type in one:
+        return [0]
+    if type in two:
+        return [0, 0]
+
+    print("type not found. Exiting.")
+    exit()
+
+def ignore_pre_big_bang(run):
+    """
+    Remove metrics before timestamp 0.
+    """
+    
+    return [m for m in run if m[TS] >= 0]
+
+
 def assume_unknown_values(d):
     """
     Assume values for timestamps not reported.
@@ -147,18 +165,26 @@ def assume_unknown_values(d):
             # find the higher timestamp of all runs for this type
             higher_ts = get_higher_ts(d[key][type])
 
+            runs = []
+
             for run in d[key][type]:
+
+                # remove timestamps before 0
+                run = ignore_pre_big_bang(run)
 
                 # find the first timestamp of this run
                 first_ts = get_first_ts(run)
 
+                # get bottom size
+                bs = bottom_size(type)
+
                 # create fake values from timestamp 0 to first_ts
                 for i in range(0, first_ts):
-                    metric = create_metric(i, 0)
+                    metric = create_metric(i, bs)
                     run.insert(i, metric)
 
                 # create fake values for unkown timestamps
-                last_size = 0
+                last_size = bs
                 for i in range(0, higher_ts + 1):
                     if i >= len(run) or run[i][TS] != i:
                         # if timestamp not found
@@ -169,7 +195,25 @@ def assume_unknown_values(d):
                         # else update last known value
                         last_size = run[i][SIZE]
 
+                # store the updated run
+                runs.append(run)
+
+            # update all runs
+            d[key][type] = runs
+
     return d
+
+def sum_lists(ls):
+    """
+    Sum two lists.
+    """
+    return [sum(x) for x in zip(*ls)]
+
+def divide_list_by(ls, n):
+    """
+    Divide all elements of list by n.
+    """
+    return [e / n for e in ls]
 
 def average(d):
     """
@@ -183,15 +227,23 @@ def average(d):
             # number of metrics
             metrics_number = len(d[key][type][0])
 
-            # list where we'll store the sum of the sizes
-            sum = [0 for i in range(0, metrics_number)]
+            # get bottom size
+            bs = bottom_size(type)
 
+            # list where we'll store the sum of the sizes
+            sum = [bs for i in range(0, metrics_number)]
+
+            # sum all runs
             for run in d[key][type]:
                 for i in range(0, metrics_number):
-                    sum[i] += run[i][SIZE]
+                    ls = [
+                        sum[i],
+                        run[i][SIZE]
+                    ]
+                    sum[i] = sum_lists(ls)
 
             # avg of sum
-            avg = [v / runs_number for v in sum]
+            avg = [divide_list_by(ls, runs_number) for ls in sum]
 
             # store avg
             d[key][type] = avg
@@ -203,11 +255,29 @@ def aggregate(d):
     Aggregate types of the same run.
     """
 
-    for key in d:
-        s = [sum(x) for x in zip(*d[key].values())]
-        d[key] = s
+    r = {}
 
-    return d
+    for key in d:
+        # create key in dictionary
+        r[key] = {}
+
+        # sum all lists that have these types
+        to_sum = []
+        for type in d[key]:
+            if type in ["state", "delta", "delta_ack"]:
+                # make list of lists into list
+                ls = [e for l in d[key][type] for e in l]
+                to_sum.append(ls)
+
+        r[key]["transmission"] = sum_lists(to_sum)
+        r[key]["crdt"] = []
+        r[key]["rest"] = []
+
+        for [C, R] in d[key]["memory"]:
+            r[key]["crdt"].append(C)
+            r[key]["rest"].append(R)
+
+    return r
 
 def save_file(path, content):
     """
@@ -224,33 +294,30 @@ def save_file(path, content):
     with open(path, "w") as fd:
         fd.write(content)
 
-def dump(d, key_to_config):
+def dump(d):
     """
     Save average to files.
     """
 
     # clear folder
-    shutil.rmtree(PROCESSED_DIR)
+    shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
     for key in d:
-        # get config file path
-        config = key_to_config[key]
-        avg = d[key]
-
-        path = os.path.join(*[PROCESSED_DIR, key])
-        content = json.dumps(avg)
-
-        save_file(path, content)
+        for file in d[key]:
+            avg = d[key][file]
+            path = os.path.join(*[PROCESSED_DIR, key, file])
+            content = json.dumps(avg)
+            save_file(path, content)
 
 def main():
     """
     Main.
     """
     d = get_metric_files()
-    (d, key_to_config) = group_by_config(d)
+    d = group_by_config(d)
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
-    dump(d, key_to_config)
+    dump(d)
 
 main()
