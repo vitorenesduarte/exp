@@ -50,7 +50,7 @@ splot <- function(dir) {
 }
 
 pplot <- function(dir) {
-  load_dependencies(c("jsonlite", "ggplot2", "reshape"))
+  load_dependencies(c("ggplot2", "reshape"))
   ls <- list()
   files <- list.files(dir)
 
