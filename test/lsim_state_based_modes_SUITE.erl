@@ -68,11 +68,11 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_line_test,
+     state_based_ring_test,
      state_based_hyparview_test,
+     state_driven_line_test,
      delta_based_line_test,
-     delta_based_hyparview_test,
-     delta_based_revisited_line_test,
-     delta_based_revisited_hyparview_test
+     delta_based_revisited_line_test
     ].
 
 %% ===================================================================
@@ -82,24 +82,25 @@ all() ->
 state_based_line_test(_Config) ->
     run(state_based, line).
 
+state_based_ring_test(_Config) ->
+    run(state_based, ring).
+
 state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).
+
+state_driven_line_test(_Config) ->
+    run(state_driven, line).
 
 delta_based_line_test(_Config) ->
     run(delta_based, line).
 
-delta_based_hyparview_test(_Config) ->
-    run(delta_based, hyparview).
-
 delta_based_revisited_line_test(_Config) ->
     run(delta_based_revisited, line).
 
-delta_based_revisited_hyparview_test(_Config) ->
-    run(delta_based_revisited, hyparview).
-
 %% @private
 run(Evaluation, Overlay) ->
-    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
+    {Mode, DrivenMode, Redundant, BackPropagation} =
+        get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
@@ -109,6 +110,7 @@ run(Evaluation, Overlay) ->
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
+                 {ldb_driven_mode, DrivenMode},
                  {ldb_redundant_dgroups, Redundant},
                  {ldb_dgroup_back_propagation, BackPropagation}]}],
 
@@ -116,8 +118,10 @@ run(Evaluation, Overlay) ->
 
 %% @private
 get_config(state_based) ->
-    {state_based, false, false};
+    {state_based, none, false, false};
+get_config(state_driven) ->
+    {state_based, state_driven, false, false};
 get_config(delta_based) ->
-    {delta_based, false, false};
+    {delta_based, none, false, false};
 get_config(delta_based_revisited) ->
-    {delta_based, true, true}.
+    {delta_based, none, true, true}.

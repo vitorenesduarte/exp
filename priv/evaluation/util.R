@@ -25,16 +25,18 @@ json <- function(v) {
 # compute label name given key.
 get_labels <- function(keys) {
   labels = list()
-  labels[["state_based_False_False"]] = "State-Based"
-  labels[["delta_based_False_False"]] = "Delta-Based"
-  labels[["delta_based_True_False"]] = "Delta-Based (Remove Redundant)"
-  labels[["delta_based_False_True"]] = "Delta-Based (Back-Propagation)"
-  labels[["delta_based_True_True"]] = "Delta-Based (Both)"
+  labels[["state_based_none_False_False"]] = "State-Based"
+  labels[["state_based_state_driven_False_False"]] = "State-Driven"
+  labels[["state_based_digest_driven_False_False"]] = "Digest-Driven"
+  labels[["delta_based_none_False_False"]] = "Delta-Based"
+  labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
+  labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
+  labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
   lapply(
     keys,
     function(key) {
       mode_and_jd <- paste(
-          strsplit(key, "-")[[1]][5:7],
+          strsplit(key, "-")[[1]][5:8],
           collapse="_"
       )
 

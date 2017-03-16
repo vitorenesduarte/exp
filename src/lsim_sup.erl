@@ -33,8 +33,7 @@ start_link() ->
 
 init([]) ->
     configure_peer_service(),
-    configure_ldb(),
-    {Simulation, Orchestration, RSG} = configure_lsim(),
+    {Simulation, Orchestration, RSG} = configure(),
 
     Children = lsim_specs(Simulation, Orchestration, RSG),
 
@@ -45,8 +44,7 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
-    Overlay = configure_var(lsim,
-                            "OVERLAY",
+    Overlay = configure_var("OVERLAY",
                             lsim_overlay,
                             ?DEFAULT_OVERLAY),
 
@@ -66,84 +64,49 @@ configure_peer_service() ->
                         PeerService).
 
 %% @private
-configure_ldb() ->
-    %% configure ldb mode
-    configure_var(ldb,
-                  "LDB_MODE",
-                  ldb_mode,
-                  ?DEFAULT_MODE),
-
-    %% configure redundant delta groups
-    configure_var(ldb,
-                  "LDB_REDUNDANT_DGROUPS",
-                  ldb_redundant_dgroups,
-                  false),
-
-    %% configure delta group back propagation
-    configure_var(ldb,
-                  "LDB_DGROUP_BACK_PROPAGATION",
-                  ldb_dgroup_back_propagation,
-                  false),
-
-    %% configure metrics
-    configure_var(ldb,
-                  "LDB_METRICS",
-                  ldb_metrics,
-                  false).
-
-%% @private
-configure_lsim() ->
+configure() ->
     %% configure lsim simulation
-    Simulation = configure_var(lsim,
-                               "SIMULATION",
+    Simulation = configure_var("SIMULATION",
                                lsim_simulation,
                                undefined),
 
     %% configure node number
-    configure_int(lsim,
-                  "NODE_NUMBER",
+    configure_int("NODE_NUMBER",
                   lsim_node_number,
                   1),
 
     %% configure node event number
-    configure_int(lsim,
-                  "NODE_EVENT_NUMBER",
+    configure_int("NODE_EVENT_NUMBER",
                   lsim_node_event_number,
                   30),
 
     %% configure unique simulation timestamp
-    configure_int(lsim,
-                  "TIMESTAMP",
+    configure_int("TIMESTAMP",
                   lsim_timestamp,
                   0),
 
     %% configure api server
-    configure_str(lsim,
-                  "APISERVER",
+    configure_str("APISERVER",
                   lsim_api_server,
                   undefined),
 
     %% configure auth token
-    configure_str(lsim,
-                  "TOKEN",
+    configure_str("TOKEN",
                   lsim_token,
                   undefined),
 
     %% configure orchestration
-    Orchestration = configure_var(lsim,
-                                  "ORCHESTRATION",
+    Orchestration = configure_var("ORCHESTRATION",
                                   lsim_orchestration,
                                   undefined),
 
     %% configure rsg master
-    RSG = configure_var(lsim,
-                        "RSG",
+    RSG = configure_var("RSG",
                         lsim_rsg,
                         false),
 
     %% configure metrics store
-    configure_var(lsim,
-                  "METRICS_STORE",
+    configure_var("METRICS_STORE",
                   lsim_metrics_store,
                   undefined),
 
@@ -187,40 +150,27 @@ lsim_specs(Simulation, Orchestration, RSG) ->
     SimulationSpecs ++ OrchestrationSpecs.
 
 %% @private
-configure_var(App, Env, Var, Default) ->
+configure_var(Env, Var, Default) ->
     To = fun(V) -> atom_to_list(V) end,
     From = fun(V) -> list_to_atom(V) end,
-    configure(App, Env, Var, Default, To, From).
+    configure(Env, Var, Default, To, From).
 
 %% @private
-configure_str(App, Env, Var, Default) ->
+configure_str(Env, Var, Default) ->
     F = fun(V) -> V end,
-    configure(App, Env, Var, Default, F, F).
+    configure(Env, Var, Default, F, F).
 
 %% @private
-configure_int(App, Env, Var, Default) ->
+configure_int(Env, Var, Default) ->
     To = fun(V) -> integer_to_list(V) end,
     From = fun(V) -> list_to_integer(V) end,
-    configure(App, Env, Var, Default, To, From).
+    configure(Env, Var, Default, To, From).
 
 %% @private
-configure(App, Env, Var, Default, To, From) ->
-    Current = case App of
-        ldb ->
-            ldb_config:get(Var, Default);
-        lsim ->
-            lsim_config:get(Var, Default)
-    end,
-
+configure(Env, Var, Default, To, From) ->
+    Current = lsim_config:get(Var, Default),
     Val = From(
         os:getenv(Env, To(Current))
     ),
-
-    case App of
-        ldb ->
-            ldb_config:set(Var, Val);
-        lsim ->
-            lsim_config:set(Var, Val)
-    end,
-
+    lsim_config:set(Var, Val),
     Val.

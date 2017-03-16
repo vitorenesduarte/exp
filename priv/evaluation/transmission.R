@@ -24,7 +24,9 @@ splot <- function(dir) {
   first_line <- ls[[1]]
 
   # get colors
-  cols<-brewer.pal(name="Set1",n=length(ls))
+  nol = length(ls)
+  noc = if(nol >= 3) nol else 3
+  cols<-brewer.pal(name="Set1", n=noc)
 
   plot(
     first_line,
@@ -37,8 +39,10 @@ splot <- function(dir) {
   )
 
   # draw the rest of the lines
-  for(i in 2:length(ls)) { 
-    lines(ls[[i]], col=cols[[i]])
+  if(nol > 1) {
+    for(i in 2:length(ls)) {
+      lines(ls[[i]], col=cols[[i]])
+    }
   }
 
   # legend

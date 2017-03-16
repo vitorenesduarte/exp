@@ -61,6 +61,7 @@ def key(config):
         "lsim_node_number",
         "lsim_node_event_number",
         "ldb_mode",
+        "ldb_driven_mode",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -136,7 +137,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "delta", "delta_ack"]
+    one = ["state", "state_driven", "delta", "delta_ack"]
     two = ["memory"]
 
     if type in one:

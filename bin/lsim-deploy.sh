@@ -3,6 +3,7 @@
 ENV_VARS=(
   BRANCH
   LDB_MODE
+  LDB_DRIVEN_MODE
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
@@ -86,6 +87,8 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
+        - name: LDB_DRIVEN_MODE
+          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
@@ -138,6 +141,8 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
+        - name: LDB_DRIVEN_MODE
+          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
