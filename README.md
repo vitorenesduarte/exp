@@ -10,6 +10,10 @@
   - state_based
   - delta_based
   - pure_op_based
+- __LDB_DRIVEN_MODE__:
+  - none
+  - state_driven
+  - digest_driven
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
@@ -29,6 +33,7 @@ the simulation. The event interval is 1 second
 ```bash
 $ BRANCH=master \
   LDB_MODE=delta_based \
+  LDB_DRIVEN_MODE=none \
   LDB_REDUNDANT_DGROUPS=true \
   LDB_DGROUP_BACK_PROPAGATION=true \
   OVERLAY=hyparview \
