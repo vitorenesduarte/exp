@@ -1,5 +1,6 @@
 %%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
 %% except in compliance with the License.  You may obtain
@@ -32,8 +33,7 @@ start_link() ->
 
 init([]) ->
     configure_peer_service(),
-    configure_ldb(),
-    {Simulation, Orchestration, RSG} = configure_lsim(),
+    {Simulation, Orchestration, RSG} = configure(),
 
     Children = lsim_specs(Simulation, Orchestration, RSG),
 
@@ -150,21 +150,21 @@ lsim_specs(Simulation, Orchestration, RSG) ->
     SimulationSpecs ++ OrchestrationSpecs.
 
 %% @private
-configure_var(App, Env, Var, Default) ->
+configure_var(Env, Var, Default) ->
     To = fun(V) -> atom_to_list(V) end,
     From = fun(V) -> list_to_atom(V) end,
-    configure(App, Env, Var, Default, To, From).
+    configure(Env, Var, Default, To, From).
 
 %% @private
-configure_str(App, Env, Var, Default) ->
+configure_str(Env, Var, Default) ->
     F = fun(V) -> V end,
-    configure(App, Env, Var, Default, F, F).
+    configure(Env, Var, Default, F, F).
 
 %% @private
-configure_int(App, Env, Var, Default) ->
+configure_int(Env, Var, Default) ->
     To = fun(V) -> integer_to_list(V) end,
     From = fun(V) -> list_to_integer(V) end,
-    configure(App, Env, Var, Default, To, From).
+    configure(Env, Var, Default, To, From).
 
 %% @private
 configure(Env, Var, Default, To, From) ->
