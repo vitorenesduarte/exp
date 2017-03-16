@@ -16,8 +16,8 @@ CONFIG[1]="state_based;state_driven;false;false"
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
-OVERLAY=line
-SIMULATION=gcounter
+OVERLAY=ring
+SIMULATION=gset
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
 
