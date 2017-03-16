@@ -266,7 +266,7 @@ def aggregate(d):
         # sum all lists that have these types
         to_sum = []
         for type in d[key]:
-            if type in ["state", "delta", "delta_ack"]:
+            if type in ["state", "state_driven", "delta", "delta_ack"]:
                 # make list of lists into list
                 ls = [e for l in d[key][type] for e in l]
                 to_sum.append(ls)
