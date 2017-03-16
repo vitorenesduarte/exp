@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 
 declare -A CONFIG
-#ldb_mode;ldb_redundant_dgroups;ldb_dgroup_back_propagation
-CONFIG[0]="state_based;false;false"
-CONFIG[1]="delta_based;false;false"
-CONFIG[2]="delta_based;true;false"
-CONFIG[3]="delta_based;false;true"
-CONFIG[4]="delta_based;true;true"
+#ldb_mode;
+#ldb_drivenmode;
+#ldb_redundant_dgroups;
+#ldb_dgroup_back_propagation
+CONFIG[0]="state_based;none;false;false"
+CONFIG[1]="state_based;state_driven;false;false"
+CONFIG[2]="state_based;digest_driven;false;false"
+CONFIG[3]="delta_based;none;false;false"
+CONFIG[4]="delta_based;none;true;false"
+CONFIG[5]="delta_based;none;false;true"
+CONFIG[6]="delta_based;none;true;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
 OVERLAY=line
-SIMULATION=gset
+SIMULATION=gcounter
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
 
@@ -25,11 +30,13 @@ for i in "${CONFIG[@]}"
 do
   R=(${i//;/ })
   LDB_MODE=${R[0]}
-  LDB_REDUNDANT_DGROUPS=${R[1]}
-  LDB_DGROUP_BACK_PROPAGATION=${R[2]}
+  LDB_DRIVEN_MODE=${R[1]}
+  LDB_REDUNDANT_DGROUPS=${R[2]}
+  LDB_DGROUP_BACK_PROPAGATION=${R[3]}
 
   BRANCH=${BRANCH} \
     LDB_MODE=${LDB_MODE} \
+    LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
     LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
     LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
     OVERLAY=${OVERLAY} \
@@ -37,7 +44,7 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${SCRIPT}
 
-  echo "Running ${CONFIG}"
+  echo "Running ${R[@]}"
   echo "Waiting 1 minute before next deploy."
   sleep 60
 done
