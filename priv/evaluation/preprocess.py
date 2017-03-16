@@ -61,6 +61,7 @@ def key(config):
         "lsim_node_number",
         "lsim_node_event_number",
         "ldb_mode",
+        "ldb_driven_mode",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
