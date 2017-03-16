@@ -137,7 +137,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "delta", "delta_ack"]
+    one = ["state", "state_driven", "delta", "delta_ack"]
     two = ["memory"]
 
     if type in one:
