@@ -11,10 +11,12 @@ CONFIG[4]="delta_based;true;true"
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
-OVERLAY=ring
+OVERLAY=line
 SIMULATION=gset
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
+
+echo "Starting ${SIMULATION} simulation on branch ${BRANCH}"
 
 # start redis
 ${DIR}/redis-deploy.sh
@@ -34,4 +36,8 @@ do
     SIMULATION=${SIMULATION} \
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${SCRIPT}
+
+  echo "Running ${CONFIG}"
+  echo "Waiting 1 minute before next deploy."
+  sleep 60
 done
