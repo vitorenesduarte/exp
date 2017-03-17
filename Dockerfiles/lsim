@@ -1,18 +1,12 @@
-FROM ubuntu:xenial
+FROM erlang:19.2.3-slim
 
 MAINTAINER Vitor Enes Duarte <vitorenesduarte@gmail.com>
 
-RUN cd /tmp && \
-    apt-get update && \
-    apt-get -y install wget build-essential make gcc ruby-dev git && \
-    wget http://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
-    dpkg -i erlang-solutions_1.0_all.deb && \
-    apt-get update && \
-    apt-get -y install erlang
+RUN apt-get update && apt-get -y install git
 
 CMD cd /opt && \
     git clone https://github.com/vitorenesduarte/lsim.git -b $BRANCH && \
     cd lsim && \
     ./rebar3 update && \
-    make stage && \
+    ./rebar3 release -d && \
     /opt/lsim/_build/default/rel/lsim/bin/env
