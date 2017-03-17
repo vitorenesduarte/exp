@@ -32,8 +32,9 @@ TOKEN=$(kubectl describe secret |
 ORCHESTRATION=kubernetes
 METRICS_STORE=redis
 
-# Evaluation timestamp: unix timestamp + nanoseconds
-TIMESTAMP=$(date +%s)$(date +%N)
+# Evaluation timestamp: unix timestamp + random
+R=$(echo $RANDOM + 10000 | bc)
+TIMESTAMP=$(date +%s)${R}
 
 # Port
 PEER_PORT=6866
