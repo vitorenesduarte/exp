@@ -67,7 +67,8 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      gset_test,
-     gcounter_test
+     gcounter_test,
+     gmap_test
     ].
 
 %% ===================================================================
@@ -79,6 +80,9 @@ gset_test(_Config) ->
 
 gcounter_test(_Config) ->
     run(gcounter).
+
+gmap_test(_Config) ->
+    run(gmap).
 
 %% @private
 run(Simulation) ->
