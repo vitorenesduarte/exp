@@ -72,6 +72,38 @@ get_specs(Simulation) ->
             [StartFun,
              EventFun,
              TotalEventsFun,
+             CheckEndFun];
+
+        gmap ->
+            StartFun = fun() ->
+                Type = {gmap,
+                        [{pair,
+                          [gcounter, gcounter]}]},
+                ldb:create(?KEY, Type)
+            end,
+            EventFun = fun(EventNumber) ->
+                Component = case EventNumber rem 2 of
+                    0 ->
+                        %% if even, increment the first component
+                        %% of the pair
+                        fst;
+                    1 ->
+                        %% else, the second
+                        snd
+                end,
+                Op = {apply, ?KEY, {Component, increment}},
+                ldb:update(?KEY, Op)
+            end,
+            TotalEventsFun = fun() ->
+                {ok, [{?KEY, {Fst, Snd}}]} = ldb:query(?KEY),
+                Fst + Snd
+            end,
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
              CheckEndFun]
 
     end,
