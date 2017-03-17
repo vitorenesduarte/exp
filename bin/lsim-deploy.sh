@@ -27,7 +27,7 @@ APISERVER=$(kubectl config view |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
         grep "token:" |
-        sed -E 's/token:\s+//')
+        awk '{print $2}')
 
 ORCHESTRATION=kubernetes
 METRICS_STORE=redis
