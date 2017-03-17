@@ -286,11 +286,11 @@ def save_file(path, content):
     Save content in path.
     """
 
-    # ensure directory exists
-    os.makedirs(
-        os.path.dirname(path),
-        exist_ok=True
-    )
+    dir = os.path.dirname(path)
+
+    # ensure directory exist
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
     # write content
     with open(path, "w") as fd:

@@ -27,13 +27,14 @@ APISERVER=$(kubectl config view |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
         grep "token:" |
-        sed -E 's/token:\s+//')
+        awk '{print $2}')
 
 ORCHESTRATION=kubernetes
 METRICS_STORE=redis
 
-# Evaluation timestamp: unix timestamp + nanoseconds
-TIMESTAMP=$(date +%s)$(date +%N)
+# Evaluation timestamp: unix timestamp + random
+R=$(echo $RANDOM + 10000 | bc)
+TIMESTAMP=$(date +%s)${R}
 
 # Port
 PEER_PORT=6866
