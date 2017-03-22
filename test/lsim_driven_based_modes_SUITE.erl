@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_driven_SUITE).
+-module(lsim_driven_based_modes_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
