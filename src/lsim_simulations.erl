@@ -34,6 +34,9 @@ get_specs(Simulation) ->
         undefined ->
             [];
 
+        awset ->
+            simple_set_simulation(awset);
+
         gcounter ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
@@ -54,25 +57,7 @@ get_specs(Simulation) ->
              CheckEndFun];
 
         gset ->
-            StartFun = fun() ->
-                ldb:create(?KEY, gset)
-            end,
-            EventFun = fun(EventNumber) ->
-                Element = atom_to_list(node()) ++
-                          integer_to_list(EventNumber),
-                ldb:update(?KEY, {add, Element})
-            end,
-            TotalEventsFun = fun() ->
-                {ok, Value} = ldb:query(?KEY),
-                sets:size(Value)
-            end,
-            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-                TotalEventsFun() == NodeNumber * NodeEventNumber
-            end,
-            [StartFun,
-             EventFun,
-             TotalEventsFun,
-             CheckEndFun];
+            simple_set_simulation(gset);
 
         gmap ->
             StartFun = fun() ->
@@ -120,3 +105,25 @@ create_spec(Funs) ->
               {lsim_simulation_runner, start_link, [Funs]},
               permanent, 5000, worker, [lsim_simulation_runner]}]
     end.
+
+%% @private
+simple_set_simulation(Type) ->
+    StartFun = fun() ->
+        ldb:create(?KEY, Type)
+    end,
+    EventFun = fun(EventNumber) ->
+        Element = atom_to_list(node()) ++
+                  integer_to_list(EventNumber),
+        ldb:update(?KEY, {add, Element})
+    end,
+    TotalEventsFun = fun() ->
+        {ok, Value} = ldb:query(?KEY),
+        sets:size(Value)
+    end,
+    CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+        TotalEventsFun() == NodeNumber * NodeEventNumber
+    end,
+    [StartFun,
+     EventFun,
+     TotalEventsFun,
+     CheckEndFun].
