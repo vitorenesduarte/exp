@@ -7,7 +7,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"fe85bd8856ffc468d59df418ccfff4e89c8c5dca"}},
+       {ref,"7d2a802786c12526774a2ec8fb8e0ba28b2900e8"}},
   0},
  {<<"partisan">>,
   {git,"https://github.com/lasp-lang/partisan",
