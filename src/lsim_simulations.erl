@@ -84,8 +84,7 @@ get_specs(Simulation) ->
                 ldb:update(?KEY, Op)
             end,
             TotalEventsFun = fun() ->
-		Keys = orddict:fetch_keys(?KEY),
-		lists:foldl(fun(Key, Sum) -> Sum + state_gcounter:query(Key) end, 0, Keys)
+		lists:sum([V || {_Key, V} <- ldb:query(?KEY)])
             end,
             CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
                 TotalEventsFun() == NodeNumber * NodeEventNumber
