@@ -20,7 +20,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_state_based_modes_SUITE).
+-module(lsim_driven_based_modes_SUITE).
 -author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -42,7 +42,8 @@
 
 -define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 5).
--define(SIMULATION, gset).
+-define(SIMULATION, awset).
+-define(OVERLAY, line).
 
 %% ===================================================================
 %% common_test callbacks
@@ -67,53 +68,44 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_line_test,
-     state_based_ring_test,
-     state_based_hyparview_test,
-     delta_based_line_test,
-     delta_based_revisited_line_test
+     state_based_test,
+     state_driven_test,
+     digest_driven_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_line_test(_Config) ->
-    run(state_based, line).
+state_based_test(_Config) ->
+    run(state_based).
 
-state_based_ring_test(_Config) ->
-    run(state_based, ring).
+state_driven_test(_Config) ->
+    run(state_driven).
 
-state_based_hyparview_test(_Config) ->
-    run(state_based, hyparview).
-
-delta_based_line_test(_Config) ->
-    run(delta_based, line).
-
-delta_based_revisited_line_test(_Config) ->
-    run(delta_based_revisited, line).
+digest_driven_test(_Config) ->
+    run(digest_driven).
 
 %% @private
-run(Evaluation, Overlay) ->
-    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
+run(Evaluation) ->
+    {Mode, DrivenMode} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
-                [{lsim_overlay, Overlay},
+                [{lsim_overlay, ?OVERLAY},
                  {lsim_simulation, ?SIMULATION},
                  {lsim_node_number, ?NODE_NUMBER},
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
-                 {ldb_redundant_dgroups, Redundant},
-                 {ldb_dgroup_back_propagation, BackPropagation}]}],
+                 {ldb_driven_mode, DrivenMode}]}],
 
     lsim_local_simulations_support:run(Options).
 
 %% @private
 get_config(state_based) ->
-    {state_based, false, false};
-get_config(delta_based) ->
-    {delta_based, false, false};
-get_config(delta_based_revisited) ->
-    {delta_based, true, true}.
+    {state_based, none};
+get_config(state_driven) ->
+    {state_based, state_driven};
+get_config(digest_driven) ->
+    {state_based, digest_driven}.
