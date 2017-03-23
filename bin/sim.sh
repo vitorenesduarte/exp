@@ -6,7 +6,7 @@ declare -A CONFIG
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
 CONFIG[0]="state_based;none;false;false"
-CONFIG[1]="state_based;state_driven;false;false"
+#CONFIG[1]="state_based;state_driven;false;false"
 #CONFIG[2]="state_based;digest_driven;false;false"
 #CONFIG[3]="delta_based;none;false;false"
 #CONFIG[4]="delta_based;none;true;false"
@@ -17,7 +17,7 @@ DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
 OVERLAY=ring
-SIMULATION=gset
+SIMULATION=gmap_gcounter
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
 

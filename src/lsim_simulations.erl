@@ -73,6 +73,27 @@ get_specs(Simulation) ->
              EventFun,
              TotalEventsFun,
              CheckEndFun];
+		  
+	gmap_gcounter ->
+            StartFun = fun() ->
+                Type = {gmap, [gcounter]},
+                ldb:create(?KEY, Type)
+            end,
+            EventFun = fun(EventNumber) ->
+                Op = {apply, EventNumber, increment},
+                ldb:update(?KEY, Op)
+            end,
+            TotalEventsFun = fun() ->
+		Keys = orddict:fetch_keys(?KEY),
+		lists:foldl(fun(Key, Sum) -> Sum + state_gcounter:query(Key) end, 0, Keys)
+            end,
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
+             CheckEndFun];
 
         gmap ->
             StartFun = fun() ->
@@ -105,6 +126,7 @@ get_specs(Simulation) ->
              EventFun,
              TotalEventsFun,
              CheckEndFun]
+		   
 
     end,
 
