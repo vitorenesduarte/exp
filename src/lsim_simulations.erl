@@ -113,6 +113,15 @@ simple_set_simulation(Type) ->
     end,
     EventFun = fun(EventNumber) ->
         Element = atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
+                  atom_to_list(node()) ++
                   integer_to_list(EventNumber),
         ldb:update(?KEY, {add, Element})
     end,
