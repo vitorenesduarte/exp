@@ -17,7 +17,7 @@ DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
 OVERLAY=ring
-SIMULATION=gset
+SIMULATION=awset
 NODE_NUMBER=3
 NODE_EVENT_NUMBER=50
 
