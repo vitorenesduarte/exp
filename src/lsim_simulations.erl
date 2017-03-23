@@ -84,7 +84,8 @@ get_specs(Simulation) ->
                 ldb:update(?KEY, Op)
             end,
             TotalEventsFun = fun() ->
-		lists:sum([V || {_Key, V} <- ldb:query(?KEY)])
+		{ok, List} = ldb:query(?KEY),
+		lists:sum([V || {_Key, V} <- List])
             end,
             CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
                 TotalEventsFun() == NodeNumber * NodeEventNumber
