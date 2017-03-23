@@ -11,7 +11,7 @@ CONFIG[2]="state_based;digest_driven;false;false"
 #CONFIG[3]="delta_based;none;false;false"
 #CONFIG[4]="delta_based;none;true;false"
 #CONFIG[5]="delta_based;none;false;true"
-#CONFIG[6]="delta_based;none;true;true"
+CONFIG[6]="delta_based;none;true;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
