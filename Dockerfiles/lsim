@@ -1,4 +1,4 @@
-FROM erlang:19.2.3-slim
+FROM erlang:19.3-slim
 
 MAINTAINER Vitor Enes Duarte <vitorenesduarte@gmail.com>
 
