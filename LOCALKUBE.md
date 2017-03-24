@@ -17,18 +17,18 @@ apt-get install -y kubelet kubeadm kubectl kubernetes-cni
 ```
 
 - On master (with public ip __192.168.116.101__):
-  - __Initialize__:
+1. __Initialize__:
 ```bash
 kubeadm reset
 systemctl start kubelet.service
 kubeadm init --api-advertise-addresses 192.168.116.101
 ```
-  - __Save the output__ (`kube join ...`)
-  - __Install a pod network__. We're going to install [calico](http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/)
+2. __Save the output__ (`kube join ...`)
+3. __Install a pod network__. We're going to install [calico](http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/)
 ```bash
 kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
 ```
-  - __Copy config file__
+4. __Copy config file__
 ```bash
 cp /etc/kubernetes/admin.conf
 chown ubuntu admin.conf
@@ -37,7 +37,7 @@ scp ubuntu@192.168.116.101:admin.conf .
 ```
 
 - On the other nodes:
-  - __Join cluster__:
+1. __Join cluster__:
 ```bash
 kubeadm reset
 systemctl start kubelet.service
