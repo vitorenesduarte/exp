@@ -1,37 +1,48 @@
-### Kubernetes
+### Kubernetes on CentOS 7
 
 [__[Original link]__](https://kubernetes.io/docs/getting-started-guides/kubeadm/)
 
 - On all nodes:
 
 ```bash
-sudo su -
-apt-get update && apt-get install -y apt-transport-https
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-cat <<EOF > /etc/apt/sources.list.d/kubernetes.list
-deb http://apt.kubernetes.io/ kubernetes-xenial main
+vi d.sh
+```
+
+```bash
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
-apt-get update
-apt-get install -y docker.io
-apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+setenforce 0
+yum install -y docker kubelet kubeadm kubectl kubernetes-cni
+systemctl enable docker && systemctl start docker
+systemctl enable kubelet && systemctl start kubelet
+```
+
+```bash
+sudo bash d.sh
 ```
 
 - On master (with public ip __192.168.116.101__):
 1. __Initialize__:
 ```bash
-kubeadm reset
-systemctl start kubelet.service
-kubeadm init --api-advertise-addresses 192.168.116.101
+sudo kubeadm init --api-advertise-addresses 192.168.116.101
 ```
 2. __Save the output__ (`kube join ...`)
-3. __Install a pod network__. We're going to install [calico](http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/)
+3. __Install a pod network__
 ```bash
-kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
+kubectl apply -f https://git.io/weave-kube
 ```
 4. __Copy config file__
 ```bash
-cp /etc/kubernetes/admin.conf .
-chown ubuntu admin.conf
+sudo cp /etc/kubernetes/admin.conf .
+sudo chown ubuntu admin.conf
 exit
 scp ubuntu@192.168.116.101:admin.conf .
 ```
@@ -39,8 +50,6 @@ scp ubuntu@192.168.116.101:admin.conf .
 - On the other nodes:
 1. __Join cluster__:
 ```bash
-kubeadm reset
-systemctl start kubelet.service
 kube join ...
 ```
 
