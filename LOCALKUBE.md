@@ -30,7 +30,7 @@ kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/i
 ```
 4. __Copy config file__
 ```bash
-cp /etc/kubernetes/admin.conf
+cp /etc/kubernetes/admin.conf .
 chown ubuntu admin.conf
 exit
 scp ubuntu@192.168.116.101:admin.conf .
