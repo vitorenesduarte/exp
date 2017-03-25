@@ -150,7 +150,7 @@ generate_nodes(Map, Port) ->
             %% find ip
             Status = maps:get(status, Item),
 
-            case maps:is_key(podIP, status) of
+            case maps:is_key(podIP, Status) of
                 true ->
                     IP = binary_to_list(
                         maps:get(podIP, Status)
