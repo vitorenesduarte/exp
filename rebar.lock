@@ -11,7 +11,7 @@
   0},
  {<<"partisan">>,
   {git,"https://github.com/lasp-lang/partisan",
-       {ref,"7a370f74b8fa329b2a6ce3baf2ce931f13df2eb4"}},
+       {ref,"ecf8e5be8ed2718a9d4c4c14fa00ca3881a8d5ab"}},
   0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
