@@ -21,7 +21,7 @@ SIMULATION=gset
 NODE_NUMBER=16
 NODE_EVENT_NUMBER=50
 
-echo "Starting ${SIMULATION} simulation on branch ${BRANCH}"
+echo "[$(date +%T)] Starting ${SIMULATION} simulation on branch ${BRANCH}"
 
 # start redis
 ${DIR}/redis-deploy.sh
@@ -46,7 +46,7 @@ do
 
   MINUTES=5
 
-  echo "Running ${R[@]}"
-  echo "Waiting ${MINUTES} minute(s) before next deploy."
+  echo "[$(date +%T)] Running ${R[@]}"
+  echo "[$(date +%T)] Waiting ${MINUTES} minute(s) before next deploy."
   sleep $((60 * ${MINUTES}))
 done

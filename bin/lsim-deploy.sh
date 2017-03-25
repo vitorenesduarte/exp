@@ -160,5 +160,4 @@ spec:
           value: "false"
 EOF
 
-echo "Creating deployment."
 kubectl create -f ${FILE}
