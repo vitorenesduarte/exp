@@ -8,17 +8,17 @@ declare -A CONFIG
 CONFIG[0]="state_based;none;false;false"
 #CONFIG[1]="state_based;state_driven;false;false"
 #CONFIG[2]="state_based;digest_driven;false;false"
-CONFIG[3]="delta_based;none;false;false"
-CONFIG[4]="delta_based;none;true;false"
-CONFIG[5]="delta_based;none;false;true"
-CONFIG[6]="delta_based;none;true;true"
+#CONFIG[3]="delta_based;none;false;false"
+#CONFIG[4]="delta_based;none;true;false"
+#CONFIG[5]="delta_based;none;false;true"
+#CONFIG[6]="delta_based;none;true;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
 OVERLAY=hyparview
 SIMULATION=gset
-NODE_NUMBER=16
+NODE_NUMBER=64
 NODE_EVENT_NUMBER=50
 
 echo "[$(date +%T)] Starting ${SIMULATION} simulation on branch ${BRANCH}"
@@ -44,7 +44,7 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${SCRIPT}
 
-  MINUTES=5
+  MINUTES=0
 
   echo "[$(date +%T)] Running ${R[@]}"
   echo "[$(date +%T)] Waiting ${MINUTES} minute(s) before next deploy."
