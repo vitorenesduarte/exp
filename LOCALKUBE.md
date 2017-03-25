@@ -57,3 +57,30 @@ kube join ...
 ```bash
 kubectl --kubeconfig ./admin.conf get nodes
 ```
+
+
+#### Dashboard
+To access the [dashboard](https://github.com/kubernetes/dashboard),
+first on your master:
+
+```bash
+kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+```
+
+And on your machine:
+```bash
+kubectl proxy
+```
+
+Now the dashboard is available at [http://localhost:8001/ui](http://localhost:8001/ui).
+
+
+##### Dashboard metrics
+For metrics we need to install [Heapster](https://github.com/kubernetes/heapster/). On your master:
+
+```bash
+sudo yum install git
+git clone https://github.com/kubernetes/heapster
+cd heapster/
+kubectl create -f deploy/kube-config/influxdb/
+```
