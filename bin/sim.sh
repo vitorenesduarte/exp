@@ -6,19 +6,19 @@ declare -A CONFIG
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
 CONFIG[0]="state_based;none;false;false"
-CONFIG[1]="state_based;state_driven;false;false"
-CONFIG[2]="state_based;digest_driven;false;false"
-#CONFIG[3]="delta_based;none;false;false"
-#CONFIG[4]="delta_based;none;true;false"
-#CONFIG[5]="delta_based;none;false;true"
+#CONFIG[1]="state_based;state_driven;false;false"
+#CONFIG[2]="state_based;digest_driven;false;false"
+CONFIG[3]="delta_based;none;false;false"
+CONFIG[4]="delta_based;none;true;false"
+CONFIG[5]="delta_based;none;false;true"
 CONFIG[6]="delta_based;none;true;true"
 
 DIR=$(dirname $0)
 SCRIPT=${DIR}/lsim-deploy.sh
 BRANCH=$(git branch | grep "*" | awk '{print $2}')
-OVERLAY=ring
-SIMULATION=awset
-NODE_NUMBER=3
+OVERLAY=hyparview
+SIMULATION=gset
+NODE_NUMBER=16
 NODE_EVENT_NUMBER=50
 
 echo "Starting ${SIMULATION} simulation on branch ${BRANCH}"
@@ -44,7 +44,9 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${SCRIPT}
 
+  MINUTES=5
+
   echo "Running ${R[@]}"
-  echo "Waiting 1 minute before next deploy."
-  sleep 60
+  echo "Waiting ${MINUTES} minute(s) before next deploy."
+  sleep $((60 * ${MINUTES}))
 done
