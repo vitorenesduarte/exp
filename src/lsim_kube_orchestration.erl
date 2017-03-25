@@ -145,19 +145,25 @@ deploy_path() ->
 %% @private
 generate_nodes(Map, Port) ->
     Items = maps:get(items, Map),
-    lists:map(
-        fun(Item) ->
-            Ip = get_ip(Item),
-            lsim_util:generate_spec(Ip, Port)
+    lists:foldl(
+        fun(Item, Nodes) ->
+            %% find ip
+            Status = maps:get(status, Item),
+
+            case maps:is_key(podIP, Status) of
+                true ->
+                    IP = binary_to_list(
+                        maps:get(podIP, Status)
+                    ),
+                    Node = lsim_util:generate_spec(IP, Port),
+                    [Node | Nodes];
+                false ->
+                    Nodes
+            end
         end,
+        [],
         Items
     ).
-
-%% @private
-get_ip(Item) ->
-    Status = maps:get(status, Item),
-    IP = maps:get(podIP, Status),
-    binary_to_list(IP).
 
 %% @private
 set_replicas_as_zero(Map) ->
