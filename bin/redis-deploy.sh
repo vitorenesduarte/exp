@@ -3,7 +3,7 @@
 RUNNING=$(kubectl get pods | grep redis)
 
 if [ ! -z "$RUNNING" ]; then
-  echo "Redis already running. Exiting."
+  echo "[$(date +%T)] Redis already running. Exiting."
   exit
 fi
 
@@ -28,5 +28,4 @@ spec:
         imagePullPolicy: IfNotPresent
 EOF
 
-echo "Creating deployment."
 kubectl create -f ${FILE}

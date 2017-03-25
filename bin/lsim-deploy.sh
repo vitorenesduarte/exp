@@ -54,6 +54,58 @@ cat <<EOF > ${FILE}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
+  name: "${RSG_NAME}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        timestamp: "${TIMESTAMP}"
+        tag: rsg
+    spec:
+      containers:
+      - name: "${RSG_NAME}"
+        image: "${IMAGE}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BRANCH
+          value: "${BRANCH}"
+        - name: ORCHESTRATION
+          value: "${ORCHESTRATION}"
+        - name: METRICS_STORE
+          value: "${METRICS_STORE}"
+        - name: IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: APISERVER
+          value: "${APISERVER}"
+        - name: TOKEN
+          value: "${TOKEN}"
+        - name: TIMESTAMP
+          value: "${TIMESTAMP}"
+        - name: LDB_MODE
+          value: "${LDB_MODE}"
+        - name: LDB_DRIVEN_MODE
+          value: "${LDB_DRIVEN_MODE}"
+        - name: LDB_REDUNDANT_DGROUPS
+          value: "${LDB_REDUNDANT_DGROUPS}"
+        - name: LDB_DGROUP_BACK_PROPAGATION
+          value: "${LDB_DGROUP_BACK_PROPAGATION}"
+        - name: OVERLAY
+          value: "${OVERLAY}"
+        - name: SIMULATION
+          value: "${SIMULATION}"
+        - name: NODE_NUMBER
+          value: "${NODE_NUMBER}"
+        - name: NODE_EVENT_NUMBER
+          value: "${NODE_EVENT_NUMBER}"
+        - name: RSG
+          value: "true"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
   name: "${LSIM_NAME}"
 spec:
   replicas: ${NODE_NUMBER}
@@ -106,59 +158,6 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: RSG
           value: "false"
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: "${RSG_NAME}"
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        timestamp: "${TIMESTAMP}"
-        tag: rsg
-    spec:
-      containers:
-      - name: "${RSG_NAME}"
-        image: "${IMAGE}"
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: BRANCH
-          value: "${BRANCH}"
-        - name: ORCHESTRATION
-          value: "${ORCHESTRATION}"
-        - name: METRICS_STORE
-          value: "${METRICS_STORE}"
-        - name: IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        - name: APISERVER
-          value: "${APISERVER}"
-        - name: TOKEN
-          value: "${TOKEN}"
-        - name: TIMESTAMP
-          value: "${TIMESTAMP}"
-        - name: LDB_MODE
-          value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
-        - name: LDB_REDUNDANT_DGROUPS
-          value: "${LDB_REDUNDANT_DGROUPS}"
-        - name: LDB_DGROUP_BACK_PROPAGATION
-          value: "${LDB_DGROUP_BACK_PROPAGATION}"
-        - name: OVERLAY
-          value: "${OVERLAY}"
-        - name: SIMULATION
-          value: "${SIMULATION}"
-        - name: NODE_NUMBER
-          value: "${NODE_NUMBER}"
-        - name: NODE_EVENT_NUMBER
-          value: "${NODE_EVENT_NUMBER}"
-        - name: RSG
-          value: "true"
 EOF
 
-echo "Creating deployment."
 kubectl create -f ${FILE}
