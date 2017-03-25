@@ -2,6 +2,7 @@
 
 ENV_VARS=(
   BRANCH
+  IMAGE
   LDB_MODE
   LDB_DRIVEN_MODE
   LDB_REDUNDANT_DGROUPS
@@ -44,9 +45,6 @@ PEER_PORT=6866
 LSIM_NAME=lsim-${TIMESTAMP}
 RSG_NAME=rsg-${TIMESTAMP}
 
-# Docker image
-IMAGE=vitorenesduarte/lsim
-
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
 
@@ -66,7 +64,7 @@ spec:
       containers:
       - name: "${RSG_NAME}"
         image: "${IMAGE}"
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: BRANCH
           value: "${BRANCH}"
@@ -118,7 +116,7 @@ spec:
       containers:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: BRANCH
           value: "${BRANCH}"

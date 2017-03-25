@@ -2,12 +2,9 @@ FROM vitorenesduarte/lsim-base
 
 MAINTAINER Vitor Enes Duarte <vitorenesduarte@gmail.com>
 
-ARG BRANCH
-
-RUN cd /opt && \
+CMD cd /opt && \
     git clone https://github.com/vitorenesduarte/lsim.git -b $BRANCH && \
     cd lsim && \
     ./rebar3 update && \
-    ./rebar3 release -d
-
-CMD /opt/lsim/_build/default/rel/lsim/bin/env
+    ./rebar3 release -d && \
+    /opt/lsim/_build/default/rel/lsim/bin/env
