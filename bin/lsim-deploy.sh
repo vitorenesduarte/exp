@@ -158,4 +158,4 @@ spec:
           value: "false"
 EOF
 
-kubectl create -f ${FILE}
+kubectl create -f "${FILE}"

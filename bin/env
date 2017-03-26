@@ -1,26 +1,26 @@
 #!/bin/bash
 
 # IP
-if [ -z "$IP" ]; then
+if [ -z "${IP}" ]; then
   export IP=127.0.0.1
 fi
 
 # Peer Port
-if [ -z "$PEER_PORT" ]; then
+if [ -z "${PEER_PORT}" ]; then
   export PEER_PORT=6866
 fi
 
-export NODE_NAME=lsim-"$PEER_PORT"@"$IP"
+export NODE_NAME=lsim-${PEER_PORT}@${IP}
 
-if [ -z "$COOKIE" ]; then
+if [ -z "${COOKIE}" ]; then
   export COOKIE=lsim
 fi
 
 export RELX_REPLACE_OS_VARS=true
 
-echo "IP: $IP"
-echo "PEER_PORT: $PEER_PORT"
-echo "NODE_NAME: $NODE_NAME"
+echo "IP: ${IP}"
+echo "PEER_PORT: ${PEER_PORT}"
+echo "NODE_NAME: ${NODE_NAME}"
 
 RELNAME=$(dirname "$0")/lsim
-exec "$RELNAME" foreground "$@"
+exec "${RELNAME}" foreground "$@"
