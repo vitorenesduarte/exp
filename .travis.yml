@@ -23,4 +23,4 @@ matrix:
 notifications:
   slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
   email: false
-sudo: true
+sudo: false
