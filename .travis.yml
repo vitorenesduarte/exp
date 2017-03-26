@@ -1,12 +1,15 @@
 language: erlang
 otp_release:
   - 19.3
+addons:
+  apt:
+    packages:
+      - shellcheck
 install:
   - ./rebar3 update
   - make
 before_script:
   - epmd -daemon
-  - sudo apt-get install shellcheck
 script:
   - make test
   - make xref
