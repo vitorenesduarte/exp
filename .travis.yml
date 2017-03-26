@@ -13,11 +13,11 @@ install:
 before_script:
   - epmd -daemon
 script:
-  - make shell-lint
   - make test
   - make xref
   - make dialyzer
   - make lint
+  - make shell-lint
 matrix:
   fast_finish: true
 notifications:
