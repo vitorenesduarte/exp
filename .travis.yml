@@ -15,6 +15,7 @@ script:
   - make xref
   - make dialyzer
   - make lint
+  - make shell-lint
 matrix:
   fast_finish: true
 notifications:

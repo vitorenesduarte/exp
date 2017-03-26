@@ -5,7 +5,7 @@ ERLANG_BIN       = $(shell dirname $(shell which erl))
 REBAR            = $(shell pwd)/rebar3
 MAKE						 = make
 
-.PHONY: test eqc
+.PHONY: test
 
 all: compile
 
@@ -27,15 +27,15 @@ packageclean:
 ## Test targets
 ##
 
-check: test xref dialyzer lint
+check: test xref dialyzer lint shell-lint
 
 test: ct eunit
 
 lint:
 	${REBAR} as lint lint
 
-eqc:
-	${REBAR} as test eqc
+shell-lint:
+	shellcheck bin/*
 
 eunit:
 	${REBAR} as test eunit
