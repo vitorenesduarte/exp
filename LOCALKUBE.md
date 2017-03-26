@@ -42,7 +42,7 @@ kubectl apply -f https://git.io/weave-kube
 4. __Copy config file__
 ```bash
 sudo cp /etc/kubernetes/admin.conf .
-sudo chown ubuntu admin.conf
+sudo chown centos admin.conf
 exit
 scp ubuntu@192.168.116.101:admin.conf .
 ```

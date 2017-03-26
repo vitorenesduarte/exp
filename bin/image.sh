@@ -17,9 +17,9 @@ done
 # build image
 docker build \
   --no-cache \
-  --build-arg BRANCH=${BRANCH} \
-  -t ${IMAGE} -f ${DOCKERFILE} .
+  --build-arg BRANCH="${BRANCH}" \
+  -t "${IMAGE}" -f "${DOCKERFILE}" .
 
 # push image
-docker push ${IMAGE}
+docker push "${IMAGE}"
 

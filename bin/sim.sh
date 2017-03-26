@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-DIR=$(dirname $0)
+DIR=$(dirname "$0")
 BRANCH=$(git branch |
-         grep "*" |
+         grep "^\*" |
          awk '{print $2}')
 
 if [ "${WHAT}" == "build" ]; then
@@ -12,7 +12,7 @@ if [ "${WHAT}" == "build" ]; then
   # build and push image
   BRANCH=${BRANCH} \
     IMAGE=${IMAGE} \
-    DOCKERFILE=${DOCKERFILE} ${DIR}/image.sh
+    DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
 elif [ "${WHAT}" == "run" ]; then
   IMAGE=vitorenesduarte/lsim
@@ -22,7 +22,7 @@ else
 fi
 
 # start redis
-${DIR}/redis-deploy.sh
+"${DIR}"/redis-deploy.sh
 
 declare -A CONFIG
 #ldb_mode;
@@ -63,11 +63,11 @@ do
     OVERLAY=${OVERLAY} \
     SIMULATION=${SIMULATION} \
     NODE_NUMBER=${NODE_NUMBER} \
-    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} ${DIR}/lsim-deploy.sh
+    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
 
   MINUTES=3
 
-  echo "[$(date +%T)] Running ${R[@]}"
+  echo "[$(date +%T)] Running ${R[*]}"
   echo "[$(date +%T)] Waiting ${MINUTES} minute(s) before next deploy."
-  sleep $((60 * ${MINUTES}))
+  sleep $((60 * MINUTES))
 done

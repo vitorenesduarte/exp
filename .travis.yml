@@ -1,6 +1,12 @@
 language: erlang
 otp_release:
-  - 19.2
+  - 19.3
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck
 install:
   - ./rebar3 update
   - make
@@ -11,6 +17,9 @@ script:
   - make xref
   - make dialyzer
   - make lint
+  - make shell-lint
+matrix:
+  fast_finish: true
 notifications:
   slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
   email: false

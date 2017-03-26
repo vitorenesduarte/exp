@@ -48,7 +48,7 @@ RSG_NAME=rsg-${TIMESTAMP}
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
 
-cat <<EOF > ${FILE}
+cat <<EOF > "${FILE}"
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -158,4 +158,4 @@ spec:
           value: "false"
 EOF
 
-kubectl create -f ${FILE}
+kubectl create -f "${FILE}"
