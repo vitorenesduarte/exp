@@ -3,6 +3,8 @@ otp_release:
   - 19.3
 addons:
   apt:
+    sources:
+      - debian-sid
     packages:
       - shellcheck
 install:
