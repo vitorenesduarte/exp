@@ -35,7 +35,7 @@ lint:
 	${REBAR} as lint lint
 
 shell-lint:
-	shellcheck bin/*
+	ls -d bin/* | grep -v ".erl" | xargs shellcheck
 
 eunit:
 	${REBAR} as test eunit
