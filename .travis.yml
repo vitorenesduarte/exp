@@ -6,6 +6,7 @@ install:
   - make
 before_script:
   - epmd -daemon
+  - sudo apt-get install shellcheck
 script:
   - make test
   - make xref
@@ -16,4 +17,4 @@ matrix:
 notifications:
   slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
   email: false
-sudo: false
+sudo: true
