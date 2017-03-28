@@ -64,10 +64,8 @@ configure_peer_service() ->
                         PeerService),
 
     %% configure membership callback
-    MembershipFun = fun(_Membership) ->
-        %% @todo
-        %% lsim_resource:update_membership(Membership)
-        ok
+    MembershipFun = fun(Membership) ->
+        lsim_resource:update_membership(Membership)
     end,
     partisan_peer_service:add_sup_callback(MembershipFun).
 
@@ -152,7 +150,12 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                       [lsim_rsg]}]
             end,
 
-            BarrierPeerServiceSpecs ++ Store ++ RSGSpecs
+            HTTPSpecs = [{lsim_resource,
+                          {lsim_resource, start_link, []},
+                          permanent, 5000, worker,
+                          [lsim_resource]}],
+
+            BarrierPeerServiceSpecs ++ Store ++ RSGSpecs ++ HTTPSpecs
     end,
 
     SimulationSpecs ++ OrchestrationSpecs.
