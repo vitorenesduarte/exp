@@ -39,7 +39,7 @@
 %% mochiweb callbacks
 -export([loop/1]).
 
--record(state, {membership :: sets:set(ldb_node_id())}).
+-record(state, {members :: list(ldb_node_id())}).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
@@ -60,10 +60,13 @@ init([]) ->
     end,
     mochiweb_http:start([{loop, Loop} | ?WEB_CONFIG]),
 
-    {ok, #state{membership=sets:new()}}.
+    {ok, #state{members=[]}}.
 
-handle_call({membership, Membership}, _From, _State) ->
-    State = #state{membership=Membership},
+handle_call({update_membership, Membership}, _From, _State) ->
+    Members = [Name || {Name, _, _} <- sets:to_list(Membership)],
+    ?LOG("Membership updated ~p", [Members]),
+
+    State = #state{members=Members},
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
