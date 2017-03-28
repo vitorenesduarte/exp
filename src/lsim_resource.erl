@@ -58,8 +58,7 @@ init([]) ->
     Loop = fun(Req) ->
         ?MODULE:loop(Req)
     end,
-    mochiweb_http:start([{name, ?MODULE},
-                         {loop, Loop} | ?WEB_CONFIG]),
+    mochiweb_http:start([{loop, Loop} | ?WEB_CONFIG]),
 
     {ok, #state{membership=sets:new()}}.
 
