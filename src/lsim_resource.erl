@@ -63,8 +63,8 @@ init([]) ->
     {ok, #state{members=[]}}.
 
 handle_call({update_membership, Membership}, _From, _State) ->
-    Members = [Name || {Name, _, _} <- sets:to_list(Membership)],
-    ?LOG("Membership updated ~p", [Members]),
+    Members0 = [Name || {Name, _, _} <- sets:to_list(Membership)],
+    Members = Members0 -- [ldb_config:id()],
 
     State = #state{members=Members},
     {reply, ok, State};
