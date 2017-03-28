@@ -37,8 +37,8 @@
 %% web config
 -define(WEB_IP, "0.0.0.0").
 -define(WEB_PORT, 8080).
--define(WEB_CONFIG, [{ip, ?WEBIP},
-                     {port, ?WEBPORT}]).
+-define(WEB_CONFIG, [{ip, ?WEB_IP},
+                     {port, ?WEB_PORT}]).
 
 %% logs
 -type key() :: list().
