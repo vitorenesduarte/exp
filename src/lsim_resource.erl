@@ -60,7 +60,7 @@ init([]) ->
     end,
     mochiweb_http:start([{name, ?MODULE},
                          {loop, Loop} | ?WEB_CONFIG]),
-    
+
     {ok, #state{membership=sets:new()}}.
 
 handle_call({membership, Membership}, _From, _State) ->
