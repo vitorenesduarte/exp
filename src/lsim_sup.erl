@@ -150,10 +150,15 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                       [lsim_rsg]}]
             end,
 
-            HTTPSpecs = [{lsim_resource,
-                          {lsim_resource, start_link, []},
-                          permanent, 5000, worker,
-                          [lsim_resource]}],
+            HTTPSpecs = case RSG of
+                true ->
+                    [];
+                false ->
+                    [{lsim_resource,
+                      {lsim_resource, start_link, []},
+                      permanent, 5000, worker,
+                      [lsim_resource]}]
+            end,
 
             BarrierPeerServiceSpecs ++ Store ++ RSGSpecs ++ HTTPSpecs
     end,
