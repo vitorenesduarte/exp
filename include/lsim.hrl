@@ -34,6 +34,12 @@
 -define(REDIS_PORT, 6379).
 -define(TCP_OPTIONS, [binary, {active, true}, {packet, 4}, {keepalive, true}]).
 
+%% web config
+-define(WEB_IP, "0.0.0.0").
+-define(WEB_PORT, 8080).
+-define(WEB_CONFIG, [{ip, ?WEBIP},
+                     {port, ?WEBPORT}]).
+
 %% logs
 -type key() :: list().
 -type value() :: binary().
