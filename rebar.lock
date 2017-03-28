@@ -9,7 +9,7 @@
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
   {git,"https://github.com/lasp-lang/partisan",
-       {ref,"ecf8e5be8ed2718a9d4c4c14fa00ca3881a8d5ab"}},
+       {ref,"15335f535f6a6bd8235c4f406bc9c87a7274b16b"}},
   0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
