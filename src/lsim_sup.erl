@@ -61,13 +61,7 @@ configure_peer_service() ->
 
     %% configure partisan manager
     partisan_config:set(partisan_peer_service_manager,
-                        PeerService),
-
-    %% configure membership callback
-    MembershipFun = fun(Membership) ->
-        lsim_resource:update_membership(Membership)
-    end,
-    partisan_peer_service:add_sup_callback(MembershipFun).
+                        PeerService).
 
 %% @private
 configure() ->
@@ -154,6 +148,12 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                 true ->
                     [];
                 false ->
+                    %% configure membership callback
+                    MembershipFun = fun(Membership) ->
+                        lsim_resource:update_membership(Membership)
+                    end,
+                    partisan_peer_service:add_sup_callback(MembershipFun),
+
                     [{lsim_resource,
                       {lsim_resource, start_link, []},
                       permanent, 5000, worker,
