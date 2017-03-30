@@ -7,6 +7,7 @@ BRANCH=$(git branch |
 
 if [ "${WHAT}" == "build" ]; then
   IMAGE=vitorenesduarte/lsim
+  PULL_IMAGE=Always
   DOCKERFILE=${DIR}/../Dockerfiles/lsim
 
   # build and push image
@@ -16,8 +17,10 @@ if [ "${WHAT}" == "build" ]; then
 
 elif [ "${WHAT}" == "run" ]; then
   IMAGE=vitorenesduarte/lsim
+  PULL_IMAGE=IfNotPresent
 else
   # otherwise use image that clones on start
+  PULL_IMAGE=IfNotPresent
   IMAGE=vitorenesduarte/lsim-dev
 fi
 
@@ -30,17 +33,17 @@ declare -A CONFIG
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
 CONFIG[0]="state_based;none;false;false"
-#CONFIG[1]="state_based;state_driven;false;false"
-#CONFIG[2]="state_based;digest_driven;false;false"
+CONFIG[1]="state_based;state_driven;false;false"
+CONFIG[2]="state_based;digest_driven;false;false"
 CONFIG[3]="delta_based;none;false;false"
 CONFIG[4]="delta_based;none;true;false"
 CONFIG[5]="delta_based;none;false;true"
 CONFIG[6]="delta_based;none;true;true"
 
-OVERLAY=hyparview
+OVERLAY=ring
 SIMULATION=gset
-NODE_NUMBER=80
-NODE_EVENT_NUMBER=50
+NODE_NUMBER=3
+NODE_EVENT_NUMBER=500
 
 echo "[$(date +%T)] Starting ${SIMULATION} simulation."
 echo "[$(date +%T)] BRANCH: ${BRANCH}"

@@ -3,6 +3,7 @@
 ENV_VARS=(
   BRANCH
   IMAGE
+  PULL_IMAGE
   LDB_MODE
   LDB_DRIVEN_MODE
   LDB_REDUNDANT_DGROUPS
@@ -64,7 +65,7 @@ spec:
       containers:
       - name: "${RSG_NAME}"
         image: "${IMAGE}"
-        imagePullPolicy: Always
+        imagePullPolicy: "${PULL_IMAGE}"
         env:
         - name: BRANCH
           value: "${BRANCH}"
@@ -116,7 +117,7 @@ spec:
       containers:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
-        imagePullPolicy: Always
+        imagePullPolicy: "${PULL_IMAGE}"
         env:
         - name: BRANCH
           value: "${BRANCH}"
