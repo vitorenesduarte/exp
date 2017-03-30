@@ -20,8 +20,8 @@ elif [ "${WHAT}" == "run" ]; then
   PULL_IMAGE=IfNotPresent
 else
   # otherwise use image that clones on start
-  PULL_IMAGE=IfNotPresent
   IMAGE=vitorenesduarte/lsim-dev
+  PULL_IMAGE=IfNotPresent
 fi
 
 # start redis
@@ -43,7 +43,7 @@ CONFIG[6]="delta_based;none;true;true"
 OVERLAY=ring
 SIMULATION=gset
 NODE_NUMBER=3
-NODE_EVENT_NUMBER=500
+NODE_EVENT_NUMBER=5
 
 echo "[$(date +%T)] Starting ${SIMULATION} simulation."
 echo "[$(date +%T)] BRANCH: ${BRANCH}"
@@ -59,6 +59,7 @@ do
 
   BRANCH=${BRANCH} \
     IMAGE=${IMAGE} \
+    PULL_IMAGE=${PULL_IMAGE} \
     LDB_MODE=${LDB_MODE} \
     LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
     LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
