@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-POD_NAME=$(kubectl describe pod redis |
-           grep -E "^Name:" |
-           awk '{print $2}')
+POD_NAME=$(kubectl get pods |
+           grep redis |
+           awk '{print $1}')
 
 PORT=6379
 DIR=$(dirname "$0")
