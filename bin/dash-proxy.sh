@@ -5,6 +5,8 @@ POD_NAME=$(kubectl get pods |
            grep Running |
            awk '{print $1}')
 
-PORT=3000
-kubectl port-forward "${POD_NAME}" ${PORT}:${PORT}
+POD_PORT=3000
+PORT=$RANDOM
+google-chrome "http://localhost:${PORT}"
+kubectl port-forward "${POD_NAME}" ${PORT}:${POD_PORT}
 
