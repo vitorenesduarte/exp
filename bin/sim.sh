@@ -7,6 +7,7 @@ BRANCH=$(git branch |
 
 if [ "${WHAT}" == "build" ]; then
   IMAGE=vitorenesduarte/lsim
+  PULL_IMAGE=Always
   DOCKERFILE=${DIR}/../Dockerfiles/lsim
 
   # build and push image
@@ -16,31 +17,36 @@ if [ "${WHAT}" == "build" ]; then
 
 elif [ "${WHAT}" == "run" ]; then
   IMAGE=vitorenesduarte/lsim
+  PULL_IMAGE=IfNotPresent
 else
   # otherwise use image that clones on start
   IMAGE=vitorenesduarte/lsim-dev
+  PULL_IMAGE=IfNotPresent
 fi
 
 # start redis
 "${DIR}"/redis-deploy.sh
+
+# start lsim-dash
+"${DIR}"/lsim-dash-deploy.sh
 
 declare -A CONFIG
 #ldb_mode;
 #ldb_driven_mode;
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
-CONFIG[0]="state_based;none;false;false"
-#CONFIG[1]="state_based;state_driven;false;false"
-#CONFIG[2]="state_based;digest_driven;false;false"
-CONFIG[3]="delta_based;none;false;false"
-CONFIG[4]="delta_based;none;true;false"
-CONFIG[5]="delta_based;none;false;true"
-CONFIG[6]="delta_based;none;true;true"
+#CONFIG[0]="state_based;none;false;false"
+CONFIG[1]="state_based;state_driven;false;false"
+CONFIG[2]="state_based;digest_driven;false;false"
+#CONFIG[3]="delta_based;none;false;false"
+#CONFIG[4]="delta_based;none;true;false"
+#CONFIG[5]="delta_based;none;false;true"
+#CONFIG[6]="delta_based;none;true;true"
 
-OVERLAY=hyparview
+OVERLAY=ring
 SIMULATION=gset
-NODE_NUMBER=80
-NODE_EVENT_NUMBER=50
+NODE_NUMBER=3
+NODE_EVENT_NUMBER=10
 
 echo "[$(date +%T)] Starting ${SIMULATION} simulation."
 echo "[$(date +%T)] BRANCH: ${BRANCH}"
@@ -56,6 +62,7 @@ do
 
   BRANCH=${BRANCH} \
     IMAGE=${IMAGE} \
+    PULL_IMAGE=${PULL_IMAGE} \
     LDB_MODE=${LDB_MODE} \
     LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
     LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
@@ -65,9 +72,9 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
 
-  MINUTES=3
+  SECONDS=0
 
   echo "[$(date +%T)] Running ${R[*]}"
-  echo "[$(date +%T)] Waiting ${MINUTES} minute(s) before next deploy."
-  sleep $((60 * MINUTES))
+  echo "[$(date +%T)] Waiting ${SECONDS} second(s) before next deploy."
+  sleep ${SECONDS}
 done
