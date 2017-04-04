@@ -45,11 +45,13 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec update_membership(sets:set(ldb_node_id())) -> ok.
+-spec update_membership(sets:set(node_spec())) -> ok.
 update_membership(Membership) ->
-    gen_server:call(?MODULE,
-                    {update_membership, Membership},
-                    infinity).
+    gen_server:cast(?MODULE, {update_membership, Membership}).
+
+-spec membership() -> list(ldb_node_id()).
+membership() ->
+    gen_server:call(?MODULE, membership, infinity).
 
 %% gen_server callbacks
 init([]) ->
@@ -62,16 +64,19 @@ init([]) ->
 
     {ok, #state{members=[]}}.
 
-handle_call({update_membership, Membership}, _From, _State) ->
-    Members0 = [Name || {Name, _, _} <- sets:to_list(Membership)],
-    Members = Members0 -- [ldb_config:id()],
-
-    State = #state{members=Members},
-    {reply, ok, State};
+handle_call(membership, _From, #state{members=Members}=State) ->
+    {reply, Members, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
+
+handle_cast({update_membership, Membership}, _State) ->
+    Members0 = [Name || {Name, _, _} <- sets:to_list(Membership)],
+    Members = Members0 -- [ldb_config:id()],
+
+    State = #state{members=Members},
+    {noreply, State};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
@@ -89,4 +94,14 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% mochiweb
 loop(Req) ->
-    lager:info(Req).
+    Path = Req:get(path),
+
+    case string:tokens(Path, "/") of
+        ["membership"] ->
+            Req:ok({
+              _ContentType = "application/javascript",
+              ldb_json:encode(membership())
+            });
+        _ ->
+            Req:not_found()
+    end.
