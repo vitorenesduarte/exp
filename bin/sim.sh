@@ -36,7 +36,7 @@ declare -A CONFIG
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
 #CONFIG[0]="state_based;none;false;false"
-#CONFIG[1]="state_based;state_driven;false;false"
+CONFIG[1]="state_based;state_driven;false;false"
 CONFIG[2]="state_based;digest_driven;false;false"
 #CONFIG[3]="delta_based;none;false;false"
 #CONFIG[4]="delta_based;none;true;false"
@@ -72,9 +72,9 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
 
-  MINUTES=0
+  SECONDS=0
 
   echo "[$(date +%T)] Running ${R[*]}"
-  echo "[$(date +%T)] Waiting ${MINUTES} minute(s) before next deploy."
-  sleep $((MINUTES))
+  echo "[$(date +%T)] Waiting ${SECONDS} second(s) before next deploy."
+  sleep ${SECONDS}
 done
