@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-RUNNING=$(kubectl get pods | grep redis)
+RUNNING=$(kubectl get pods |
+          grep redis |
+          grep Running)
 
 if [ ! -z "$RUNNING" ]; then
   echo "[$(date +%T)] Redis already running. Exiting."

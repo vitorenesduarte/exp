@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-RUNNING=$(kubectl get pods | grep lsim-dash)
+RUNNING=$(kubectl get pods |
+          grep lsim-dash |
+          grep Running)
 
 if [ ! -z "$RUNNING" ]; then
   echo "[$(date +%T)] lsim-dash already running. Exiting."
