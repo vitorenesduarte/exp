@@ -52,16 +52,10 @@ $ kubectl logs -f lsim-1488549530072065763-3946360666-0b6d8
 
 
 #### Docker
-To build an image:
+To build and push an image:
 
 ```bash
-$ cd Dockerfiles/
-$ docker build -t vitorenesduarte/lsim -f lsim  .
+$ BRANCH=master \
+  IMAGE=vitorenesduarte/lsim \
+  DOCKERFILE=Dockerfiles/lsim bin/image.sh
 ```
-
-To push it to [Docker Hub](https://hub.docker.com/):
-
-```bash
-$ docker push vitorenesduarte/lsim
-```
-
