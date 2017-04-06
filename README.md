@@ -31,16 +31,15 @@ the simulation. The event interval is 1 second
 #### Kubernetes
 
 ```bash
-$ BRANCH=master \
-  LDB_MODE=delta_based \
-  LDB_DRIVEN_MODE=none \
-  LDB_REDUNDANT_DGROUPS=true \
-  LDB_DGROUP_BACK_PROPAGATION=true \
-  OVERLAY=hyparview \
-  SIMULATION=gset \
-  NODE_NUMBER=13 \
-  NODE_EVENT_NUMBER=10 ./bin/lsim-deploy.sh
+$ WHAT=run bin/sim.sh
 ```
+
+- `WHAT=run` will run the experiments without pullling a new image
+- `WHAT=build` will build a new image, push it, and the run the experiments with that image
+- otherwise, it will use an image that clones the repository in the current branch
+
+
+##### Tail the logs
 
 ```bash
 $ kubectl get pods
@@ -49,6 +48,14 @@ lsim-1488549530072065763-3946360666-0b6d8   0/1       Pending   0
 ...
 $ kubectl logs -f lsim-1488549530072065763-3946360666-0b6d8
 ```
+
+
+##### lsim dashboard
+```bash
+$ bin/dash-proxy.sh
+```
+
+This will open a new chrome tab with the dashboard.
 
 
 #### Docker
