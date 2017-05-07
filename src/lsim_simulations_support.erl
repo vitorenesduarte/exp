@@ -55,13 +55,12 @@ push_lsim_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    Latency = ?LDB_METRICS:get_latency(),
-    lager:info("LATENCY ~p", [Latency]),
-
     TimeSeries = ?LDB_METRICS:get_time_series(),
+    Latency = ?LDB_METRICS:get_latency(),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
+    %% process transmission
     PerMessageType = lists:foldl(
         fun({Timestamp, transmission, Metrics}, Acc0) ->
             lists:foldl(
@@ -92,6 +91,7 @@ push_ldb_metrics() ->
         PerMessageType
     ),
 
+    %% process memory
     All1 = lists:foldl(
         fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
             V = [{ts, Timestamp},
@@ -102,8 +102,11 @@ push_ldb_metrics() ->
         MemoryTS
     ),
 
+    %% process latency
+    All2 = orddict:store(latency, Latency, All1),
+
     FilePath = file_path(ldb_config:id()),
-    File = ldb_json:encode(All1),
+    File = ldb_json:encode(All2),
 
     store(FilePath, File),
     ok.
