@@ -6,18 +6,20 @@ BRANCH=$(git branch |
          awk '{print $2}')
 
 if [ "${WHAT}" == "build" ]; then
+  # build and push a new image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=Always
   DOCKERFILE=${DIR}/../Dockerfiles/lsim
 
-  # build and push image
   BRANCH=${BRANCH} \
     IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
 elif [ "${WHAT}" == "run" ]; then
+  # use the latest image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=IfNotPresent
+
 else
   # otherwise use image that clones on start
   IMAGE=vitorenesduarte/lsim-dev
@@ -35,13 +37,13 @@ declare -A CONFIG
 #ldb_driven_mode;
 #ldb_redundant_dgroups;
 #ldb_dgroup_back_propagation
-#CONFIG[0]="state_based;none;false;false"
+CONFIG[0]="state_based;none;false;false"
 CONFIG[1]="state_based;state_driven;false;false"
-CONFIG[2]="state_based;digest_driven;false;false"
+#CONFIG[2]="state_based;digest_driven;false;false"
 #CONFIG[3]="delta_based;none;false;false"
 #CONFIG[4]="delta_based;none;true;false"
 #CONFIG[5]="delta_based;none;false;true"
-#CONFIG[6]="delta_based;none;true;true"
+CONFIG[6]="delta_based;none;true;true"
 
 OVERLAY=ring
 SIMULATION=gset
@@ -72,7 +74,7 @@ do
     NODE_NUMBER=${NODE_NUMBER} \
     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
 
-  SECONDS=0
+  SECONDS=60
 
   echo "[$(date +%T)] Running ${R[*]}"
   echo "[$(date +%T)] Waiting ${SECONDS} second(s) before next deploy."

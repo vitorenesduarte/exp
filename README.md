@@ -14,6 +14,7 @@
   - none
   - state_driven
   - digest_driven
+- __LDB_STATE_SYNC_INTERVAL__: natural (milliseconds)
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
