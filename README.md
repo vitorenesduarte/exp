@@ -7,24 +7,24 @@
 
 - __BRANCH__: which lsim branch should instances run
 - __LDB_MODE__:
-  - state_based
-  - delta_based
-  - pure_op_based
+  - `state_based`
+  - `delta_based`
+  - `pure_op_based`
 - __LDB_DRIVEN_MODE__:
-  - none
-  - state_driven
-  - digest_driven
-- __LDB_STATE_SYNC_INTERVAL__: natural (milliseconds)
+  - `none`
+  - `state_driven`
+  - `digest_driven`
+- __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
-  - hyparview
-  - line
-  - ring
+  - `hyparview`
+  - `line`
+  - `ring`
 - __NODE_NUMBER__: number of nodes
 - __SIMULATION__:
-  - gcounter
-  - gset
+  - `gcounter`
+  - `gset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
 
