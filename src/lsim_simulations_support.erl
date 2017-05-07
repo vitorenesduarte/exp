@@ -55,6 +55,9 @@ push_lsim_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
+    Latency = ?LDB_METRICS:get_latency(),
+    lager:info("LATENCY ~p", [Latency]),
+
     TimeSeries = ?LDB_METRICS:get_time_series(),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
