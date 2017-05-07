@@ -32,51 +32,91 @@ fi
 # start lsim-dash
 "${DIR}"/lsim-dash-deploy.sh
 
-declare -A CONFIG
-#ldb_mode;
-#ldb_driven_mode;
-#ldb_redundant_dgroups;
-#ldb_dgroup_back_propagation
-CONFIG[0]="state_based;none;false;false"
-CONFIG[1]="state_based;state_driven;false;false"
-#CONFIG[2]="state_based;digest_driven;false;false"
-#CONFIG[3]="delta_based;none;false;false"
-#CONFIG[4]="delta_based;none;true;false"
-#CONFIG[5]="delta_based;none;false;true"
-CONFIG[6]="delta_based;none;true;true"
 
-OVERLAY=ring
-SIMULATION=gset
-NODE_NUMBER=3
-NODE_EVENT_NUMBER=10
+# lsim configuration
+OVERLAY_=(ring)
+SIMULATION_=(gset)
+NODE_NUMBER_=(3)
+NODE_EVENT_NUMBER_=(60)
 
-echo "[$(date +%T)] Starting ${SIMULATION} simulation."
-echo "[$(date +%T)] BRANCH: ${BRANCH}"
-echo "[$(date +%T)] IMAGE: ${IMAGE}"
+# ldb configuration
+MODE_=(state_based)
+DRIVEN_MODE_=(none)
+STATE_SYNC_INTERVAL_=(1000)
+REDUNDANT_DGROUPS_=(true)
+DGROUP_BACK_PROPAGATION_=(true)
+DBUFFER_SHRINK_MODE_=(normal)
+DBUFFER_SHRINK_INTERVAL_=(20000)
 
-for i in "${CONFIG[@]}"
+for OVERLAY in "${OVERLAY_[@]}"
 do
-  R=(${i//;/ })
-  LDB_MODE=${R[0]}
-  LDB_DRIVEN_MODE=${R[1]}
-  LDB_REDUNDANT_DGROUPS=${R[2]}
-  LDB_DGROUP_BACK_PROPAGATION=${R[3]}
+  for SIMULATION in "${SIMULATION_[@]}"
+  do
+    for NODE_NUMBER in "${NODE_NUMBER_[@]}"
+    do
+      for NODE_EVENT_NUMBER in "${NODE_EVENT_NUMBER_[@]}"
+      do
+        for LDB_MODE in "${MODE_[@]}"
+        do
+          for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
+          do
+            for LDB_STATE_SYNC_INTERVAL in "${STATE_SYNC_INTERVAL_[@]}"
+            do
 
-  BRANCH=${BRANCH} \
-    IMAGE=${IMAGE} \
-    PULL_IMAGE=${PULL_IMAGE} \
-    LDB_MODE=${LDB_MODE} \
-    LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-    LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-    LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-    OVERLAY=${OVERLAY} \
-    SIMULATION=${SIMULATION} \
-    NODE_NUMBER=${NODE_NUMBER} \
-    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+              if [ "$LDB_MODE" = state_based ]; then
 
-  SECONDS=60
+                BRANCH=${BRANCH} \
+                  IMAGE=${IMAGE} \
+                  PULL_IMAGE=${PULL_IMAGE} \
+                  LDB_MODE=${LDB_MODE} \
+                  LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                  LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                  LDB_REDUNDANT_DGROUPS=undefined \
+                  LDB_DGROUP_BACK_PROPAGATION=undefined \
+                  LDB_DBUFFER_SHRINK_INTERVAL=-1 \
+                  LDB_DBUFFER_SHRINK_MODE=undefined \
+                  OVERLAY=${OVERLAY} \
+                  SIMULATION=${SIMULATION} \
+                  NODE_NUMBER=${NODE_NUMBER} \
+                  NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
 
-  echo "[$(date +%T)] Running ${R[*]}"
-  echo "[$(date +%T)] Waiting ${SECONDS} second(s) before next deploy."
-  sleep ${SECONDS}
+
+              elif [ "$LDB_MODE" = delta_based ]; then
+
+                for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
+                do
+                  for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
+                  do
+                    for LDB_DBUFFER_SHRINK_INTERVAL in "${DBUFFER_SHRINK_INTERVAL_[@]}"
+                    do
+                      for LDB_DBUFFER_SHRINK_MODE in "${DBUFFER_SHRINK_MODE_[@]}"
+                      do
+
+                        BRANCH=${BRANCH} \
+                          IMAGE=${IMAGE} \
+                          PULL_IMAGE=${PULL_IMAGE} \
+                          LDB_MODE=${LDB_MODE} \
+                          LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                          LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                          LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
+                          LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
+                          LDB_DBUFFER_SHRINK_INTERVAL=${LDB_DBUFFER_SHRINK_INTERVAL} \
+                          LDB_DBUFFER_SHRINK_MODE=${LDB_DBUFFER_SHRINK_MODE} \
+                          OVERLAY=${OVERLAY} \
+                          SIMULATION=${SIMULATION} \
+                          NODE_NUMBER=${NODE_NUMBER} \
+                          NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+
+                      done
+                    done
+                  done
+                done
+              fi
+
+            done
+          done
+        done
+      done
+    done
+  done
 done

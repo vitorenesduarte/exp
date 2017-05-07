@@ -17,6 +17,10 @@
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
+- __LDB_DBUFFER_SHRINK_INTERVAL__: milliseconds
+- __LDB_DBUFFER_SHRINK_MODE__:
+  - `normal`
+  - `dummy`
 - __OVERLAY__:
   - `hyparview`
   - `line`
