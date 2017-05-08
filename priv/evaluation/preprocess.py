@@ -95,11 +95,15 @@ def group_by_config(d):
         for file in d[dir]:
             # read metric file
             j = read_json(file)
-            # for all types, for all metrics
-            # remove start_time
+
+            # for all time-series types (all but latency)
+            # for all metrics remove start_time
+
             for type in j:
-                for m in j[type]:
-                    m[TS] -= start_time
+
+                if type != "latency":
+                    for m in j[type]:
+                        m[TS] -= start_time
 
                 # create empty list if type not already in dictionary
                 if not type in r[k]:
@@ -165,7 +169,12 @@ def assume_unknown_values(d):
     """
 
     for key in d:
-        for type in d[key]:
+
+        # get all time-series types
+        types = d[key].keys()
+        types.remove("latency")
+
+        for type in types:
 
             # find the higher timestamp of all runs for this type
             higher_ts = get_higher_ts(d[key][type])
@@ -226,7 +235,12 @@ def average(d):
     """
 
     for key in d:
-        for type in d[key]:
+
+        # get all time-series types
+        types = d[key].keys()
+        types.remove("latency")
+
+        for type in types:
             # number of runs
             runs_number = len(d[key][type])
             # number of metrics
@@ -322,7 +336,9 @@ def main():
     d = group_by_config(d)
     d = assume_unknown_values(d)
     d = average(d)
+    print(d)
     d = aggregate(d)
+    print(d)
     dump(d)
 
 main()

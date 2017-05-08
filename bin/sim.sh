@@ -77,7 +77,7 @@ do
                     LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
                     LDB_REDUNDANT_DGROUPS=undefined \
                     LDB_DGROUP_BACK_PROPAGATION=undefined \
-                    LDB_DBUFFER_SHRINK_INTERVAL=-1 \
+                    LDB_DBUFFER_SHRINK_INTERVAL=0 \
                     LDB_DBUFFER_SHRINK_MODE=undefined \
                     OVERLAY=${OVERLAY} \
                     SIMULATION=${SIMULATION} \
