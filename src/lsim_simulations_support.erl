@@ -33,8 +33,11 @@
 push_lsim_metrics(StartTime) ->
     LDBVars = [ldb_mode,
                ldb_driven_mode,
+               ldb_state_sync_interval,
                ldb_redundant_dgroups,
-               ldb_dgroup_back_propagation],
+               ldb_dgroup_back_propagation,
+               ldb_dbuffer_shrink_mode,
+               ldb_dbuffer_shrink_interval],
     LDBConfigs = get_configs(ldb, LDBVars),
 
     LSimVars = [lsim_overlay,
