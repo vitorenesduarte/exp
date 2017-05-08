@@ -40,6 +40,8 @@ push_lsim_metrics(StartTime) ->
                ldb_dbuffer_shrink_interval],
     LDBConfigs = get_configs(ldb, LDBVars),
 
+    lager:info("CONFIG ~p ~p", [LDBVars, LDBConfigs]),
+
     LSimVars = [lsim_overlay,
                 lsim_node_number,
                 lsim_simulation,
