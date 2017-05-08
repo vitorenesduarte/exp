@@ -49,6 +49,7 @@ DGROUP_BACK_PROPAGATION_=(true)
 DBUFFER_SHRINK_MODE_=(normal dummy)
 DBUFFER_SHRINK_INTERVAL_=(10000)
 
+# shellcheck disable=SC2034
 for REP in $(seq 1 $REPS)
 do
   for OVERLAY in "${OVERLAY_[@]}"
