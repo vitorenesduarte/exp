@@ -236,6 +236,8 @@ def average(d):
 
     for key in d:
 
+        print(d[key]["latency"])
+
         # get all time-series types
         types = d[key].keys()
         types.remove("latency")
@@ -336,9 +338,7 @@ def main():
     d = group_by_config(d)
     d = assume_unknown_values(d)
     d = average(d)
-    print(d)
     d = aggregate(d)
-    print(d)
     dump(d)
 
 main()

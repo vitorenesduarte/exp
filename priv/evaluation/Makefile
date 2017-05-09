@@ -5,7 +5,15 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-transmission:
+all: transmission
+
+pre: preprocess.py
 	python preprocess.py
+
+transmission: transmission.R pre
 	Rscript transmission.R
-	$(VIEWER) r.png &
+	$(VIEWER) transmission.png &
+
+memory: memory.R pre
+	Rscript memory.R
+	$(VIEWER) memory.png &
