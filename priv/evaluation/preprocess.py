@@ -65,7 +65,6 @@ def key(config):
         "ldb_state_sync_interval",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation",
-        "ldb_dbuffer_shrink_mode",
         "ldb_dbuffer_shrink_interval"
     ]
 
@@ -236,8 +235,6 @@ def average(d):
 
     for key in d:
 
-        print(d[key]["latency"])
-
         # get all time-series types
         types = d[key].keys()
         types.remove("latency")
@@ -339,6 +336,7 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
+    print(d)
     dump(d)
 
 main()

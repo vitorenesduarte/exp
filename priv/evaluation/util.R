@@ -25,22 +25,18 @@ json <- function(v) {
 # compute label name given key.
 get_labels <- function(keys) {
   labels = list()
-  labels[["state_based_none_undefined_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined_undefined"]] = "State-Driven"
-  labels[["state_based_digest_driven_undefined_undefined_undefined"]] = "Digest-Driven"
-  labels[["delta_based_none_False_False_normal"]] = "Delta-Based"
-  labels[["delta_based_none_False_False_dummy"]] = "Delta-Based [dummy]"
-  labels[["delta_based_none_True_False_normal"]] = "Delta-Based (Remove Redundant)"
-  labels[["delta_based_none_True_False_dummy"]] = "Delta-Based (Remove Redundant) [dummy]"
-  labels[["delta_based_none_False_True_normal"]] = "Delta-Based (Back-Propagation)"
-  labels[["delta_based_none_False_True_dummy"]] = "Delta-Based (Back-Propagation) [dummy]"
-  labels[["delta_based_none_True_True_normal"]] = "Delta-Based (Both)"
-  labels[["delta_based_none_True_True_dummy"]] = "Delta-Based (Both) [dummy]"
+  labels[["state_based_none_undefined_undefined"]] = "State-Based"
+  labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
+  labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
+  labels[["delta_based_none_False_False"]] = "Delta-Based"
+  labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
+  labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
+  labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
   lapply(
     keys,
     function(key) {
       mode_and_jd <- paste(
-          strsplit(key, "-")[[1]][c(5, 6, 8, 9, 10)],
+          strsplit(key, "-")[[1]][c(5, 6, 8, 9)],
           collapse="_"
       )
 
