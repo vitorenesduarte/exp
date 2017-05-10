@@ -35,8 +35,7 @@ push_lsim_metrics(StartTime) ->
                ldb_driven_mode,
                ldb_state_sync_interval,
                ldb_redundant_dgroups,
-               ldb_dgroup_back_propagation,
-               ldb_dbuffer_shrink_interval],
+               ldb_dgroup_back_propagation],
     LDBConfigs = get_configs(ldb, LDBVars),
 
     lager:info("CONFIG ~p ~p", [LDBVars, LDBConfigs]),
