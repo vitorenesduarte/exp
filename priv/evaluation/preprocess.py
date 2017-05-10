@@ -64,8 +64,7 @@ def key(config):
         "ldb_driven_mode",
         "ldb_state_sync_interval",
         "ldb_redundant_dgroups",
-        "ldb_dgroup_back_propagation",
-        "ldb_dbuffer_shrink_interval"
+        "ldb_dgroup_back_propagation"
     ]
 
     l = []

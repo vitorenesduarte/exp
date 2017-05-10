@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPS=2
+REPS=1
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
@@ -41,11 +41,11 @@ NODE_NUMBER_=(3)
 NODE_EVENT_NUMBER_=(40)
 
 # ldb configuration
-MODE_=(delta_based)
+MODE_=(state_based delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
-REDUNDANT_DGROUPS_=(true)
-DGROUP_BACK_PROPAGATION_=(true)
+REDUNDANT_DGROUPS_=(false true)
+DGROUP_BACK_PROPAGATION_=(false true)
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS)
