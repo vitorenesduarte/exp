@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPS=1
+REPS=3
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
