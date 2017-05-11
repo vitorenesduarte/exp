@@ -17,3 +17,6 @@ transmission: transmission.R pre
 memory: memory.R pre
 	Rscript memory.R
 	$(VIEWER) memory.png &
+
+clean:
+	rm *.png

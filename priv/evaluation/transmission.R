@@ -1,6 +1,6 @@
 # main function
 main <- function() {
-  source("plot.R")
+  source("linesplot.R")
   # draw!
   metrics_dir <- "processed"
   input_file <- "transmission"

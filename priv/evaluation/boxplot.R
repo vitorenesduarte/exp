@@ -1,7 +1,9 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, input_file, output_file, ylabel) {
+splot <- function(dir, input_file, output_file, ylabel, logy) {
+  CLOSE_TO_ZERO <- 0.0000001
+
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -13,52 +15,54 @@ splot <- function(dir, input_file, output_file, ylabel) {
     }
   )
 
-  # find the y max for all
-  ymaximums = lapply(ls, max)
-  maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(ls, length))
+  # log axis
+  logaxis <- ""
+
+  if(logy) {
+    ls <- lapply(
+      ls,
+      function(line) {
+        sapply(
+          line,
+          function(e) {
+            if(e == 0) CLOSE_TO_ZERO
+            else e
+          }
+        )
+      }
+    )
+
+
+    logaxis <- "y"
+  }
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
   png(filename=output_file, res=80)
 
-  # draw the first line
-  first_line <- ls[[1]]
-
   # style stuff
   nol = length(ls)
   noc = if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
-  line_width = 2
   line_types = c(1:nol)
   plot_chars <- seq(nol)
 
-  # change outer margins
+  # labels
+  labels <- get_labels(files)
+
   par(xpd = T, mar = par()$mar + c(4,0,0,0))
 
   # configure plot
-  plot(
-    range(maxx),
-    range(maxy),
+  boxplot(
+    ls,
     main="GSet",
-    type="n",
-    xlim=c(0, maxx), # max x
-    ylim=c(0, maxy), # max y
-    xlab="Time (s)",, # x axis label
-    ylab=paste(c(ylabel, "(B)"), collapse=" ") # y axis label
+    xaxt="n", # remove automatic numbers
+    xlab="", # x axis label
+    ylab=paste(c(ylabel, "(B)"), collapse=" "), # y axis label
+    col=colors,
+    lty=line_types,
+    log=logaxis
   )
-
-  # draw lines
-  for(i in 1:length(ls)) {
-    lines(
-      ls[[i]],
-      col=colors[[i]],
-      type="b",
-      lwd=line_width,
-      lty=line_types[[i]],
-      pch=plot_chars[[i]]
-    )
-  }
 
   # legend
   legend(
@@ -68,7 +72,6 @@ splot <- function(dir, input_file, output_file, ylabel) {
     #cex=0.8,
     legend=get_labels(files),
     col=colors,
-    lwd=line_width,
     lty=line_types,
     pch=plot_chars
   )
