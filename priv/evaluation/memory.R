@@ -5,7 +5,7 @@ main <- function() {
   metrics_dir <- "processed"
   key <- "memory_algorithm"
   output_file <- "memory.png"
-  ylabel <- "Memory"
+  ylabel <- "Memory (B)"
   #logy <- TRUE
   logy <- FALSE
   splot(metrics_dir, key, output_file, ylabel, logy)

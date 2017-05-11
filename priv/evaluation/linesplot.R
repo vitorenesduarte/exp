@@ -42,7 +42,7 @@ splot <- function(dir, key, output_file, ylabel) {
     xlim=c(0, maxx), # max x
     ylim=c(0, maxy), # max y
     xlab="Time (s)",, # x axis label
-    ylab=paste(c(ylabel, "(B)"), collapse=" ") # y axis label
+    ylab=ylabel # y axis label
   )
 
   # draw lines

@@ -58,7 +58,7 @@ splot <- function(dir, key, output_file, ylabel, logy) {
     main="GSet",
     xaxt="n", # remove automatic numbers
     xlab="", # x axis label
-    ylab=paste(c(ylabel, "(B)"), collapse=" "), # y axis label
+    ylab=ylabel, # y axis label
     col=colors,
     lty=line_types,
     log=logaxis

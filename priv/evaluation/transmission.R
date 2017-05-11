@@ -5,7 +5,7 @@ main <- function() {
   metrics_dir <- "processed"
   key <- "transmission"
   output_file <- "transmission.png"
-  ylabel <- "Transmission"
+  ylabel <- "Transmission (B)"
   splot(metrics_dir, key, output_file, ylabel)
 }
 
