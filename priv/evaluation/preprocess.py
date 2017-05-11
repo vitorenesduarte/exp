@@ -287,12 +287,22 @@ def aggregate(d):
                 to_sum.append(ls)
 
         r[key]["transmission"] = sum_lists(to_sum)
-        r[key]["crdt"] = []
-        r[key]["rest"] = []
+        r[key]["memory_crdt"] = []
+        r[key]["memory_algorithm"] = []
+        r[key]["latency_local"] = []
+        r[key]["latency_remote"] = []
 
+        # aggregate memory values
         for [C, R] in d[key]["memory"]:
-            r[key]["crdt"].append(C)
-            r[key]["rest"].append(R)
+            r[key]["memory_crdt"].append(C)
+            r[key]["memory_algorithm"].append(R)
+
+        
+        # aggregate latency values
+        for lord in d[key]["latency"]: # local or remote dict
+            for lort in lord: # local or remote type
+                k = "latency_" + lort
+                r[key][k].extend(lord[lort])
 
     return r
 
@@ -320,11 +330,9 @@ def dump(d):
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
     for key in d:
-        for file in d[key]:
-            avg = d[key][file]
-            path = os.path.join(*[PROCESSED_DIR, key, file])
-            content = json.dumps(avg)
-            save_file(path, content)
+        path = os.path.join(*[PROCESSED_DIR, key])
+        content = json.dumps(d[key])
+        save_file(path, content)
 
 def main():
     """

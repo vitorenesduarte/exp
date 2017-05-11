@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, input_file, output_file, ylabel) {
+splot <- function(dir, key, output_file, ylabel) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -9,7 +9,7 @@ splot <- function(dir, input_file, output_file, ylabel) {
   ls <- lapply(
     files,
     function(file) {
-      json(c(dir, file, input_file))
+      json(c(dir, file))[[key]]
     }
   )
 

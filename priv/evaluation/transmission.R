@@ -3,10 +3,10 @@ main <- function() {
   source("linesplot.R")
   # draw!
   metrics_dir <- "processed"
-  input_file <- "transmission"
+  key <- "transmission"
   output_file <- "transmission.png"
   ylabel <- "Transmission"
-  splot(metrics_dir, input_file, output_file, ylabel)
+  splot(metrics_dir, key, output_file, ylabel)
 }
 
 main()
