@@ -1,7 +1,9 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, ylabel) {
+splot <- function(dir, key, output_file, ylabel, logy) {
+  CLOSE_TO_ZERO <- 1 # 10^-10
+
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -18,6 +20,29 @@ splot <- function(dir, key, output_file, ylabel) {
   maxy = Reduce(max, ymaximums)
   maxx = Reduce(max, lapply(ls, length))
 
+  # log axis
+  logaxis <- ""
+  ylimit <- c(0, maxy)
+
+  if(logy) {
+    ls <- lapply(
+      ls,
+      function(line) {
+        sapply(
+          line,
+          function(e) {
+            if(e == 0) CLOSE_TO_ZERO
+            else e
+          }
+        )
+      }
+    )
+
+    logaxis <- "y"
+    ylimit <- c(CLOSE_TO_ZERO, maxy)
+  }
+
+
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
   png(filename=output_file, res=80)
@@ -31,7 +56,7 @@ splot <- function(dir, key, output_file, ylabel) {
   plot_chars <- seq(nol)
 
   # change outer margins
-  par(xpd = T, mar = par()$mar + c(4,0,0,0))
+  par(xpd = T, mar = par()$mar + c(6,0,0,0))
 
   # configure plot
   plot(
@@ -40,9 +65,10 @@ splot <- function(dir, key, output_file, ylabel) {
     main="GSet",
     type="n",
     xlim=c(0, maxx), # max x
-    ylim=c(0, maxy), # max y
-    xlab="Time (s)",, # x axis label
-    ylab=ylabel # y axis label
+    ylim=ylimit, # max y
+    xlab="Time (s)", # x axis label
+    ylab=ylabel, # y axis label
+    log=logaxis
   )
 
   # draw lines
@@ -60,7 +86,7 @@ splot <- function(dir, key, output_file, ylabel) {
   # legend
   legend(
    "bottom",
-    inset=-0.5,
+    inset=-0.7,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),

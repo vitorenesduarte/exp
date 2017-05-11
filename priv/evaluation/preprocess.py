@@ -302,7 +302,15 @@ def aggregate(d):
         for lord in d[key]["latency"]: # local or remote dict
             for lort in lord: # local or remote type
                 k = "latency_" + lort
-                r[key][k].extend(lord[lort])
+
+                latency_values = lord[lort]
+                if lort == "local":
+                    filter_fun = lambda x : x <= 65
+                elif lort == "remote":
+                    filter_fun = lambda x : x <= 650
+
+                latency_values = filter(filter_fun, latency_values)
+                r[key][k].extend(latency_values)
 
     return r
 
@@ -343,7 +351,6 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
-    print(d)
     dump(d)
 
 main()
