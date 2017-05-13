@@ -14,7 +14,8 @@
                   jsx,
                   partisan,
                   eredis,
-                  mochiweb
+                  mochiweb,
+                  iptables
                  ]},
   {mod, {lsim_app, []}},
   {modules, []}
