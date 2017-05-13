@@ -4,7 +4,7 @@
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
  {<<"iptables">>,
   {git,"https://github.com/vitorenesduarte/erlang-iptables",
-       {ref,"0d385093318931987a9972b32ec53b9f8549777f"}},
+       {ref,"6120da733613b259f95ce01abdaf7bd9178bfeb0"}},
   0},
  {<<"ishikawa">>,{pkg,<<"ishikawa">>,<<"0.0.2">>},0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},0},
