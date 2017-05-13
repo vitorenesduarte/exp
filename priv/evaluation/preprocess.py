@@ -62,6 +62,7 @@ def key(config):
         "lsim_node_event_number",
         "ldb_mode",
         "ldb_driven_mode",
+        "ldb_state_sync_interval",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -92,11 +93,15 @@ def group_by_config(d):
         for file in d[dir]:
             # read metric file
             j = read_json(file)
-            # for all types, for all metrics
-            # remove start_time
+
+            # for all time-series types (all but latency)
+            # for all metrics remove start_time
+
             for type in j:
-                for m in j[type]:
-                    m[TS] -= start_time
+
+                if type != "latency":
+                    for m in j[type]:
+                        m[TS] -= start_time
 
                 # create empty list if type not already in dictionary
                 if not type in r[k]:
@@ -162,7 +167,12 @@ def assume_unknown_values(d):
     """
 
     for key in d:
-        for type in d[key]:
+
+        # get all time-series types
+        types = d[key].keys()
+        types.remove("latency")
+
+        for type in types:
 
             # find the higher timestamp of all runs for this type
             higher_ts = get_higher_ts(d[key][type])
@@ -223,7 +233,12 @@ def average(d):
     """
 
     for key in d:
-        for type in d[key]:
+
+        # get all time-series types
+        types = d[key].keys()
+        types.remove("latency")
+
+        for type in types:
             # number of runs
             runs_number = len(d[key][type])
             # number of metrics
@@ -272,12 +287,30 @@ def aggregate(d):
                 to_sum.append(ls)
 
         r[key]["transmission"] = sum_lists(to_sum)
-        r[key]["crdt"] = []
-        r[key]["rest"] = []
+        r[key]["memory_crdt"] = []
+        r[key]["memory_algorithm"] = []
+        r[key]["latency_local"] = []
+        r[key]["latency_remote"] = []
 
+        # aggregate memory values
         for [C, R] in d[key]["memory"]:
-            r[key]["crdt"].append(C)
-            r[key]["rest"].append(R)
+            r[key]["memory_crdt"].append(C)
+            r[key]["memory_algorithm"].append(R)
+
+        
+        # aggregate latency values
+        for lord in d[key]["latency"]: # local or remote dict
+            for lort in lord: # local or remote type
+                k = "latency_" + lort
+
+                latency_values = lord[lort]
+                if lort == "local":
+                    filter_fun = lambda x : x <= 65
+                elif lort == "remote":
+                    filter_fun = lambda x : x <= 650
+
+                latency_values = filter(filter_fun, latency_values)
+                r[key][k].extend(latency_values)
 
     return r
 
@@ -305,11 +338,9 @@ def dump(d):
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
     for key in d:
-        for file in d[key]:
-            avg = d[key][file]
-            path = os.path.join(*[PROCESSED_DIR, key, file])
-            content = json.dumps(avg)
-            save_file(path, content)
+        path = os.path.join(*[PROCESSED_DIR, key])
+        content = json.dumps(d[key])
+        save_file(path, content)
 
 def main():
     """

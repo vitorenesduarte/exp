@@ -6,6 +6,7 @@ ENV_VARS=(
   PULL_IMAGE
   LDB_MODE
   LDB_DRIVEN_MODE
+  LDB_STATE_SYNC_INTERVAL
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
@@ -21,6 +22,20 @@ do
     exit 1
   fi
 done
+
+echo "[$(date +%T)] Configuration: "
+echo "    BRANCH: ${BRANCH}"
+echo "    IMAGE: ${IMAGE}"
+echo "    PULL_IMAGE: ${PULL_IMAGE}"
+echo "    LDB_MODE: ${LDB_MODE}"
+echo "    LDB_DRIVEN_MODE: ${LDB_DRIVEN_MODE}"
+echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
+echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
+echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
+echo "    OVERLAY: ${OVERLAY}"
+echo "    SIMULATION: ${SIMULATION}"
+echo "    NODE_NUMBER: ${NODE_NUMBER}"
+echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
@@ -87,6 +102,8 @@ spec:
           value: "${LDB_MODE}"
         - name: LDB_DRIVEN_MODE
           value: "${LDB_DRIVEN_MODE}"
+        - name: LDB_STATE_SYNC_INTERVAL
+          value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
@@ -141,6 +158,8 @@ spec:
           value: "${LDB_MODE}"
         - name: LDB_DRIVEN_MODE
           value: "${LDB_DRIVEN_MODE}"
+        - name: LDB_STATE_SYNC_INTERVAL
+          value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
@@ -160,3 +179,9 @@ spec:
 EOF
 
 kubectl create -f "${FILE}"
+
+# wait time is number of events (each event is 1 second) plus 30 seconds
+WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
+
+echo "[$(date +%T)] Waiting ${WAIT_TIME} second(s) before next deploy."
+sleep ${WAIT_TIME}
