@@ -37,6 +37,7 @@
 -spec get_task(atom(), node_port(), boolean()) ->
     {ok, node_spec()} | {error, not_connected}.
 get_task(Tag, Port, FilterByTimestamp) ->
+    lager:info("get task"),
     Nodes = get_tasks(Tag, Port, FilterByTimestamp),
 
     case Nodes of
