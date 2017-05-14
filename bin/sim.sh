@@ -31,7 +31,7 @@ fi
 "${DIR}"/redis-deploy.sh
 
 # start lsim-dash
-"${DIR}"/lsim-dash-deploy.sh
+#"${DIR}"/lsim-dash-deploy.sh
 
 
 # lsim configuration
