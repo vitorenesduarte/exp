@@ -32,7 +32,9 @@ get_tasks(Tag, Port, FilterByTimestamp) ->
     Path = pods_path() ++ selector(Tag, FilterByTimestamp),
     case http(get, Path) of
         {ok, Nodes} ->
-            generate_nodes(Nodes, Port);
+            R = generate_nodes(Nodes, Port),
+            ?LOG("Tag ~p, Port ~p, FilterByTimestamp ~p\n Nodes ~p\n\n R: ~p\n\n", [Tag, Port, FilterByTimestamp, Nodes, R]),
+            R;
         {error, invalid} ->
             []
     end.
