@@ -39,7 +39,11 @@ echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
+CONTEXT=$(kubectl config view |
+          grep current |
+          awk '{print $2}')
 APISERVER=$(kubectl config view |
+            grep $CONTEXT -b1 |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
