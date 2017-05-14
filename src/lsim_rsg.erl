@@ -54,7 +54,7 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    ?LOG("IPTABLES ~p\n\n\n", iptables:is_installed()),
+    ?LOG("IPTABLES ~p\n\n\n", [iptables:is_installed()]),
 
     ?LOG("lsim_rsg initialized"),
     {ok, #state{}}.
