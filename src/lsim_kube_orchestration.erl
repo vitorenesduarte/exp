@@ -29,13 +29,10 @@
 
 -spec get_tasks(atom(), node_port(), boolean()) -> [node_spec()].
 get_tasks(Tag, Port, FilterByTimestamp) ->
-    lager:info("get_tasks"),
     Path = pods_path() ++ selector(Tag, FilterByTimestamp),
     case http(get, Path) of
         {ok, Nodes} ->
-            R = generate_nodes(Nodes, Port),
-            lager:info("Tag ~p, Port ~p, FilterByTimestamp ~p\n Nodes ~p\n\n R: ~p\n\n", [Tag, Port, FilterByTimestamp, Nodes, R]),
-            R;
+            generate_nodes(Nodes, Port);
         {error, invalid} ->
             []
     end.
