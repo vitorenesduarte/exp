@@ -122,9 +122,9 @@ handle_info(create_partition, State) ->
 
     lager:info("IPSTR ~p\n\n", [IPStr]),
 
-    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ " -j REJECT", 1),
+    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ " -j REJECT --reject-with tcp-reset", 1),
     lager:info("insert input result: ~p\n\n", [R1]),
-    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ " -j REJECT", 1),
+    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ " -j REJECT --reject-with tcp-reset", 1),
     lager:info("insert output result: ~p\n\n", [R2]),
 
     schedule_heal_partition(),
