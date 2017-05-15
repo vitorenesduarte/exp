@@ -26,7 +26,8 @@
 
 %% lsim_resource callbacks
 -export([start_link/0,
-         update_membership/1]).
+         update_membership/1,
+         membership/0]).
 
 %% gen_server callbacks
 -export([init/1,
