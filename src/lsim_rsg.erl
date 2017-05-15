@@ -54,7 +54,7 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    ?LOG("IPTABLES ~p\n\n\n", [iptables:is_installed()]),
+    schedule_ip(),
 
     ?LOG("lsim_rsg initialized"),
     {ok, #state{}}.
@@ -111,6 +111,13 @@ handle_info(join_peers, State) ->
     end,
     {noreply, State};
 
+handle_info(ip, State) ->
+
+    IPs = [IP || {_, IP, _} <- lsim_resource:membership()],
+    lager:info("IPS : ", [IPs]),
+
+    {noreply, State};
+
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
     {noreply, State}.
@@ -164,3 +171,7 @@ tell(Msg) ->
 %% @private
 without_me(Members) ->
     Members -- [ldb_config:id()].
+
+%% @private
+schedule_ip() ->
+    timer:send_after(10000, ip).
