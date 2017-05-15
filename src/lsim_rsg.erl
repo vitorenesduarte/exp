@@ -124,7 +124,7 @@ handle_info(create_partition, State) ->
     lager:info("insert input result: ~p\n\n", [R1]),
     {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ "-j REJECT", 1),
     lager:info("insert output result: ~p\n\n", [R2]),
-    
+
     schedule_heal_partition(),
 
     {noreply, State#state{rules=[1]}};
