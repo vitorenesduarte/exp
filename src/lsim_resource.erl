@@ -73,8 +73,7 @@ handle_call(Msg, _From, State) ->
     {noreply, State}.
 
 handle_cast({update_membership, Membership}, _State) ->
-    Members0 = sets:to_list(Membership),
-    Members = lists:keydelete(ldb_config:id(), 1, Members0),
+    Members = lists:keydelete(ldb_config:id(), 1, Membership),
 
     State = #state{members=Members},
     {noreply, State};
