@@ -115,10 +115,12 @@ handle_info(create_partition, State) ->
 
     {_, IP, _} = lists:nth(1, lsim_resource:membership()),
     {A, B, C, D} = IP,
-    IPStr = integer_to_list(A)
-         ++ integer_to_list(B)
-         ++ integer_to_list(C)
+    IPStr = integer_to_list(A) ++ "."
+         ++ integer_to_list(B) ++ "."
+         ++ integer_to_list(C) ++ "."
          ++ integer_to_list(D),
+
+    lager:info("IPSTR ~p\n\n", [IPStr]),
 
     {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ " -j REJECT", 1),
     lager:info("insert input result: ~p\n\n", [R1]),
