@@ -120,8 +120,10 @@ handle_info(create_partition, State) ->
          ++ integer_to_list(C)
          ++ integer_to_list(D),
 
-    iptables:insert(input, "-s " ++ IPStr ++ "-j REJECT", 1),
-    iptables:insert(output, "-s " ++ IPStr ++ "-j REJECT", 1),
+    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ "-j REJECT", 1),
+    lager:info("insert input result: ~p\n\n", [R1]),
+    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ "-j REJECT", 1),
+    lager:info("insert output result: ~p\n\n", [R2]),
     
     schedule_heal_partition(),
 
@@ -131,8 +133,10 @@ handle_info(heal_partition, #state{rules=Rules}=State) ->
 
     lists:foreach(
         fun(Rule) ->
-            iptables:delete(input, integer_to_list(Rule)),
-            iptables:delete(output, integer_to_list(Rule))
+            {ok, R1} = iptables:delete(input, integer_to_list(Rule)),
+            lager:info("delete input result: ~p\n\n", [R1]),
+            {ok, R2} = iptables:delete(output, integer_to_list(Rule)),
+            lager:info("delete output result: ~p\n\n", [R2])
         end,
         Rules
     ),
