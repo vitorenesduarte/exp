@@ -62,13 +62,14 @@ PEER_PORT=6866
 
 # DEPLOYMENT:
 # Deployment names
-LSIM_NAME=lsim-${TIMESTAMP}
 RSG_NAME=rsg-${TIMESTAMP}
+LSIM_NAME=lsim-${TIMESTAMP}
 
 # YAML file
-FILE=/tmp/${TIMESTAMP}.yaml
+RSG_FILE=/tmp/${RSG_NAME}.yaml
+LSIM_FILE=/tmp/${LSIM_NAME}.yaml
 
-cat <<EOF > "${FILE}"
+cat <<EOF > "${RSG_FILE}"
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -122,7 +123,12 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: RSG
           value: "true"
----
+EOF
+
+# deploy rsg
+kubectl create -f "${RSG_FILE}"
+
+cat <<EOF > "${LSIM_FILE}"
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -184,7 +190,8 @@ spec:
           value: "false"
 EOF
 
-kubectl create -f "${FILE}"
+# deploy lsim
+kubectl create -f "${LSIM_FILE}"
 
 # wait time is number of events (each event is 1 second) plus 30 seconds
 WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
