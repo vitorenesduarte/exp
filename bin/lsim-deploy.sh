@@ -139,6 +139,8 @@ spec:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
+        securityContext:
+          privileged: true
         env:
         - name: BRANCH
           value: "${BRANCH}"
