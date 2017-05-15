@@ -114,7 +114,7 @@ handle_info(join_peers, State) ->
 handle_info(ip, State) ->
 
     IPs = [IP || {_, IP, _} <- lsim_resource:membership()],
-    lager:info("IPS : ", [IPs]),
+    lager:info("IPS : ~p", [IPs]),
 
     {noreply, State};
 
