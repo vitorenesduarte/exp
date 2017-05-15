@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {}).
+-record(state, {rules :: list(integer())}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(PEER_SERVICE, ldb_peer_service).
@@ -54,10 +54,10 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    schedule_ip(),
+    schedule_create_partition(),
 
     ?LOG("lsim_rsg initialized"),
-    {ok, #state{}}.
+    {ok, #state{rules=[]}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -111,12 +111,33 @@ handle_info(join_peers, State) ->
     end,
     {noreply, State};
 
-handle_info(ip, State) ->
+handle_info(create_partition, State) ->
 
-    IPs = [IP || {_, IP, _} <- lsim_resource:membership()],
-    lager:info("IPS : ~p", [IPs]),
+    {_, IP, _} = lists:nth(1, lsim_resource:membership()),
+    {A, B, C, D} = IP,
+    IPStr = integer_to_list(A)
+         ++ integer_to_list(B)
+         ++ integer_to_list(C)
+         ++ integer_to_list(D),
 
-    {noreply, State};
+    iptables:insert(input, "-s " ++ IPStr ++ "-j REJECT", 1),
+    iptables:insert(output, "-s " ++ IPStr ++ "-j REJECT", 1),
+    
+    schedule_heal_partition(),
+
+    {noreply, State#state{rules=[1]}};
+
+handle_info(heal_partition, #state{rules=Rules}=State) ->
+
+    lists:foreach(
+        fun(Rule) ->
+            iptables:delete(input, integer_to_list(Rule)),
+            iptables:delete(output, integer_to_list(Rule))
+        end,
+        Rules
+    ),
+
+    {noreply, State#state{rules=[]}};
 
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
@@ -173,5 +194,9 @@ without_me(Members) ->
     Members -- [ldb_config:id()].
 
 %% @private
-schedule_ip() ->
-    timer:send_after(10000, ip).
+schedule_create_partition() ->
+    timer:send_after(10000, create_partition).
+
+%% @private
+schedule_heal_partition() ->
+    timer:send_after(20000, heal_partition).
