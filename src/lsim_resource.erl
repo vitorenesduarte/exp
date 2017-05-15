@@ -39,7 +39,7 @@
 %% mochiweb callbacks
 -export([loop/1]).
 
--record(state, {members :: list(ldb_node_id())}).
+-record(state, {members :: list(node_spec())}).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
@@ -49,7 +49,7 @@ start_link() ->
 update_membership(Membership) ->
     gen_server:cast(?MODULE, {update_membership, Membership}).
 
--spec membership() -> list(ldb_node_id()).
+-spec membership() -> list(node_spec()).
 membership() ->
     gen_server:call(?MODULE, membership, infinity).
 
@@ -72,8 +72,8 @@ handle_call(Msg, _From, State) ->
     {noreply, State}.
 
 handle_cast({update_membership, Membership}, _State) ->
-    Members0 = [Name || {Name, _, _} <- sets:to_list(Membership)],
-    Members = Members0 -- [ldb_config:id()],
+    Members0 = sets:to_list(Membership),
+    Members = lists:keydelete(ldb_config:id(), 1, Members0),
 
     State = #state{members=Members},
     {noreply, State};
@@ -98,9 +98,11 @@ loop(Req) ->
 
     case string:tokens(Path, "/") of
         ["membership"] ->
+            Names = [Name || {Name, _, _} <- membership()],
+
             Req:ok({
               _ContentType = "application/javascript",
-              ldb_json:encode(membership())
+              ldb_json:encode(Names)
             });
         _ ->
             Req:not_found()
