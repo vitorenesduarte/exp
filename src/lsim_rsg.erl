@@ -120,9 +120,9 @@ handle_info(create_partition, State) ->
          ++ integer_to_list(C)
          ++ integer_to_list(D),
 
-    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ "-j REJECT", 1),
+    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ " -j REJECT", 1),
     lager:info("insert input result: ~p\n\n", [R1]),
-    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ "-j REJECT", 1),
+    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ " -j REJECT", 1),
     lager:info("insert output result: ~p\n\n", [R2]),
 
     schedule_heal_partition(),
