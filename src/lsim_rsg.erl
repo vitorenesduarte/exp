@@ -114,34 +114,16 @@ handle_info(join_peers, State) ->
 handle_info(create_partition, State) ->
 
     {_, IP, _} = lists:nth(1, lsim_resource:membership()),
-    {A, B, C, D} = IP,
-    IPStr = integer_to_list(A) ++ "."
-         ++ integer_to_list(B) ++ "."
-         ++ integer_to_list(C) ++ "."
-         ++ integer_to_list(D),
 
-    lager:info("IPSTR ~p\n\n", [IPStr]),
-
-    {ok, R1} = iptables:insert(input, "-s " ++ IPStr ++ " -p tcp -j REJECT --reject-with tcp-reset", 1),
-    lager:info("insert input result: ~p\n\n", [R1]),
-    {ok, R2} = iptables:insert(output, "-s " ++ IPStr ++ " -p tcp -j REJECT --reject-with tcp-reset", 1),
-    lager:info("insert output result: ~p\n\n", [R2]),
+    Rules = lsim_iptables:reject_ips([IP]),
 
     schedule_heal_partition(),
 
-    {noreply, State#state{rules=[1]}};
+    {noreply, State#state{rules=Rules}};
 
 handle_info(heal_partition, #state{rules=Rules}=State) ->
 
-    lists:foreach(
-        fun(Rule) ->
-            {ok, R1} = iptables:delete(input, integer_to_list(Rule)),
-            lager:info("delete input result: ~p\n\n", [R1]),
-            {ok, R2} = iptables:delete(output, integer_to_list(Rule)),
-            lager:info("delete output result: ~p\n\n", [R2])
-        end,
-        Rules
-    ),
+    lsim_iptables:delete_rules(Rules),
 
     {noreply, State#state{rules=[]}};
 
