@@ -122,7 +122,7 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: RSG
           value: "true"
-----
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -184,7 +184,6 @@ spec:
           value: "false"
 EOF
 
-# deploy lsim
 kubectl create -f "${FILE}"
 
 # wait time is number of events (each event is 1 second) plus 30 seconds
