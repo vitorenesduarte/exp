@@ -205,4 +205,4 @@ schedule_create_partition() ->
 
 %% @private
 schedule_heal_partition() ->
-    timer:send_after(30000, heal_partition).
+    timer:send_after(60000, heal_partition).
