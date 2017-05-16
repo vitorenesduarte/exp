@@ -39,7 +39,11 @@ echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
+CONTEXT=$(kubectl config view |
+          grep current |
+          awk '{print $2}')
 APISERVER=$(kubectl config view |
+            grep "${CONTEXT}" -b1 |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
@@ -58,8 +62,8 @@ PEER_PORT=6866
 
 # DEPLOYMENT:
 # Deployment names
-LSIM_NAME=lsim-${TIMESTAMP}
 RSG_NAME=rsg-${TIMESTAMP}
+LSIM_NAME=lsim-${TIMESTAMP}
 
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
@@ -135,6 +139,8 @@ spec:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
+        securityContext:
+          privileged: true
         env:
         - name: BRANCH
           value: "${BRANCH}"

@@ -31,14 +31,14 @@ fi
 "${DIR}"/redis-deploy.sh
 
 # start lsim-dash
-"${DIR}"/lsim-dash-deploy.sh
+#"${DIR}"/lsim-dash-deploy.sh
 
 
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
 NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(40)
+NODE_EVENT_NUMBER_=(20)
 
 # ldb configuration
 MODE_=(state_based delta_based)
