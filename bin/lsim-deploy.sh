@@ -10,6 +10,7 @@ ENV_VARS=(
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
+  PEER_SERVICE
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
@@ -33,6 +34,7 @@ echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
+echo "    PEER_SERVICE: ${PEER_SERVICE}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
@@ -115,6 +117,8 @@ spec:
           value: "${LDB_DGROUP_BACK_PROPAGATION}"
         - name: OVERLAY
           value: "${OVERLAY}"
+        - name: PEER_SERVICE
+          value: "${PEER_SERVICE}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER
@@ -180,6 +184,8 @@ spec:
           value: "true"
         - name: OVERLAY
           value: "${OVERLAY}"
+        - name: PEER_SERVICE
+          value: "${PEER_SERVICE}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER

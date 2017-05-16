@@ -52,6 +52,11 @@ for REP in $(seq 1 $REPS)
 do
   for OVERLAY in "${OVERLAY_[@]}"
   do
+    if [ "${OVERLAY}" == "hyparview" ]; then
+      PEER_SERVICE="partisan_hyparview_peer_service_manager"
+    else
+      PEER_SERVICE="partisan_static_peer_service_manager"
+    fi
     for SIMULATION in "${SIMULATION_[@]}"
     do
       for NODE_NUMBER in "${NODE_NUMBER_[@]}"
@@ -76,6 +81,7 @@ do
                     LDB_REDUNDANT_DGROUPS=undefined \
                     LDB_DGROUP_BACK_PROPAGATION=undefined \
                     OVERLAY=${OVERLAY} \
+                    PEER_SERVICE=${PEER_SERVICE} \
                     SIMULATION=${SIMULATION} \
                     NODE_NUMBER=${NODE_NUMBER} \
                     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
@@ -96,6 +102,7 @@ do
                         LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
                         LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
                         OVERLAY=${OVERLAY} \
+                        PEER_SERVICE=${PEER_SERVICE} \
                         SIMULATION=${SIMULATION} \
                         NODE_NUMBER=${NODE_NUMBER} \
                         NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
