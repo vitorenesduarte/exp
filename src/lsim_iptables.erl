@@ -28,8 +28,6 @@
 -define(BIN, "sudo iptables").
 -define(CHAINS, ["INPUT", "OUTPUT"]).
 
--type rules() :: list(non_neg_integer()).
-
 -spec reject_ips(list(node_ip())) -> rules().
 reject_ips(IPs) ->
     LastRule = lists:foldl(

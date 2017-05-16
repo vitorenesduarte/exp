@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {rules :: list(integer())}).
+-record(state, {rules :: rules()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(PEER_SERVICE, ldb_peer_service).
