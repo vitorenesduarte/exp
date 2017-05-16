@@ -10,7 +10,6 @@ ENV_VARS=(
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
-  PEER_SERVICE
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
@@ -34,7 +33,6 @@ echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
-echo "    PEER_SERVICE: ${PEER_SERVICE}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
@@ -68,10 +66,9 @@ RSG_NAME=rsg-${TIMESTAMP}
 LSIM_NAME=lsim-${TIMESTAMP}
 
 # YAML file
-RSG_FILE=/tmp/${RSG_NAME}.yaml
-LSIM_FILE=/tmp/${LSIM_NAME}.yaml
+FILE=/tmp/${TIMESTAMP}.yaml
 
-cat <<EOF > "${RSG_FILE}"
+cat <<EOF > "${FILE}"
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -117,8 +114,6 @@ spec:
           value: "${LDB_DGROUP_BACK_PROPAGATION}"
         - name: OVERLAY
           value: "${OVERLAY}"
-        - name: PEER_SERVICE
-          value: "${PEER_SERVICE}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER
@@ -127,12 +122,7 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: RSG
           value: "true"
-EOF
-
-# deploy rsg
-kubectl create -f "${RSG_FILE}"
-
-cat <<EOF > "${LSIM_FILE}"
+----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -184,8 +174,6 @@ spec:
           value: "true"
         - name: OVERLAY
           value: "${OVERLAY}"
-        - name: PEER_SERVICE
-          value: "${PEER_SERVICE}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER
@@ -197,7 +185,7 @@ spec:
 EOF
 
 # deploy lsim
-kubectl create -f "${LSIM_FILE}"
+kubectl create -f "${FILE}"
 
 # wait time is number of events (each event is 1 second) plus 30 seconds
 WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
