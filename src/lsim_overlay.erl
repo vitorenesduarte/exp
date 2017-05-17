@@ -23,7 +23,8 @@
 -include("lsim.hrl").
 
 -export([get/2,
-         to_connect/3]).
+         to_connect/3,
+         partitions/2]).
 
 %% @doc The first argument can be:
 %%          - `hyparview'
@@ -75,14 +76,36 @@ get(line, N) ->
 %% @doc The first argument is my node spec,
 %%      the second argument is a list of node specs,
 %%      and the third argument is the overlay.
--spec to_connect(ldb_node_id(), [node_spec()], atom()) ->
-    [node_spec()].
+-spec to_connect(ldb_node_id(), list(node_spec()), atom()) ->
+    list(node_spec()).
 to_connect(MyName, Nodes, Overlay) ->
     Map = list_to_map(Nodes),
     {IdToName, MyId} = map_to_ids(MyName, Map),
     NodeNumber = length(Nodes),
     Topology = get(Overlay, NodeNumber),
     find_peers(Map, IdToName, MyId, Topology).
+
+%% @doc The first argument is a list of node spec and
+%%      the second argument is the number of partitions to create.
+%%      Returns a map from partition number to list of ips
+%%      that belong to that partition.
+%%
+%%      Assumes ips are unique (as in Kubernetes pods).
+-spec partitions(list(node_spec()), pos_integer()) ->
+    orddict:orddict().
+partitions(Nodes, N) ->
+    %% just to order the nodes
+    Map = list_to_map(Nodes),
+
+    lists:foldl(
+        fun(Index, Partitions) ->
+            {_Name, {_, IP, _}} = lists:nth(Index + 1, Map),
+            Partition = Index rem N,
+            orddict:append(Partition, IP, Partitions)
+        end,
+        orddict:new(),
+        lists:seq(0, length(Map) - 1)
+    ).
 
 %% @private
 previous(I, N) ->
