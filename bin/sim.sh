@@ -37,8 +37,9 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
-NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(20)
+NODE_NUMBER_=(10)
+NODE_EVENT_NUMBER_=(40)
+PARTITION_NUMBER=2
 
 # ldb configuration
 MODE_=(state_based delta_based)
@@ -78,7 +79,8 @@ do
                     OVERLAY=${OVERLAY} \
                     SIMULATION=${SIMULATION} \
                     NODE_NUMBER=${NODE_NUMBER} \
-                    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+                    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                    PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
 
 
                 elif [ "$LDB_MODE" = delta_based ]; then
@@ -98,9 +100,10 @@ do
                         OVERLAY=${OVERLAY} \
                         SIMULATION=${SIMULATION} \
                         NODE_NUMBER=${NODE_NUMBER} \
-                        NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+                        NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                        PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
 
-                    done
+                      done
                   done
                 fi
 
