@@ -54,7 +54,7 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    %schedule_create_partition(),
+    schedule_create_partition(),
 
     ?LOG("lsim_rsg initialized"),
     {ok, #state{rules=[]}}.
@@ -113,7 +113,7 @@ handle_info(join_peers, State) ->
 
 handle_info(create_partition, State) ->
     %% @todo remove
-    schedule_create_partition(),
+    %schedule_create_partition(),
 
     {_, IP, _} = lists:nth(1, lsim_resource:membership()),
 

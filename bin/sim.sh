@@ -44,8 +44,8 @@ NODE_EVENT_NUMBER_=(20)
 MODE_=(state_based delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
-REDUNDANT_DGROUPS_=(false true)
-DGROUP_BACK_PROPAGATION_=(false true)
+REDUNDANT_DGROUPS_=(true)
+DGROUP_BACK_PROPAGATION_=(true)
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS)
