@@ -75,8 +75,8 @@ handle_cast({reject_ips, IPs}, State) ->
     Rules = lsim_iptables:reject_ips(IPs),
     {noreply, State#state{rules=Rules}};
 
-handle_cast(heal_partition, #state{rules=Rules}=State) ->
-    ?LOG("Received HEAL PARTITION"),
+handle_cast(heal_partitions, #state{rules=Rules}=State) ->
+    ?LOG("Received HEAL PARTITIONS"),
     lsim_iptables:delete_rules(Rules),
     {noreply, State#state{rules=[]}};
 

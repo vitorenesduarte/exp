@@ -135,18 +135,50 @@ handle_info(create_barrier, State) ->
     {noreply, State#state{nodes=Nodes}};
 
 handle_info(create_partitions, #state{nodes=Nodes}=State) ->
-
     PartitionNumber = lsim_config:get(lsim_partition_number),
 
     case PartitionNumber > 1 of
         true ->
-            Partitions = lsim_overlay:partitions(Nodes, PartitionNumber),
-            lager:info("PARTITIONS ~p\n\n\n", [Partitions]),
+            {PartitionToIPs, IPToPartition} = lsim_overlay:partitions(Nodes, PartitionNumber),
+            lager:info("PARTITIONS ~p\n~p\n\n", [PartitionToIPs, IPToPartition]),
+
+            lists:foreach(
+                fun({Name, IP, _}) ->
+                    Partition = orddict:fetch(IP, IPToPartition),
+
+                    %% calculate the list of ips to reject
+                    IPs = lists:foldl(
+                        fun({P, I}, Acc) ->
+                            case P of
+                                Partition ->
+                                    %% ips in my partition:
+                                    %%  - do nothing
+                                    Acc;
+                                _ ->
+                                    %% ips in another partition:
+                                    %%  - add this ips to list of ips to reject
+                                    lists:append(Acc, I)
+                            end
+                        end,
+                        [],
+                        PartitionToIPs
+                    ),
+
+                    %% tell this node to reject these ips
+                    tell({reject_ips, IPs}, [Name])
+                end,
+                Nodes
+            ),
+
             schedule_heal_partitions();
         false ->
             ok
     end,
 
+    {noreply, State};
+
+handle_info(heal_partitions, State) ->
+    tell(heal_partitions),
     {noreply, State};
 
 handle_info(Msg, State) ->

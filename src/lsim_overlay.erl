@@ -92,18 +92,21 @@ to_connect(MyName, Nodes, Overlay) ->
 %%
 %%      Assumes ips are unique (as in Kubernetes pods).
 -spec partitions(list(node_spec()), pos_integer()) ->
-    orddict:orddict().
+    {orddict:orddict(), orddict:orddict()}.
 partitions(Nodes, N) ->
     %% just to order the nodes
     Map = list_to_map(Nodes),
 
     lists:foldl(
-        fun(Index, Partitions) ->
+        fun(Index, {PartitionToIPs, IPToPartition}) ->
             {_Name, {_, IP, _}} = lists:nth(Index + 1, Map),
             Partition = Index rem N,
-            orddict:append(Partition, IP, Partitions)
+            {
+                orddict:append(Partition, IP, PartitionToIPs),
+                orddict:store(IP, Partition, IPToPartition)
+            }
         end,
-        orddict:new(),
+        {orddict:new(), orddict:new()},
         lists:seq(0, length(Map) - 1)
     ).
 
