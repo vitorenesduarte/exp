@@ -35,7 +35,8 @@
          terminate/2,
          code_change/3]).
 
--record(state, {connect_done:: ordsets:ordset(ldb_node_id()),
+-record(state, {nodes :: list(node_spec()),
+                connect_done:: ordsets:ordset(ldb_node_id()),
                 sim_done :: ordsets:ordset(ldb_node_id()),
                 metrics_done :: ordsets:ordset(ldb_node_id()),
                 start_time :: timestamp()}).
@@ -51,7 +52,8 @@ start_link() ->
 init([]) ->
     schedule_create_barrier(),
     ?LOG("lsim_rsg_master initialized"),
-    {ok, #state{connect_done=ordsets:new(),
+    {ok, #state{nodes=[],
+                connect_done=ordsets:new(),
                 sim_done=ordsets:new(),
                 metrics_done=ordsets:new(),
                 start_time=0}}.
@@ -72,6 +74,7 @@ handle_cast({connect_done, NodeName},
         true ->
             ?LOG("Everyone is CONNECT DONE. SIM GO!"),
             tell(sim_go),
+            schedule_create_partitions(),
             ldb_util:unix_timestamp();
         false ->
             T0
@@ -129,6 +132,21 @@ handle_info(create_barrier, State) ->
         false ->
             schedule_create_barrier()
     end,
+    {noreply, State#state{nodes=Nodes}};
+
+handle_info(create_partitions, #state{nodes=Nodes}=State) ->
+
+    PartitionNumber = lsim_config:get(lsim_partition_number),
+
+    case PartitionNumber > 1 of
+        true ->
+            Partitions = lsim_overlay:partitions(Nodes, PartitionNumber),
+            lager:info("PARTITIONS ~p\n\n\n", [Partitions]),
+            schedule_heal_partitions();
+        false ->
+            ok
+    end,
+
     {noreply, State};
 
 handle_info(Msg, State) ->
@@ -150,6 +168,20 @@ schedule_create_barrier() ->
     timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
+schedule_create_partitions() ->
+    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+    %% wait ~25% of simulation time before creating partitions
+    Seconds = NodeEventNumber div 4,
+    timer:send_after(Seconds * 1000, create_partitions).
+
+%% @private
+schedule_heal_partitions() ->
+    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+    %% wait ~50% of simulation time before healing partitions
+    Seconds = NodeEventNumber div 2,
+    timer:send_after(Seconds * 1000, heal_partitions).
+
+%% @private
 connect([]) ->
     ok;
 connect([Node|Rest]=All) ->
@@ -163,9 +195,13 @@ connect([Node|Rest]=All) ->
             connect(All)
     end.
 
-%% @private
+%% @private send to all
 tell(Msg) ->
     {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    tell(Msg, without_me(Members)).
+
+%% @private send to some
+tell(Msg, Peers) ->
     lists:foreach(
         fun(Peer) ->
             ?BARRIER_PEER_SERVICE:forward_message(
@@ -174,7 +210,7 @@ tell(Msg) ->
                Msg
             )
         end,
-        without_me(Members)
+        Peers
      ).
 
 %% @private

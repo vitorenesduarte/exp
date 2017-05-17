@@ -110,6 +110,12 @@ configure() ->
                   lsim_metrics_store,
                   undefined),
 
+
+    %% configure partition number
+    configure_int("PARTITION_NUMBER",
+                  lsim_partition_number,
+                  1),
+
     {Simulation, Orchestration, RSG}.
 
 %% @private
