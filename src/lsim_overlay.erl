@@ -88,7 +88,8 @@ to_connect(MyName, Nodes, Overlay) ->
 %% @doc The first argument is a list of node spec and
 %%      the second argument is the number of partitions to create.
 %%      Returns a map from partition number to list of ips
-%%      that belong to that partition.
+%%      that belong to that partition
+%%      (and a inversed map for fast lookup).
 %%
 %%      Assumes ips are unique (as in Kubernetes pods).
 -spec partitions(list(node_spec()), pos_integer()) ->

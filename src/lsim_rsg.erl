@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {rules :: rules()}).
+-record(state, {number_of_rules :: non_neg_integer()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(PEER_SERVICE, ldb_peer_service).
@@ -55,7 +55,7 @@ init([]) ->
     schedule_create_barrier(),
 
     ?LOG("lsim_rsg initialized"),
-    {ok, #state{rules=[]}}.
+    {ok, #state{number_of_rules=0}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -72,13 +72,13 @@ handle_cast(sim_go, State) ->
 
 handle_cast({reject_ips, IPs}, State) ->
     ?LOG("Received REJECT IPS. ~p", [IPs]),
-    Rules = lsim_iptables:reject_ips(IPs),
-    {noreply, State#state{rules=Rules}};
+    LastRule = lsim_iptables:reject_ips(IPs),
+    {noreply, State#state{number_of_rules=LastRule}};
 
-handle_cast(heal_partitions, #state{rules=Rules}=State) ->
+handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
     ?LOG("Received HEAL PARTITIONS"),
-    lsim_iptables:delete_rules(Rules),
-    {noreply, State#state{rules=[]}};
+    lsim_iptables:delete_rules(LastRule),
+    {noreply, State#state{number_of_rules=0}};
 
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),

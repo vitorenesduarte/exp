@@ -43,6 +43,3 @@
 %% logs
 -type key() :: list().
 -type value() :: binary().
-
-%% iptables
--type rules() :: list(non_neg_integer()).
