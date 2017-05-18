@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NUM_NODES=5
+NUM_NODES=8
 NAME=lsim
 
 if [ "$1" = "start" ]; then
