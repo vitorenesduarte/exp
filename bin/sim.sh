@@ -37,8 +37,9 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
-NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(20)
+NODE_NUMBER_=(6)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(2)
 
 # ldb configuration
 MODE_=(state_based delta_based)
@@ -58,52 +59,57 @@ do
       do
         for NODE_EVENT_NUMBER in "${NODE_EVENT_NUMBER_[@]}"
         do
-          for LDB_MODE in "${MODE_[@]}"
+          for PARTITION_NUMBER in "${PARTITION_NUMBER_[@]}"
           do
-            for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
+            for LDB_MODE in "${MODE_[@]}"
             do
-              for LDB_STATE_SYNC_INTERVAL in "${STATE_SYNC_INTERVAL_[@]}"
+              for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
               do
+                for LDB_STATE_SYNC_INTERVAL in "${STATE_SYNC_INTERVAL_[@]}"
+                do
 
-                if [ "$LDB_MODE" = state_based ]; then
+                  if [ "$LDB_MODE" = state_based ]; then
 
-                  BRANCH=${BRANCH} \
-                    IMAGE=${IMAGE} \
-                    PULL_IMAGE=${PULL_IMAGE} \
-                    LDB_MODE=${LDB_MODE} \
-                    LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                    LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                    LDB_REDUNDANT_DGROUPS=undefined \
-                    LDB_DGROUP_BACK_PROPAGATION=undefined \
-                    OVERLAY=${OVERLAY} \
-                    SIMULATION=${SIMULATION} \
-                    NODE_NUMBER=${NODE_NUMBER} \
-                    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+                    BRANCH=${BRANCH} \
+                      IMAGE=${IMAGE} \
+                      PULL_IMAGE=${PULL_IMAGE} \
+                      LDB_MODE=${LDB_MODE} \
+                      LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                      LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                      LDB_REDUNDANT_DGROUPS=undefined \
+                      LDB_DGROUP_BACK_PROPAGATION=undefined \
+                      OVERLAY=${OVERLAY} \
+                      SIMULATION=${SIMULATION} \
+                      NODE_NUMBER=${NODE_NUMBER} \
+                      NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                      PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
 
 
-                elif [ "$LDB_MODE" = delta_based ]; then
+                  elif [ "$LDB_MODE" = delta_based ]; then
 
-                  for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
-                  do
-                    for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
+                    for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
                     do
-                      BRANCH=${BRANCH} \
-                        IMAGE=${IMAGE} \
-                        PULL_IMAGE=${PULL_IMAGE} \
-                        LDB_MODE=${LDB_MODE} \
-                        LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                        LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                        LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-                        LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-                        OVERLAY=${OVERLAY} \
-                        SIMULATION=${SIMULATION} \
-                        NODE_NUMBER=${NODE_NUMBER} \
-                        NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} "${DIR}"/lsim-deploy.sh
+                      for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
+                      do
+                        BRANCH=${BRANCH} \
+                          IMAGE=${IMAGE} \
+                          PULL_IMAGE=${PULL_IMAGE} \
+                          LDB_MODE=${LDB_MODE} \
+                          LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                          LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                          LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
+                          LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
+                          OVERLAY=${OVERLAY} \
+                          SIMULATION=${SIMULATION} \
+                          NODE_NUMBER=${NODE_NUMBER} \
+                          NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                          PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
 
+                        done
                     done
-                  done
-                fi
+                  fi
 
+                done
               done
             done
           done

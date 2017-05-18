@@ -13,6 +13,7 @@ ENV_VARS=(
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
+  PARTITION_NUMBER
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -36,6 +37,7 @@ echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
+echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
@@ -120,6 +122,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: PARTITION_NUMBER
+          value: "${PARTITION_NUMBER}"
         - name: RSG
           value: "true"
 ---

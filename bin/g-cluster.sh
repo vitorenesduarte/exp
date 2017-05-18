@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NUM_NODES=3
+NUM_NODES=5
 NAME=lsim
 
 if [ "$1" = "start" ]; then
@@ -10,6 +10,6 @@ if [ "$1" = "start" ]; then
 
 elif [ "$1" = "stop" ]; then
   gcloud container clusters \
-    stop ${NAME}
+    delete ${NAME}
 
 fi

@@ -28,7 +28,9 @@
 -define(BIN, "sudo iptables").
 -define(CHAINS, ["INPUT", "OUTPUT"]).
 
--spec reject_ips(list(node_ip())) -> rules().
+%% @doc Rejects a list of ips and
+%%      returns the number of rules created.
+-spec reject_ips(list(node_ip())) -> non_neg_integer().
 reject_ips(IPs) ->
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
@@ -58,26 +60,29 @@ reject_ips(IPs) ->
         IPs
     ),
 
-    lists:seq(1, LastRule).
+    LastRule.
 
--spec delete_rules(rules()) -> ok.
-delete_rules(Rules) ->
+-spec delete_rules(non_neg_integer()) -> ok.
+delete_rules(LastRule) ->
     lists:foreach(
-        fun(Rule) ->
+        fun(_) ->
             lists:foreach(
                 fun(Chain) ->
                     CMD = ?BIN
                        %% delete in chain
                        ++ " --delete " ++ Chain
-                       %% this position
-                       ++ " " ++ integer_to_list(Rule),
+                       %% the first position
+                       %% (since deleting one position
+                       %%  results in all the other rules
+                       %%  below being shifted up)
+                       ++ " 1",
 
                     exec(CMD)
                 end,
                 ?CHAINS
             )
         end,
-        Rules
+        lists:seq(1, LastRule)
     ).
 
 %% @private

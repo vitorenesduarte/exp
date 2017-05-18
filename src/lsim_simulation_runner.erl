@@ -78,10 +78,12 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(event, #state{event_count=Events0,
-                          event_fun=EventFun}=State) ->
+                          event_fun=EventFun,
+                          total_events_fun=TotalEventsFun}=State) ->
     Events = Events0 + 1,
     EventFun(Events),
-    ?LOG("Event ~p | Node ~p", [Events, node()]),
+    TotalEvents = TotalEventsFun(),
+    ?LOG("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, node()]),
 
     case Events == node_event_number() of
         true ->

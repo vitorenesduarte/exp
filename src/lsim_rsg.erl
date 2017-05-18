@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {rules :: rules()}).
+-record(state, {number_of_rules :: non_neg_integer()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(PEER_SERVICE, ldb_peer_service).
@@ -54,10 +54,8 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    schedule_create_partition(),
-
     ?LOG("lsim_rsg initialized"),
-    {ok, #state{rules=[]}}.
+    {ok, #state{number_of_rules=0}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -71,6 +69,18 @@ handle_cast(sim_go, State) ->
     ?LOG("Received SIM GO. Starting simulation."),
     lsim_simulation_runner:start(),
     {noreply, State};
+
+handle_cast({reject_ips, IPs}, State) ->
+    ?LOG("Received REJECT IPS. ~p", [IPs]),
+    %{_, IP, _} = lists:nth(1, lsim_resource:membership()),
+    %LastRule = lsim_iptables:reject_ips([IP]),
+    LastRule = lsim_iptables:reject_ips(IPs),
+    {noreply, State#state{number_of_rules=LastRule}};
+
+handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
+    ?LOG("Received HEAL PARTITIONS"),
+    lsim_iptables:delete_rules(LastRule),
+    {noreply, State#state{number_of_rules=0}};
 
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),
@@ -110,24 +120,6 @@ handle_info(join_peers, State) ->
             schedule_join_peers()
     end,
     {noreply, State};
-
-handle_info(create_partition, State) ->
-    %% @todo remove
-    %schedule_create_partition(),
-
-    {_, IP, _} = lists:nth(1, lsim_resource:membership()),
-
-    Rules = lsim_iptables:reject_ips([IP]),
-
-    schedule_heal_partition(),
-
-    {noreply, State#state{rules=Rules}};
-
-handle_info(heal_partition, #state{rules=Rules}=State) ->
-
-    lsim_iptables:delete_rules(Rules),
-
-    {noreply, State#state{rules=[]}};
 
 handle_info(Msg, State) ->
     lager:warning("Unhandled info message: ~p", [Msg]),
@@ -182,11 +174,3 @@ tell(Msg) ->
 %% @private
 without_me(Members) ->
     Members -- [ldb_config:id()].
-
-%% @private
-schedule_create_partition() ->
-    timer:send_after(10000, create_partition).
-
-%% @private
-schedule_heal_partition() ->
-    timer:send_after(60000, heal_partition).

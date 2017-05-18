@@ -75,6 +75,8 @@ handle_call(Msg, _From, State) ->
 handle_cast({update_membership, Membership}, _State) ->
     Members = lists:keydelete(ldb_config:id(), 1, Membership),
 
+    ?LOG("NEW MEMBERSHIP ~p\n", [Membership]),
+
     State = #state{members=Members},
     {noreply, State};
 
