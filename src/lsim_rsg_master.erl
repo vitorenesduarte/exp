@@ -149,15 +149,13 @@ handle_info(create_partitions, #state{nodes=Nodes}=State) ->
                     %% calculate the list of ips to reject
                     IPs = lists:foldl(
                         fun({P, I}, Acc) ->
-                            case P of
-                                Partition ->
-                                    %% ips in my partition:
-                                    %%  - do nothing
-                                    Acc;
+                            %% each partition blocks
+                            %% the partitions with higher ids
+                            case P > Partition of
+                                true ->
+                                    lists:append(Acc, I);
                                 _ ->
-                                    %% ips in another partition:
-                                    %%  - add this ips to list of ips to reject
-                                    lists:append(Acc, I)
+                                    Acc
                             end
                         end,
                         [],
