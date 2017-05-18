@@ -83,7 +83,7 @@ handle_info(event, #state{event_count=Events0,
     Events = Events0 + 1,
     EventFun(Events),
     TotalEvents = TotalEventsFun(),
-    ?LOG("Event ~p | Node ~p | Observed ~p", [Events, node(), TotalEvents]),
+    ?LOG("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, node()]),
 
     case Events == node_event_number() of
         true ->
