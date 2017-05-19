@@ -27,6 +27,11 @@
   - `gset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
+- __PARTITION_NUMBER__: number of connected components to be formed
+during the simulation. The partition is induced when the simulation
+reaches 25% of progress and healed at 75%. With static memberships
+it's easy to have control on the number of connected components
+created; but it's not the case if using HyParView.
 
 
 #### Kubernetes
