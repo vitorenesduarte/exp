@@ -124,21 +124,6 @@ def get_higher_ts(runs):
 
     return higher
 
-def get_first_ts(run):
-    """
-    Find the first timestamp of a run.
-    """
-    return run[0][TS]
-
-def create_metric(ts, size):
-    """
-    Create metric from timestamp and size.
-    """
-    metric = {}
-    metric[TS] = ts
-    metric[SIZE] = size
-    return metric
-
 def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
@@ -154,6 +139,39 @@ def bottom_size(type):
     print("type not found. Exiting.")
     exit()
 
+def add(type, sizeA, sizeB):
+    """
+    Sum two sizes
+    """
+
+    one = ["state", "digest", "delta", "delta_ack"]
+    two = ["memory"]
+
+    if type in one:
+        return [sizeA[0] + sizeB[0]]
+    if type in two:
+        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
+
+    print("type not found. Exiting.")
+    exit()
+
+def default(type, previous):
+    """
+    Default value given a type:
+    - if transmission, 0
+    - if memory, previous value
+    """
+    one = ["state", "digest", "delta", "delta_ack"]
+    two = ["memory"]
+
+    if type in one:
+        return [0]
+    if type in two:
+        return previous
+
+    print("type not found. Exiting.")
+    exit()
+
 def ignore_pre_big_bang(run):
     """
     Remove metrics before timestamp 0.
@@ -164,7 +182,7 @@ def ignore_pre_big_bang(run):
 
 def assume_unknown_values(d):
     """
-    Assume values for timestamps not reported.
+    Assume values for timestamps not reported for transmission graphs.
     """
 
     for key in d:
@@ -185,31 +203,36 @@ def assume_unknown_values(d):
                 # remove timestamps before 0
                 run = ignore_pre_big_bang(run)
 
-                # find the first timestamp of this run
-                first_ts = get_first_ts(run)
-
                 # get bottom size
                 bs = bottom_size(type)
 
-                # create fake values from timestamp 0 to first_ts
-                for i in range(0, first_ts):
-                    metric = create_metric(i, bs)
-                    run.insert(i, metric)
+                # since we can have several metrics
+                # for the same timestamp,
+                # aggregate metrics per timestamp
+                ts_to_size = {}
 
-                # create fake values for unkown timestamps
-                last_size = bs
-                for i in range(0, higher_ts + 1):
-                    if i >= len(run) or run[i][TS] != i:
-                        # if timestamp not found
-                        # create metric with last known value
-                        metric = create_metric(i, last_size)
-                        run.insert(i, metric)
-                    else:
-                        # else update last known value
-                        last_size = run[i][SIZE]
+                for metric in run:
+                    ts = metric[TS]
+                    size = metric[SIZE]
 
-                # store the updated run
-                runs.append(run)
+                    # if ts not in map
+                    # create an entry
+                    if not ts in ts_to_size:
+                        ts_to_size[ts] = bs
+
+                    ts_to_size[ts] = add(type, ts_to_size[ts], size)
+
+                previous = bs
+
+                # create bottom values for unknown timestamps
+                for ts in range(0, higher_ts):
+                    if not ts in ts_to_size:
+                        ts_to_size[ts] = default(type, previous)
+
+                    previous = ts_to_size[ts]
+
+                # store the ts_to_size map
+                runs.append(ts_to_size)
 
             # update all runs
             d[key][type] = runs
@@ -243,7 +266,7 @@ def average(d):
             # number of runs
             runs_number = len(d[key][type])
             # number of metrics
-            metrics_number = len(d[key][type][0])
+            metrics_number = len(d[key][type][0]) - 1
 
             # get bottom size
             bs = bottom_size(type)
@@ -256,7 +279,7 @@ def average(d):
                 for i in range(0, metrics_number):
                     ls = [
                         sum[i],
-                        run[i][SIZE]
+                        run[i]
                     ]
                     sum[i] = sum_lists(ls)
 
