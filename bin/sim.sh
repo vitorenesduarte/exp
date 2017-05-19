@@ -33,16 +33,16 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
-NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1)
+NODE_NUMBER_=(20)
+NODE_EVENT_NUMBER_=(200)
+PARTITION_NUMBER_=(1 2 3 4)
 
 # ldb configuration
 MODE_=(state_based delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
-REDUNDANT_DGROUPS_=(false true)
-DGROUP_BACK_PROPAGATION_=(false true)
+REDUNDANT_DGROUPS_=(true)
+DGROUP_BACK_PROPAGATION_=(true)
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS)
