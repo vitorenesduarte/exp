@@ -66,14 +66,8 @@ push_ldb_metrics() ->
 
     %% process transmission
     PerMessageType = lists:foldl(
-        fun({Timestamp, transmission, Metrics}, Acc0) ->
-            lists:foldl(
-                fun({MessageType, Size}, Acc1) ->
-                    orddict:append(MessageType, {Timestamp, Size}, Acc1)
-                end,
-                Acc0,
-                Metrics
-            )
+        fun({Timestamp, transmission, {MessageType, Size}}, Acc0) ->
+            orddict:append(MessageType, {Timestamp, Size}, Acc0)
         end,
         orddict:new(),
         TransmissionTS
