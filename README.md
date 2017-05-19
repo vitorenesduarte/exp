@@ -25,6 +25,7 @@
 - __SIMULATION__:
   - `gcounter`
   - `gset`
+  - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
 - __PARTITION_NUMBER__: number of connected components to be formed
