@@ -5,10 +5,3 @@
 gcloud init
 ```
   - zone: __us-east1-d__
-
-- start/stop cluster:
-
-```bash
-bin/g-cluster.sh start
-bin/g-cluster.sh stop
-```

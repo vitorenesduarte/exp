@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-if [ "${WHAT}" == "build" ]; then
+if [ "$1" == "build" ]; then
   # build and push a new image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=Always
@@ -16,7 +16,7 @@ if [ "${WHAT}" == "build" ]; then
     IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
-elif [ "${WHAT}" == "run" ]; then
+elif [ "$1" == "run" ]; then
   # use the latest image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=IfNotPresent
@@ -29,10 +29,6 @@ fi
 
 # start redis
 "${DIR}"/redis-deploy.sh
-
-# start lsim-dash
-#"${DIR}"/lsim-dash-deploy.sh
-
 
 # lsim configuration
 OVERLAY_=(ring)
