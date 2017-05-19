@@ -112,7 +112,8 @@ simple_set_simulation(Type) ->
         ldb:create(?KEY, Type)
     end,
     EventFun = fun(EventNumber) ->
-        Element = atom_to_list(node()) ++
+        MyName = ldb_config:id(),
+        Element = atom_to_list(MyName) ++
                   integer_to_list(EventNumber),
         ldb:update(?KEY, {add, Element})
     end,

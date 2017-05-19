@@ -83,7 +83,7 @@ handle_info(event, #state{event_count=Events0,
     Events = Events0 + 1,
     EventFun(Events),
     TotalEvents = TotalEventsFun(),
-    ?LOG("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, node()]),
+    ?LOG("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
 
     case Events == node_event_number() of
         true ->
@@ -98,7 +98,7 @@ handle_info(event, #state{event_count=Events0,
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
                                    check_end_fun=CheckEndFun}=State) ->
     TotalEvents = TotalEventsFun(),
-    ?LOG("Events observed ~p | Node ~p", [TotalEvents, node()]),
+    ?LOG("Events observed ~p | Node ~p", [TotalEvents, ldb_config:id()]),
 
     case CheckEndFun(node_number(), node_event_number()) of
         true ->
