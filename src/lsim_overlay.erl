@@ -79,11 +79,16 @@ get(line, N) ->
 -spec to_connect(ldb_node_id(), list(node_spec()), atom()) ->
     list(node_spec()).
 to_connect(MyName, Nodes, Overlay) ->
-    Map = list_to_map(Nodes),
-    {IdToName, MyId} = map_to_ids(MyName, Map),
     NodeNumber = length(Nodes),
+
+    %% name -> node
+    NameToNode = name_to_node_map(Nodes),
+    %% {id -> name, id}
+    {IdToName, MyId} = id_to_name_map(MyName, NameToNode),
+    %% id -> [id]
     Topology = get(Overlay, NodeNumber),
-    find_peers(Map, IdToName, MyId, Topology).
+
+    find_peers(NameToNode, IdToName, MyId, Topology).
 
 %% @doc The first argument is a list of node spec and
 %%      the second argument is the number of partitions to create.
@@ -95,21 +100,45 @@ to_connect(MyName, Nodes, Overlay) ->
 -spec partitions(list(node_spec()), pos_integer()) ->
     {orddict:orddict(), orddict:orddict()}.
 partitions(Nodes, N) ->
-    %% just to order the nodes
-    Map = list_to_map(Nodes),
+    NodeNumber = length(Nodes),
 
-    lists:foldl(
-        fun(Index, {PartitionToIPs, IPToPartition}) ->
-            {_Name, {_, IP, _}} = lists:nth(Index + 1, Map),
-            Partition = Index rem N,
-            {
-                orddict:append(Partition, IP, PartitionToIPs),
-                orddict:store(IP, Partition, IPToPartition)
-            }
+    %% the last partition may have a different
+    %% number of nodes in the partition
+    NodesPerPartition = round(NodeNumber / N),
+
+    %% name -> node
+    NameToNode = name_to_node_map(Nodes),
+
+    {PToIPs, IPToP, _, _} = lists:foldl(
+        fun({_Name, {_, IP, _}}, {PartitionToIPs0,
+                                  IPToPartition0,
+                                  Partition0,
+                                  Added0}) ->
+
+            PartitionToIPs = orddict:append(Partition0, IP, PartitionToIPs0),
+            IPToPartition = orddict:store(IP, Partition0, IPToPartition0),
+
+            ShouldNextPartition = Added0 + 1 == NodesPerPartition
+                     andalso Partition0 + 1 < N,
+
+            {Partition, Added} = case ShouldNextPartition of
+                true ->
+                    {Partition0 + 1, 0};
+                false ->
+                    {Partition0, Added0 + 1}
+            end,
+
+            {PartitionToIPs,
+             IPToPartition,
+             Partition,
+             Added}
+
         end,
-        {orddict:new(), orddict:new()},
-        lists:seq(0, length(Map) - 1)
-    ).
+        {orddict:new(), orddict:new(), 0, 0},
+        NameToNode
+    ),
+
+    {PToIPs, IPToP}.
 
 %% @private
 previous(I, N) ->
@@ -132,7 +161,7 @@ next(I, N) ->
     end.
 
 %% @private
-list_to_map(Nodes) ->
+name_to_node_map(Nodes) ->
     lists:foldl(
         fun({Name, _, _}=Node, Acc) ->
             orddict:store(Name, Node, Acc)
@@ -142,7 +171,7 @@ list_to_map(Nodes) ->
     ).
 
 %% @private
-map_to_ids(MyName, Map) ->
+id_to_name_map(MyName, NameToNode) ->
     {IdToName, MyId, _} = lists:foldl(
         fun({Name, _}, {IdToName0, MyId0, Counter0}) ->
             IdToName1 = orddict:store(Counter0, Name, IdToName0),
@@ -156,19 +185,21 @@ map_to_ids(MyName, Map) ->
             {IdToName1, MyId1, Counter1}
         end,
         {orddict:new(), undefined, 0},
-        Map
+        NameToNode
     ),
 
     {IdToName, MyId}.
 
 %% @private
-find_peers(Map, IdToName, MyId, Topology) ->
+find_peers(NameToNode, IdToName, MyId, Topology) ->
+    %% [id]
     IdsToConnect = orddict:fetch(MyId, Topology),
 
+    %% [node]
     lists:map(
         fun(PeerId) ->
             PeerName = orddict:fetch(PeerId, IdToName),
-            orddict:fetch(PeerName, Map)
+            orddict:fetch(PeerName, NameToNode)
         end,
         IdsToConnect
     ).

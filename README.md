@@ -25,20 +25,37 @@
 - __SIMULATION__:
   - `gcounter`
   - `gset`
+  - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
+- __PARTITION_NUMBER__: number of connected components to be formed
+during the simulation. The partition is induced when the simulation
+reaches 25% of progress and healed at 75%. With static memberships
+it's easy to have control on the number of connected components
+created; but it's not the case if using HyParView.
 
 
 #### Kubernetes
 
 ```bash
-$ WHAT=run bin/sim.sh
+$ bin/sim.sh run
+$ bin/sim.sh build
+$ bin/sim.sh
 ```
 
-- `WHAT=run` will run the experiments without pullling a new image
-- `WHAT=build` will build a new image, push it, and the run the experiments with that image
+- `run` will run the experiments without pullling a new image
+- `build` will build a new image, push it, and the run the experiments with that image
 - otherwise, it will use an image that clones the repository in the current branch
 
+
+#### Google Cloud Platform
+
+- To start and stop the cluster:
+
+```bash
+$ bin/g-cluster.sh start
+$ bin/g-cluster.sh stop
+```
 
 ##### Tail the logs
 
@@ -52,6 +69,14 @@ $ kubectl logs -f lsim-1488549530072065763-3946360666-0b6d8
 
 
 ##### lsim dashboard
+
+- To start the dashboard:
+```bash
+$ bin/lsim-dash-deploy.sh
+```
+
+- To open the dashboard:
+
 ```bash
 $ bin/dash-proxy.sh
 ```
