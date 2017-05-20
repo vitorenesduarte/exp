@@ -1,5 +1,5 @@
 TEST-*
 _build/
 log/
+*.swo
 *.swp
-src/*.swp
