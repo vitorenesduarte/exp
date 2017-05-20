@@ -7,7 +7,7 @@ BRANCH=$(git branch |
          awk '{print $2}')
 
 if [ "$1" == "build" ]; then
-  # build and push a new image
+  # build, push and use that image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=Always
   DOCKERFILE=${DIR}/../Dockerfiles/lsim
@@ -16,15 +16,16 @@ if [ "$1" == "build" ]; then
     IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
-elif [ "$1" == "run" ]; then
+elif [ "$1" == "clone" ]; then
+  # use image that clones on start
+  IMAGE=vitorenesduarte/lsim-dev
+  PULL_IMAGE=IfNotPresent
+
+else
   # use the latest image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=IfNotPresent
 
-else
-  # otherwise use image that clones on start
-  IMAGE=vitorenesduarte/lsim-dev
-  PULL_IMAGE=IfNotPresent
 fi
 
 # start redis

@@ -38,14 +38,14 @@ created; but it's not the case if using HyParView.
 #### Kubernetes
 
 ```bash
-$ bin/sim.sh run
 $ bin/sim.sh build
+$ bin/sim.sh clone
 $ bin/sim.sh
 ```
 
-- `run` will run the experiments without pullling a new image
 - `build` will build a new image, push it, and the run the experiments with that image
-- otherwise, it will use an image that clones the repository in the current branch
+- `clone` will use an image that clones the repository in the current branch
+- otherwise it will run the experiments without pullling a new image (if already present)
 
 
 #### Google Cloud Platform
