@@ -33,15 +33,16 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(gset gcounter)
+SIMULATION_=(gset)
 NODE_NUMBER_=(20)
 NODE_EVENT_NUMBER_=(200)
 PARTITION_NUMBER_=(1 2 3)
 
 # ldb configuration
-MODE_=(state_based delta_based)
+MODE_=(delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
+EVICTION_ROUND_NUMBER_=(-1 10)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
 
@@ -73,6 +74,7 @@ do
                       LDB_MODE=${LDB_MODE} \
                       LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
                       LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                      LDB_EVICTION_ROUND_NUMBER=-2 \ # means nothing
                       LDB_REDUNDANT_DGROUPS=undefined \
                       LDB_DGROUP_BACK_PROPAGATION=undefined \
                       OVERLAY=${OVERLAY} \
@@ -84,25 +86,29 @@ do
 
                   elif [ "$LDB_MODE" = delta_based ]; then
 
-                    for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
+                    for LDB_EVICTION_ROUND_NUMBER in "${EVICTION_ROUND_NUMBER_[@]}"
                     do
-                      for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
+                      for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
                       do
-                        BRANCH=${BRANCH} \
-                          IMAGE=${IMAGE} \
-                          PULL_IMAGE=${PULL_IMAGE} \
-                          LDB_MODE=${LDB_MODE} \
-                          LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                          LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                          LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-                          LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-                          OVERLAY=${OVERLAY} \
-                          SIMULATION=${SIMULATION} \
-                          NODE_NUMBER=${NODE_NUMBER} \
-                          NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                          PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
+                        for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
+                        do
+                          BRANCH=${BRANCH} \
+                            IMAGE=${IMAGE} \
+                            PULL_IMAGE=${PULL_IMAGE} \
+                            LDB_MODE=${LDB_MODE} \
+                            LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                            LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                            LDB_EVICTION_ROUND_NUMBER=${LDB_EVICTION_ROUND_NUMBER} \
+                            LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
+                            LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
+                            OVERLAY=${OVERLAY} \
+                            SIMULATION=${SIMULATION} \
+                            NODE_NUMBER=${NODE_NUMBER} \
+                            NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                            PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
 
-                        done
+                          done
+                      done
                     done
                   fi
 

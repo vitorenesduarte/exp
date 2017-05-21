@@ -35,18 +35,26 @@ get_labels <- function(keys) {
   lapply(
     keys,
     function(key) {
-      parts <-  strsplit(key, "-")[[1]]
+      parts <-  strsplit(key, "~")[[1]]
 
-      mode_and_jd <- paste(
-          parts[c(6, 7, 9, 10)],
+      mode <- paste(
+          parts[c(6, 7, 10, 11)],
           collapse="_"
       )
 
-      paste(
-        labels[[mode_and_jd]],
+      mode_and_partitions = paste(
+        labels[[mode]],
         " #", parts[c(5)],
         sep=""
       )
+
+      if(parts[c(9)] != "-1")
+        paste(
+          mode_and_partitions,
+          "[E]",
+          sep=" "
+        )
+      else mode_and_partitions
     }
   )
 }
