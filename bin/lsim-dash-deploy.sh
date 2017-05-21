@@ -12,6 +12,7 @@ fi
 # ENV SETUP:
 # Kubernetes server and auth token
 APISERVER=$(kubectl config view |
+            grep "${CONTEXT}" -b1 |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
