@@ -31,6 +31,9 @@ fi
 # start redis
 "${DIR}"/redis-deploy.sh
 
+# start dashboard
+"${DIR}"/lsim-dash-deploy.sh
+
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
