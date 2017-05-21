@@ -1,0 +1,16 @@
+FROM apline:latest
+
+MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
+
+
+ENV NAME=lsim
+ENV REPO=https://github.com/vitorenesduarte/$NAME.git
+ARG BRANCH
+ARG CMD
+
+RUN apt-get update && apt-get -y install git
+
+CMD cd /opt && \
+    git clone $REPO -b $BRANCH && \
+    cd $NAME && \
+    $CMD
