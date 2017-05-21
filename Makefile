@@ -64,7 +64,7 @@ cover:
 		${REBAR} cover
 
 shell:
-	${REBAR} shell --apps lsim
+	${REBAR} shell --apps ${PACKAGE}
 
 ##
 ## Release targets
@@ -81,7 +81,7 @@ logs:
 	  tail -F priv/lager/*/log/*.log
 
 run: stage
-	  _build/default/rel/lsim/bin/env
+	  _build/default/rel/${PACKAGE}/bin/env
 
 DIALYZER_APPS = kernel stdlib erts sasl eunit syntax_tools compiler crypto
 
