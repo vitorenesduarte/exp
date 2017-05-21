@@ -35,7 +35,7 @@ fi
 OVERLAY_=(ring)
 SIMULATION_=(gset)
 NODE_NUMBER_=(20)
-NODE_EVENT_NUMBER_=(100)
+NODE_EVENT_NUMBER_=(200)
 PARTITION_NUMBER_=(1 2 3)
 
 # ldb configuration
@@ -74,6 +74,7 @@ do
                       LDB_MODE=${LDB_MODE} \
                       LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
                       LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                      LDB_EVICTION_ROUND_NUMBER=-2 \ # means nothing
                       LDB_REDUNDANT_DGROUPS=undefined \
                       LDB_DGROUP_BACK_PROPAGATION=undefined \
                       OVERLAY=${OVERLAY} \
