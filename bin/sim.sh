@@ -33,13 +33,13 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(gset gcounter)
-NODE_NUMBER_=(20)
-NODE_EVENT_NUMBER_=(200)
-PARTITION_NUMBER_=(1 2 3)
+SIMULATION_=(gset)
+NODE_NUMBER_=(3)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(1)
 
 # ldb configuration
-MODE_=(state_based delta_based)
+MODE_=(delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
 EVICTION_ROUND_NUMBER_=(10)
