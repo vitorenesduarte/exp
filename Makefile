@@ -40,7 +40,7 @@ shell-lint:
 	ls -d bin/* | grep -v ".erl" | xargs shellcheck
 
 docker-lint:
-	for f in $(ls -d Dockerfiles/*); do dockerlint $f; done
+	for f in $$(ls -d Dockerfiles/*); do dockerlint $$f; done
 
 eunit:
 	${REBAR} as test eunit

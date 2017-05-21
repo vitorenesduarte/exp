@@ -1,6 +1,6 @@
 FROM vitorenesduarte/lsim-base
 
-MAINTAINER Vitor Enes Duarte <vitorenesduarte@gmail.com>
+MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
 
 ENV NAME=lsim
