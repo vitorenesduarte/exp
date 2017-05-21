@@ -27,15 +27,20 @@ packageclean:
 ## Test targets
 ##
 
-check: test xref dialyzer lint shell-lint
+check: test xref dialyzer lint
 
 test: ct eunit
 
-lint:
+lint: erl-lint shell-lint docker-lint
+
+erl-lint:
 	${REBAR} as lint lint
 
 shell-lint:
 	ls -d bin/* | grep -v ".erl" | xargs shellcheck
+
+docker-lint:
+	for f in $(ls -d Dockerfiles/*); do dockerlint $f; done
 
 eunit:
 	${REBAR} as test eunit
@@ -74,6 +79,9 @@ stage:
 
 logs:
 	  tail -F priv/lager/*/log/*.log
+
+run: stage
+	  _build/default/rel/lsim/bin/env
 
 DIALYZER_APPS = kernel stdlib erts sasl eunit syntax_tools compiler crypto
 
