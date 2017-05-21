@@ -8,8 +8,9 @@ addons:
       - debian-sid
     packages:
       - shellcheck
+before_install:
+  - npm install -g dockerlint
 install:
-  - ./rebar3 update
   - make
 before_script:
   - epmd -daemon
@@ -18,7 +19,6 @@ script:
   - make xref
   - make dialyzer
   - make lint
-  - make shell-lint
 matrix:
   fast_finish: true
 notifications:
