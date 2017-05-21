@@ -40,7 +40,7 @@ spec:
       containers:
       - name: lsim-dash
         image: vitorenesduarte/lsim-dash
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: APISERVER
           value: "${APISERVER}"
