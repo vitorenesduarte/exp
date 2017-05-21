@@ -11,6 +11,9 @@ fi
 
 # ENV SETUP:
 # Kubernetes server and auth token
+CONTEXT=$(kubectl config view |
+          grep current |
+          awk '{print $2}')
 APISERVER=$(kubectl config view |
             grep "${CONTEXT}" -b1 |
             grep "server:" |
