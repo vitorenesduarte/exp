@@ -83,6 +83,7 @@ reject_ips(IPs) ->
         fun(IP, RuleAcc) ->
             IPStr = ip_to_str(IP),
             tcpkill(IPStr),
+
             Rule = RuleAcc + 1,
 
             lists:foreach(
@@ -142,7 +143,8 @@ ip_to_str({A, B, C, D}) ->
 
 %% @private
 tcpkill(IP) ->
-    exec("tcpkill host " ++ IP).
+    exec("ip route add blackhole " ++ IP).
+    %exec("tcpkill host " ++ IP).
 
 %% @private
 exec(CMD) ->
