@@ -47,8 +47,7 @@ reject_ips(IPs) ->
                        %% this rule
                        ++ " -s " ++ IPStr
                        ++ " -p tcp"
-                       %++ " -j REJECT --reject-with tcp-reset",
-                       ++ " -j DROP",
+                       ++ " -j REJECT --reject-with tcp-reset",
 
                     exec(CMD)
                 end,
