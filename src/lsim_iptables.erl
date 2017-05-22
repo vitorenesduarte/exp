@@ -143,8 +143,9 @@ ip_to_str({A, B, C, D}) ->
 
 %% @private
 tcpkill(IP) ->
-    exec("ip route add blackhole " ++ IP).
+    %exec("ip route add blackhole " ++ IP).
     %exec("tcpkill host " ++ IP).
+    ok.
 
 %% @private
 exec(CMD) ->
