@@ -151,7 +151,7 @@ handle_info(create_partitions, #state{nodes=Nodes}=State) ->
                         fun({P, I}, Acc) ->
                             %% each partition blocks
                             %% the partitions with higher ids
-                            case P /= Partition of
+                            case P > Partition of
                                 true ->
                                     lists:append(Acc, I);
                                 _ ->
