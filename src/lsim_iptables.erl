@@ -32,7 +32,7 @@
 %%      and not an rsg master, change tcp_keepalive values to:
 %%          - net.ipv4.tcp_keepalive_time = 10
 %%          - net.ipv4.tcp_keepalive_intvl = 5
-%%          - net.ipv4.tcp_keepalive_probes = 1 
+%%          - net.ipv4.tcp_keepalive_probes = 1
 %%
 %%      With this, we'll detect dead TCP connections after
 %%      15 seconds:
