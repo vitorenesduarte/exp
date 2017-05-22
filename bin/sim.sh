@@ -37,9 +37,9 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
-NODE_NUMBER_=(5)
-NODE_EVENT_NUMBER_=(2000)
-PARTITION_NUMBER_=(1)
+NODE_NUMBER_=(2)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(2)
 
 # ldb configuration
 MODE_=(delta_based)
