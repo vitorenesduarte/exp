@@ -44,6 +44,7 @@
 %%
 -spec configure_tcp_keepalive(non_neg_integer(), boolean()) -> ok.
 configure_tcp_keepalive(PartitionNumber, RSG) ->
+    lager:info("P ~p, R ~p\n\n", [PartitionNumber, RSG]),
     ShouldConfigure = PartitionNumber > 1 andalso not RSG,
 
     case ShouldConfigure of
@@ -60,6 +61,8 @@ configure_tcp_keepalive(PartitionNumber, RSG) ->
                 fun(Config) ->
                     CMD = "echo " ++ Config
                        ++ " sudo tee -a " ++ File,
+
+                    lager:info("CMD ~p", [CMD]),
 
                     exec(CMD)
                 end,
