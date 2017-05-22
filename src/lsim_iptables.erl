@@ -26,7 +26,7 @@
          delete_rules/1]).
 
 -define(BIN, "sudo iptables").
--define(CHAINS, ["INPUT", "OUTPUT"]).
+-define(CHAINS, ["INPUT"]).
 
 %% @doc Rejects a list of ips and
 %%      returns the number of rules created.
