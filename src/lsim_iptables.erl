@@ -151,7 +151,7 @@ kill_tcpkill() ->
     CMD = "netstat -anp | "
        ++ "grep tcpkill | "
        ++ "awk '{print $7}' |"
-       ++ "cut -d'/'-f1 | "
+       ++ "cut -d'/' -f1 | "
        ++ "xargs kill",
 
     exec(CMD).
