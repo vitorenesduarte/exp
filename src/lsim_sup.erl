@@ -117,7 +117,7 @@ configure() ->
                               1),
 
     %% configure tcp keepalive defaults
-    lsim_iptables:configure_tcp_keepalive(PartitionNumber, RSG),
+    %lsim_iptables:configure_tcp_keepalive(PartitionNumber, RSG),
 
     {Simulation, Orchestration, RSG}.
 
