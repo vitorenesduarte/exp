@@ -79,6 +79,7 @@ configure_tcp_keepalive(PartitionNumber, RSG) ->
 %%      returns the number of rules created.
 -spec reject_ips(list(node_ip())) -> non_neg_integer().
 reject_ips(IPs) ->
+    kill_tcpkill(),
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
             IPStr = ip_to_str(IP),
@@ -142,10 +143,20 @@ ip_to_str({A, B, C, D}) ->
     integer_to_list(D).
 
 %% @private
-tcpkill(_IP) ->
-    %exec("ip route add blackhole " ++ IP).
-    %exec("tcpkill host " ++ IP).
-    ok.
+tcpkill(IP) ->
+    exec("tcpkill host " ++ IP).
+
+%% @private
+kill_tcpkill() ->
+    CMD = "netstat -anp | "
+       ++ "grep tcpkill | "
+       ++ "awk '{print $7}' |"
+       ++ "cut -d'/'-f1 | "
+       ++ "xargs kill",
+
+    exec(CMD).
+
+
 
 %% @private
 exec(CMD) ->
