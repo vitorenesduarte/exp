@@ -3,4 +3,4 @@ FROM erlang:19.3-slim
 MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
 
-RUN apt-get update && apt-get -y install make git iptables dsniff sudo
+RUN apt-get update && apt-get -y install make git iptables dsniff net-tools sudo
