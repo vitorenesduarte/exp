@@ -26,7 +26,7 @@
          reject_ips/1,
          delete_rules/1]).
 
--define(CHAINS, ["INPUT"]).
+-define(CHAINS, ["OUTPUT"]).
 
 %% @doc If number of partitions to be created is greater than 1,
 %%      and not an rsg master, change tcp_keepalive values to:
