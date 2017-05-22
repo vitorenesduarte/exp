@@ -15,6 +15,7 @@ ENV_VARS=(
   NODE_NUMBER
   NODE_EVENT_NUMBER
   PARTITION_NUMBER
+  KEEP_ALIVE
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -192,6 +193,8 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: PARTITION_NUMBER
           value: "${PARTITION_NUMBER}"
+        - name: KEEP_ALIVE
+          value: "${KEEP_ALIVE}"
         - name: RSG
           value: "false"
 EOF
