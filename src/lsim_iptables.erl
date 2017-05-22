@@ -59,7 +59,7 @@ configure_tcp_keepalive(PartitionNumber, RSG) ->
 
             lists:foreach(
                 fun(Config) ->
-                    CMD = "echo " ++ Config
+                    CMD = "echo \"" ++ Config ++ "\""
                        ++ " sudo tee -a " ++ File,
 
                     lager:info("CMD ~p", [CMD]),
