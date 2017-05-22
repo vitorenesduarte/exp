@@ -142,7 +142,7 @@ ip_to_str({A, B, C, D}) ->
     integer_to_list(D).
 
 %% @private
-tcpkill(IP) ->
+tcpkill(_IP) ->
     %exec("ip route add blackhole " ++ IP).
     %exec("tcpkill host " ++ IP).
     ok.

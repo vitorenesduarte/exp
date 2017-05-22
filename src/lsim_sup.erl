@@ -112,7 +112,7 @@ configure() ->
 
 
     %% configure partition number
-    PartitionNumber = configure_int("PARTITION_NUMBER",
+    _PartitionNumber = configure_int("PARTITION_NUMBER",
                               lsim_partition_number,
                               1),
 
