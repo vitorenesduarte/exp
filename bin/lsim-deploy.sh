@@ -190,6 +190,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: PARTITION_NUMBER
+          value: "${PARTITION_NUMBER}"
         - name: RSG
           value: "false"
 EOF
