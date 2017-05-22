@@ -82,6 +82,7 @@ reject_ips(IPs) ->
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
             IPStr = ip_to_str(IP),
+            tcpkill(IPStr),
             Rule = RuleAcc + 1,
 
             lists:foreach(
@@ -138,6 +139,10 @@ ip_to_str({A, B, C, D}) ->
     integer_to_list(B) ++ "." ++
     integer_to_list(C) ++ "." ++
     integer_to_list(D).
+
+%% @private
+tcpkill(IP) ->
+    "tcpkill host " ++ IP.
 
 %% @private
 exec(CMD) ->
