@@ -79,7 +79,6 @@ configure_tcp_keepalive(PartitionNumber, RSG) ->
 %%      returns the number of rules created.
 -spec reject_ips(list(node_ip())) -> non_neg_integer().
 reject_ips(IPs) ->
-    kill_tcpkill(),
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
             IPStr = ip_to_str(IP),
@@ -114,6 +113,7 @@ reject_ips(IPs) ->
 
 -spec delete_rules(non_neg_integer()) -> ok.
 delete_rules(LastRule) ->
+    kill_tcpkill(),
     lists:foreach(
         fun(_) ->
             lists:foreach(
