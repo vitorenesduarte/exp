@@ -144,7 +144,7 @@ ip_to_str({A, B, C, D}) ->
 
 %% @private
 tcpkill(IP) ->
-    exec("tcpkill host " ++ IP).
+    exec("tcpkill host " ++ IP ++ " &").
 
 %% @private
 kill_tcpkill() ->
