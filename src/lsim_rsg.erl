@@ -72,10 +72,7 @@ handle_cast(sim_go, State) ->
 
 handle_cast({reject_ips, IPs}, State) ->
     ?LOG("Received REJECT IPS. ~p", [IPs]),
-    %{_, IP, _} = lists:nth(1, lsim_resource:membership()),
-    %LastRule = lsim_iptables:reject_ips([IP]),
     LastRule = lsim_iptables:reject_ips(IPs),
-    lager:info("IPS REJECTED !!!! \n\n"),
     {noreply, State#state{number_of_rules=LastRule}};
 
 handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->

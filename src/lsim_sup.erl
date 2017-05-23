@@ -112,12 +112,9 @@ configure() ->
 
 
     %% configure partition number
-    _PartitionNumber = configure_int("PARTITION_NUMBER",
+    configure_int("PARTITION_NUMBER",
                               lsim_partition_number,
                               1),
-
-    %% configure tcp keepalive defaults
-    %lsim_iptables:configure_tcp_keepalive(PartitionNumber, RSG),
 
     {Simulation, Orchestration, RSG}.
 
