@@ -140,6 +140,10 @@ spec:
   replicas: ${NODE_NUMBER}
   template:
     metadata:
+# Enabling Unsafe Sysctls:
+# - https://kubernetes.io/docs/concepts/cluster-administration/sysctl-cluster/#safe-vs-unsafe-sysctls
+#      annotations:
+#        security.alpha.kubernetes.io/unsafe-sysctls: net.ipv4.tcp_keepalive_time=10,net.ipv4.tcp_keepalive_intvl=5,net.ipv4.tcp_keepalive_probes=1
       labels:
         timestamp: "${TIMESTAMP}"
         tag: lsim
