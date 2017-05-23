@@ -8,7 +8,7 @@ ENV REPO=https://github.com/vitorenesduarte/$NAME.git
 ARG BRANCH
 
 WORKDIR /opt
-RUN git clone $REPO -b $BRANCH && \
+RUN git clone $REPO -b $BRANCH
 
 WORKDIR /opt/$NAME
 RUN make stage
