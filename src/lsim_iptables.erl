@@ -82,7 +82,7 @@ reject_ips(IPs) ->
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
             IPStr = ip_to_str(IP),
-            tcpkill(IPStr),
+            %tcpkill(IPStr),
 
             Rule = RuleAcc + 1,
 
@@ -113,7 +113,7 @@ reject_ips(IPs) ->
 
 -spec delete_rules(non_neg_integer()) -> ok.
 delete_rules(LastRule) ->
-    kill_tcpkill(),
+    %kill_tcpkill(),
     lists:foreach(
         fun(_) ->
             lists:foreach(
