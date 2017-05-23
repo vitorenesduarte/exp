@@ -37,7 +37,7 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(gset)
-NODE_NUMBER_=(2)
+NODE_NUMBER_=(4)
 NODE_EVENT_NUMBER_=(100)
 PARTITION_NUMBER_=(2)
 KEEP_ALIVE=false
