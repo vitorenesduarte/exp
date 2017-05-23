@@ -82,8 +82,12 @@ configure_tcp_keepalive(PartitionNumber, RSG) ->
 %%      returns the number of rules created.
 -spec reject_ips(list(node_ip())) -> non_neg_integer().
 reject_ips(IPs) ->
+    partisan_static_peer_service_manager:close_connections(IPs),
+
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
+
+
             IPStr = ip_to_str(IP),
             %tcpkill(IPStr),
 
