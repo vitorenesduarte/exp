@@ -7,7 +7,7 @@ ENV NAME=lsim
 ENV REPO=https://github.com/vitorenesduarte/$NAME.git
 ARG BRANCH
 
-CMD cd /opt && \
-    git clone $REPO -b $BRANCH && \
+WORKDIR /opt
+CMD git clone $REPO -b $BRANCH && \
     cd $NAME && \
     make run

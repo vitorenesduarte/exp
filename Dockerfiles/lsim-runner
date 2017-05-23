@@ -10,7 +10,7 @@ ARG CMD
 
 RUN apt-get update && apt-get -y install git
 
-CMD cd /opt && \
-    git clone $REPO -b $BRANCH && \
+WORKDIR /opt
+CMD git clone $REPO -b $BRANCH && \
     cd $NAME && \
     $CMD
