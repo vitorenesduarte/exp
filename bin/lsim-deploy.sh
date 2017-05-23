@@ -141,8 +141,9 @@ spec:
   template:
     metadata:
 # Enabling Unsafe Sysctls:
-# - https://kubernetes.io/docs/concepts/cluster-administration/sysctl-cluster/#safe-vs-unsafe-sysctls
-# - https://github.com/kubernetes/kubernetes/pull/26057/files?short_path=8dc23ab#diff-8dc23ab258695ee42154d4d1238c36ef
+# - Docs: https://kubernetes.io/docs/concepts/cluster-administration/sysctl-cluster/#safe-vs-unsafe-sysctls
+# - PR:   https://github.com/kubernetes/kubernetes/pull/26057/files?short_path=8dc23ab#diff-8dc23ab258695ee42154d4d1238c36ef
+# - Help: http://www.ehowstuff.com/configure-linux-tcp-keepalive-setting/
 #      annotations:
 #        security.alpha.kubernetes.io/unsafe-sysctls: net.ipv4.tcp_keepalive_time=10,net.ipv4.tcp_keepalive_intvl=5,net.ipv4.tcp_keepalive_probes=1
       labels:

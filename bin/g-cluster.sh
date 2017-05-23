@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NUM_NODES=4
+NUM_NODES=8
 NAME=lsim
 KUBE_VERSION=1.6.2
 
