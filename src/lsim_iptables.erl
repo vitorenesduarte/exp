@@ -34,6 +34,7 @@
 reject_ips(IPs) ->
     LastRule = lists:foldl(
         fun(IP, RuleAcc) ->
+
             IPStr = ip_to_str(IP),
             Rule = RuleAcc + 1,
 
@@ -59,6 +60,14 @@ reject_ips(IPs) ->
         0,
         IPs
     ),
+
+    %% wait so that these rules are applied in all nodes.
+    timer:sleep(5000),
+
+    %% @todo this should be moved to ldb_peer_service
+    %% Kill active tcp connections.
+    Manager = partisan_config:get(partisan_peer_service_manager),
+    Manager:close_connections(IPs),
 
     LastRule.
 

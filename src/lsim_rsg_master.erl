@@ -162,6 +162,8 @@ handle_info(create_partitions, #state{nodes=Nodes}=State) ->
                         PartitionToIPs
                     ),
 
+                    lager:info("NODE ~p REJECTS IPS ~p\n", [Name, IPs]),
+
                     %% tell this node to reject these ips
                     tell({reject_ips, IPs}, [Name])
                 end,

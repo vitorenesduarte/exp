@@ -15,6 +15,7 @@ ENV_VARS=(
   NODE_NUMBER
   NODE_EVENT_NUMBER
   PARTITION_NUMBER
+  KEEP_ALIVE
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -47,7 +48,7 @@ CONTEXT=$(kubectl config view |
           grep current |
           awk '{print $2}')
 APISERVER=$(kubectl config view |
-            grep "${CONTEXT}" -b1 |
+            grep -Eb1 "${CONTEXT}$" |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
@@ -139,6 +140,12 @@ spec:
   replicas: ${NODE_NUMBER}
   template:
     metadata:
+# Enabling Unsafe Sysctls:
+# - Docs: https://kubernetes.io/docs/concepts/cluster-administration/sysctl-cluster/#safe-vs-unsafe-sysctls
+# - PR:   https://github.com/kubernetes/kubernetes/pull/26057/files?short_path=8dc23ab#diff-8dc23ab258695ee42154d4d1238c36ef
+# - Help: http://www.ehowstuff.com/configure-linux-tcp-keepalive-setting/
+#      annotations:
+#        security.alpha.kubernetes.io/unsafe-sysctls: net.ipv4.tcp_keepalive_time=10,net.ipv4.tcp_keepalive_intvl=5,net.ipv4.tcp_keepalive_probes=1
       labels:
         timestamp: "${TIMESTAMP}"
         tag: lsim
@@ -190,6 +197,10 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: PARTITION_NUMBER
+          value: "${PARTITION_NUMBER}"
+        - name: KEEP_ALIVE
+          value: "${KEEP_ALIVE}"
         - name: RSG
           value: "false"
 EOF

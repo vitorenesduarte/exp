@@ -31,18 +31,22 @@ fi
 # start redis
 "${DIR}"/redis-deploy.sh
 
+# start dashboard
+"${DIR}"/lsim-dash-deploy.sh
+
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(gset gcounter)
+SIMULATION_=(gset)
 NODE_NUMBER_=(20)
 NODE_EVENT_NUMBER_=(200)
-PARTITION_NUMBER_=(1 2)
+PARTITION_NUMBER_=(1 2 3)
+KEEP_ALIVE=false
 
 # ldb configuration
 MODE_=(delta_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
-EVICTION_ROUND_NUMBER_=(-1)
+EVICTION_ROUND_NUMBER_=(-1 10)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
 
@@ -81,7 +85,8 @@ do
                       SIMULATION=${SIMULATION} \
                       NODE_NUMBER=${NODE_NUMBER} \
                       NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                      PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
+                      PARTITION_NUMBER=${PARTITION_NUMBER} \
+                      KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
 
                   elif [ "$LDB_MODE" = delta_based ]; then
@@ -105,7 +110,8 @@ do
                             SIMULATION=${SIMULATION} \
                             NODE_NUMBER=${NODE_NUMBER} \
                             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                            PARTITION_NUMBER=${PARTITION_NUMBER} "${DIR}"/lsim-deploy.sh
+                            PARTITION_NUMBER=${PARTITION_NUMBER} \
+                            KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
                           done
                       done
