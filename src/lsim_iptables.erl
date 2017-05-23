@@ -26,6 +26,9 @@
          reject_ips/1,
          delete_rules/1]).
 
+%% @todo remove
+-export([tcpkill/1, kill_tcpkill/0]).
+
 -define(CHAINS, ["INPUT", "OUTPUT"]).
 
 %% @doc If number of partitions to be created is greater than 1,
