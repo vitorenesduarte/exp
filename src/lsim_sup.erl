@@ -113,8 +113,8 @@ configure() ->
 
     %% configure partition number
     configure_int("PARTITION_NUMBER",
-                              lsim_partition_number,
-                              1),
+                  lsim_partition_number,
+                  1),
 
     {Simulation, Orchestration, RSG}.
 
