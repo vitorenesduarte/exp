@@ -14,12 +14,12 @@ main <- function() {
   
     # latency local
     key <- "latency_local"
-    output_file <- paste(key, "_", simulation, ".png", sep="")
+    output_file <- paste(simulation, "_", key, ".png", sep="")
   	splot(dir, simulation, key, output_file, label)
 
     # latency remote
     key <- "latency_remote"
-    output_file <- paste(key, "_", simulation, ".png", sep="")
+    output_file <- paste(simulation, "_", key, ".png", sep="")
   	splot(dir, simulation, key, output_file, label)
   }
 }

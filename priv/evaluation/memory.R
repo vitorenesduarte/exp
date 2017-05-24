@@ -15,12 +15,12 @@ main <- function() {
     
     # memory crdt
     key <- "memory_crdt"
-    output_file <- paste(key, "_", simulation, ".png", sep="")
+    output_file <- paste(simulation, "_", key, ".png", sep="")
     splot(dir, simulation, key, output_file, ylabel, logy)
 
     # memory algorithm
     key <- "memory_algorithm"
-    output_file <- paste(key, "_", simulation, ".png", sep="")
+    output_file <- paste(simulation, "_", key, ".png", sep="")
     splot(dir, simulation, key, output_file, ylabel, logy)
   }
 }
