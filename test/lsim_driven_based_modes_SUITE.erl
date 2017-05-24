@@ -92,11 +92,11 @@ delta_based_state_driven_test(_Config) ->
 delta_based_digest_driven_test(_Config) ->
     run(delta_based_digest_driven).
 
-delta_based_revisted_state_driven_test(_Config) ->
-    run(delta_based_revisted_state_driven).
+delta_based_revisited_state_driven_test(_Config) ->
+    run(delta_based_revisited_state_driven).
 
-delta_based_revisted_digest_driven_test(_Config) ->
-    run(delta_based_revisted_digest_driven).
+delta_based_revisited_digest_driven_test(_Config) ->
+    run(delta_based_revisited_digest_driven).
 
 %% @private
 run(Evaluation) ->
