@@ -3,16 +3,26 @@ main <- function() {
   source("boxplot.R")
   # draw!
   metrics_dir <- "processed"
-  key <- "memory_crdt"
-  output_file <- "memory_crdt.png"
   ylabel <- "Memory (B)"
-  #logy <- TRUE
   logy <- FALSE
-  splot(metrics_dir, key, output_file, ylabel, logy)
 
-  key <- "memory_algorithm"
-  output_file <- "memory_algorithm.png"
-  splot(metrics_dir, key, output_file, ylabel, logy)
+  # list of simulations
+  simulations <- list.files(metrics_dir)
+
+  for(i in 1:length(simulations)) {
+    simulation <- simulations[[i]]
+    dir <- paste(metrics_dir, simulation, sep="/")
+    
+    # memory crdt
+    key <- "memory_crdt"
+    output_file <- paste(key, "_", simulation, ".png", sep="")
+    splot(dir, simulation, key, output_file, ylabel, logy)
+
+    # memory algorithm
+    key <- "memory_algorithm"
+    output_file <- paste(key, "_", simulation, ".png", sep="")
+    splot(dir, simulation, key, output_file, ylabel, logy)
+  }
 }
 
 main()

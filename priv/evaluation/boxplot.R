@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, ylabel, logy) {
+splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   CLOSE_TO_ZERO <- 0.0000001
 
   load_dependencies(c("RColorBrewer"))
@@ -55,7 +55,7 @@ splot <- function(dir, key, output_file, ylabel, logy) {
   # configure plot
   boxplot(
     ls,
-    main="GSet",
+    main=get_title(simulation),
     xaxt="n", # remove automatic numbers
     xlab="", # x axis label
     ylab=ylabel, # y axis label

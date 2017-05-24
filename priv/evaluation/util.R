@@ -58,3 +58,13 @@ get_labels <- function(keys) {
     }
   )
 }
+
+# get the plot title
+get_title <- function(key) {
+  titles = list()
+  titles[["awset"]] = "AWSet"
+  titles[["gset"]] = "GSet"
+  titles[["gcounter"]] = "GCounter"
+
+  titles[[key]]
+}
