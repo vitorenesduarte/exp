@@ -5,7 +5,10 @@
  {<<"ishikawa">>,{pkg,<<"ishikawa">>,<<"0.0.3">>},0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},0},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
- {<<"ldb">>,{pkg,<<"ldb">>,<<"0.0.18">>},0},
+ {<<"ldb">>,
+  {git,"https://github.com/vitorenesduarte/ldb",
+       {ref,"9d4324eafb93f10e9109a0ece9441fe931c98e2b"}},
+  0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
   {git,"https://github.com/lasp-lang/partisan",
@@ -13,7 +16,10 @@
   0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
- {<<"types">>,{pkg,<<"types">>,<<"0.1.2">>},0}]}.
+ {<<"types">>,
+  {git,"https://github.com/lasp-lang/types",
+       {ref,"6ac04b30b40d0c95960b6e5fb9e53e2fde78cbb5"}},
+  0}]}.
 [
 {pkg_hash,[
  {<<"acceptor_pool">>, <<"679D741DF87FC13599B1AEF2DF8F78F1F880449A6BEFAB7C44FB6FAE0E92A2DE">>},
@@ -22,9 +28,7 @@
  {<<"ishikawa">>, <<"637629A5F9C2B34E07AC947AE58D4F2AAE874DC9D6A965952C9BE9C4F6A8B6E2">>},
  {<<"jsx">>, <<"749BEC6D205C694AE1786D62CEA6CC45A390437E24835FD16D12D74F07097727">>},
  {<<"lager">>, <<"A6DEB74DAE7927F46BD13255268308EF03EB206EC784A94EAF7C1C0F3B811615">>},
- {<<"ldb">>, <<"FE03B8B71077ED53189996B26F84B7E48713B28666AEB616CCA6E646639B439A">>},
  {<<"mochiweb">>, <<"E1DAAC474DF07651E5D17CC1E642C4069C7850DC4508D3DB7263A0651330AACC">>},
  {<<"rand_compat">>, <<"624B590931D27252D0BCF710211699DB3695540706F57D2E91B918A17AB58839">>},
- {<<"time_compat">>, <<"23FE0AD1FDF3B5B88821B2D04B4B5E865BF587AE66056D671FE0F53514ED8139">>},
- {<<"types">>, <<"F55716C10C7D304582D23BAF3C498704256D5A2F34E0B18E09BA0304F160FAE3">>}]}
+ {<<"time_compat">>, <<"23FE0AD1FDF3B5B88821B2D04B4B5E865BF587AE66056D671FE0F53514ED8139">>}]}
 ].
