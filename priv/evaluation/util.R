@@ -48,7 +48,7 @@ get_labels <- function(keys) {
         sep=""
       )
 
-      if(parts[c(9)] != "-1")
+      if(strtoi(parts[c(9)]) >= 0)
         paste(
           mode_and_partitions,
           "[E]",
