@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-REPS=3
+REPS=1
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
+
+"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -37,9 +39,9 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(awset)
-NODE_NUMBER_=(20)
+NODE_NUMBER_=(12)
 NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1 2 4)
+PARTITION_NUMBER_=(1 4)
 KEEP_ALIVE=false
 
 # ldb configuration
@@ -127,3 +129,8 @@ do
     done
   done
 done
+
+
+"${DIR}"/start-redis-sync.sh
+
+"${DIR}"/g-cluster.sh stop
