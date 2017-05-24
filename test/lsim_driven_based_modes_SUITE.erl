@@ -68,27 +68,39 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_test,
-     state_driven_test,
-     digest_driven_test
+     state_based_state_driven_test,
+     state_based_digest_driven_test,
+     delta_based_state_driven_test,
+     delta_based_digest_driven_test,
+     delta_based_revisited_state_driven_test,
+     delta_based_revisited_digest_driven_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_test(_Config) ->
-    run(state_based).
+state_based_state_driven_test(_Config) ->
+    run(state_based_state_driven).
 
-state_driven_test(_Config) ->
-    run(state_driven).
+state_based_digest_driven_test(_Config) ->
+    run(state_based_digest_driven).
 
-digest_driven_test(_Config) ->
-    run(digest_driven).
+delta_based_state_driven_test(_Config) ->
+    run(delta_based_state_driven).
+
+delta_based_digest_driven_test(_Config) ->
+    run(delta_based_digest_driven).
+
+delta_based_revisted_state_driven_test(_Config) ->
+    run(delta_based_revisted_state_driven).
+
+delta_based_revisted_digest_driven_test(_Config) ->
+    run(delta_based_revisted_digest_driven).
 
 %% @private
 run(Evaluation) ->
-    {Mode, DrivenMode} = get_config(Evaluation),
+    {Mode, Redundant, BackPropagation, DrivenMode} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
@@ -98,14 +110,22 @@ run(Evaluation) ->
                  {lsim_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
-                 {ldb_driven_mode, DrivenMode}]}],
+                 {ldb_driven_mode, DrivenMode},
+                 {ldb_redundant_dgroups, Redundant},
+                 {ldb_dgroup_back_propagation, BackPropagation}]}],
 
     lsim_local_simulations_support:run(Options).
 
 %% @private
-get_config(state_based) ->
-    {state_based, none};
-get_config(state_driven) ->
-    {state_based, state_driven};
-get_config(digest_driven) ->
-    {state_based, digest_driven}.
+get_config(state_based_state_driven) ->
+    {state_based, false, false, state_driven};
+get_config(state_based_digest_driven) ->
+    {state_based, false, false, digest_driven};
+get_config(delta_based_state_driven) ->
+    {delta_based, false, false, state_driven};
+get_config(delta_based_digest_driven) ->
+    {delta_based, false, false, digest_driven};
+get_config(delta_based_revisited_state_driven) ->
+    {delta_based, true, true, state_driven};
+get_config(delta_based_revisited_digest_driven) ->
+    {delta_based, true, true, digest_driven}.
