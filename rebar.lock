@@ -7,7 +7,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"2a38f04fe7299f8348fc93664e068b03b1b1b5cf"}},
+       {ref,"d1929c01b85e73406b36153a63d9aebcadb46e8d"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
