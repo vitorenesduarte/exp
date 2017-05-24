@@ -2,7 +2,7 @@
 
 NUM_NODES=8
 NAME=lsim
-KUBE_VERSION=1.6.2
+KUBE_VERSION=1.6.4
 
 if [ "$1" = "start" ]; then
 

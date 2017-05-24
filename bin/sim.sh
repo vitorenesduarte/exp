@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPS=1
+REPS=3
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
@@ -36,14 +36,14 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(awset gset gcounter)
-NODE_NUMBER_=(5)
-NODE_EVENT_NUMBER_=(200)
-PARTITION_NUMBER_=(1)
+SIMULATION_=(awset)
+NODE_NUMBER_=(20)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(1 2 4)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based)
+MODE_=(delta_based state_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
 STATE_SYNC_INTERVAL_=(1000)
 EVICTION_ROUND_NUMBER_=(-1 10)
