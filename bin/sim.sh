@@ -36,17 +36,17 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(awset)
+SIMULATION_=(gset)
 NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(100)
+NODE_EVENT_NUMBER_=(200)
 PARTITION_NUMBER_=(1)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based)
-DRIVEN_MODE_=(none state_driven digest_driven)
+MODE_=(pure_op_based)
+DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
-EVICTION_ROUND_NUMBER_=(-1 10)
+EVICTION_ROUND_NUMBER_=(-1)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
 
@@ -116,6 +116,25 @@ do
                           done
                       done
                     done
+
+                  elif [ "$LDB_MODE" = pure_op_based ]; then
+
+                    BRANCH=${BRANCH} \
+                      IMAGE=${IMAGE} \
+                      PULL_IMAGE=${PULL_IMAGE} \
+                      LDB_MODE=${LDB_MODE} \
+                      LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                      LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                      LDB_EVICTION_ROUND_NUMBER=-2 \
+                      LDB_REDUNDANT_DGROUPS=undefined \
+                      LDB_DGROUP_BACK_PROPAGATION=undefined \
+                      OVERLAY=${OVERLAY} \
+                      SIMULATION=${SIMULATION} \
+                      NODE_NUMBER=${NODE_NUMBER} \
+                      NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                      PARTITION_NUMBER=${PARTITION_NUMBER} \
+                      KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
+                      
                   fi
 
                 done
