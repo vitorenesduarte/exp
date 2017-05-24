@@ -36,15 +36,15 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(gset)
-NODE_NUMBER_=(20)
-NODE_EVENT_NUMBER_=(200)
-PARTITION_NUMBER_=(1 2 3)
+SIMULATION_=(awset)
+NODE_NUMBER_=(3)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(1)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(delta_based)
-DRIVEN_MODE_=(none)
+MODE_=(state_based)
+DRIVEN_MODE_=(none state_driven digest_driven)
 STATE_SYNC_INTERVAL_=(1000)
 EVICTION_ROUND_NUMBER_=(-1 10)
 REDUNDANT_DGROUPS_=(true)
@@ -78,7 +78,7 @@ do
                       LDB_MODE=${LDB_MODE} \
                       LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
                       LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                      LDB_EVICTION_ROUND_NUMBER=-2 \ # means nothing
+                      LDB_EVICTION_ROUND_NUMBER=-2 \
                       LDB_REDUNDANT_DGROUPS=undefined \
                       LDB_DGROUP_BACK_PROPAGATION=undefined \
                       OVERLAY=${OVERLAY} \
