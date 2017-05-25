@@ -26,12 +26,20 @@ json <- function(v) {
 get_labels <- function(keys) {
   labels = list()
   labels[["state_based_none_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
-  labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
+  labels[["state_based_state_driven_undefined_undefined"]] = "State-Based SD"
+  labels[["state_based_digest_driven_undefined_undefined"]] = "State-based DD"
   labels[["delta_based_none_False_False"]] = "Delta-Based"
   labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
   labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
   labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
+  labels[["delta_based_state_driven_False_False"]] = "Delta-Based SD"
+  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD (Remove Redundant)"
+  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD(Back-Propagation)"
+  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD (Both)"
+  labels[["delta_based_digest_driven_False_False"]] = "Delta-Based"
+  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD (Remove Redundant)"
+  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD (Back-Propagation)"
+  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD (Both)"
   lapply(
     keys,
     function(key) {
