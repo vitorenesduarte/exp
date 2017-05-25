@@ -25,6 +25,7 @@ json <- function(v) {
 # compute label name given key.
 get_labels <- function(keys) {
   labels = list()
+  labels[["pure_op_based_none_undefined_undefined"]] = "Pure"
   labels[["state_based_none_undefined_undefined"]] = "State-Based"
   labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
   labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
