@@ -154,12 +154,6 @@ lsim_specs(Simulation, Orchestration, RSG) ->
                 true ->
                     [];
                 false ->
-                    %% configure membership callback
-                    MembershipFun = fun(Membership) ->
-                        lsim_resource:update_membership(Membership)
-                    end,
-                    partisan_peer_service:add_sup_callback(MembershipFun),
-
                     [{lsim_resource,
                       {lsim_resource, start_link, []},
                       permanent, 5000, worker,
