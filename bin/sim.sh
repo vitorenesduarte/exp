@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-"${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -24,7 +24,7 @@ elif [ "$1" == "clone" ]; then
   PULL_IMAGE=IfNotPresent
 
 else
-  # use the latest image
+  # use the latest lsim image
   IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=IfNotPresent
 
@@ -39,9 +39,9 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(awset)
-NODE_NUMBER_=(12)
+NODE_NUMBER_=(6)
 NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1 4)
+PARTITION_NUMBER_=(3)
 KEEP_ALIVE=false
 
 # ldb configuration
@@ -133,4 +133,4 @@ done
 
 "${DIR}"/start-redis-sync.sh
 
-"${DIR}"/g-cluster.sh stop
+#"${DIR}"/g-cluster.sh stop
