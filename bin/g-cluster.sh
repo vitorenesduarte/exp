@@ -2,15 +2,13 @@
 
 NUM_NODES=8
 NAME=lsim
-KUBE_VERSION=1.6.2
 
 if [ "$1" = "start" ]; then
 
   # create the cluster
   gcloud container clusters \
     create ${NAME} \
-    --num-nodes=${NUM_NODES} \
-    --cluster-version=${KUBE_VERSION}
+    --num-nodes=${NUM_NODES}
 
 elif [ "$1" = "stop" ]; then
 

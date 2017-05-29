@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, label) {
+splot <- function(dir, simulation, key, output_file, label) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -36,7 +36,7 @@ splot <- function(dir, key, output_file, label) {
 
   plot(
     range(1),
-    main="GSet",
+    main=get_title(simulation),
     xlim=c(0, maxy),
     ylim=c(0, 1),
     xlab=label,

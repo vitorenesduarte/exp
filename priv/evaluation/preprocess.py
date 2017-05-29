@@ -339,6 +339,23 @@ def aggregate(d):
 
     return r
 
+def group_by_simulation(d):
+    """
+    Group metrics by simulation (gset, awset, ...).
+    """
+
+    r = {}
+
+    for type in d:
+        simulation = type.split("~")[0]
+
+        if not simulation in r:
+            r[simulation] = {}
+
+        r[simulation][type] = d[type]
+
+    return r
+
 def save_file(path, content):
     """
     Save content in path.
@@ -362,10 +379,11 @@ def dump(d):
     # clear folder
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
-    for key in d:
-        path = os.path.join(*[PROCESSED_DIR, key])
-        content = json.dumps(d[key])
-        save_file(path, content)
+    for simulation in d:
+        for type in d[simulation]:
+            path = os.path.join(*[PROCESSED_DIR, simulation, type])
+            content = json.dumps(d[simulation][type])
+            save_file(path, content)
 
 def main():
     """
@@ -376,6 +394,7 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
+    d = group_by_simulation(d)
     dump(d)
 
 main()

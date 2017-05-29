@@ -3,3 +3,4 @@ _build/
 log/
 *.swo
 *.swp
+*.dump

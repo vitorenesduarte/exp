@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, ylabel, logy) {
+splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   CLOSE_TO_ZERO <- 1 # 10^-10
 
   load_dependencies(c("RColorBrewer"))
@@ -62,7 +62,7 @@ splot <- function(dir, key, output_file, ylabel, logy) {
   plot(
     range(maxx),
     range(maxy),
-    main="GSet",
+    main=get_title(simulation),
     type="n",
     xlim=c(0, maxx), # max x
     ylim=ylimit, # max y

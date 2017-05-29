@@ -26,12 +26,20 @@ json <- function(v) {
 get_labels <- function(keys) {
   labels = list()
   labels[["state_based_none_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
-  labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
+  labels[["state_based_state_driven_undefined_undefined"]] = "State-Based SD"
+  labels[["state_based_digest_driven_undefined_undefined"]] = "State-based DD"
   labels[["delta_based_none_False_False"]] = "Delta-Based"
   labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
   labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
   labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
+  labels[["delta_based_state_driven_False_False"]] = "Delta-Based SD"
+  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD (Remove Redundant)"
+  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD(Back-Propagation)"
+  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD (Both)"
+  labels[["delta_based_digest_driven_False_False"]] = "Delta-Based"
+  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD (Remove Redundant)"
+  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD (Back-Propagation)"
+  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD (Both)"
   lapply(
     keys,
     function(key) {
@@ -48,7 +56,7 @@ get_labels <- function(keys) {
         sep=""
       )
 
-      if(parts[c(9)] != "-1")
+      if(strtoi(parts[c(9)]) >= 0)
         paste(
           mode_and_partitions,
           "[E]",
@@ -57,4 +65,14 @@ get_labels <- function(keys) {
       else mode_and_partitions
     }
   )
+}
+
+# get the plot title
+get_title <- function(key) {
+  titles = list()
+  titles[["awset"]] = "AWSet"
+  titles[["gset"]] = "GSet"
+  titles[["gcounter"]] = "GCounter"
+
+  titles[[key]]
 }
