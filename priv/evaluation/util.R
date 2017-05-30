@@ -46,22 +46,32 @@ get_labels <- function(keys) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(6, 7, 10, 11)],
+          parts[c(6, 8, 11, 12)],
           collapse="_"
       )
 
       mode_and_partitions = paste(
         labels[[mode]],
-        " #", parts[c(5)],
+        " #", parts[c(6)],
         sep=""
       )
 
-      if(strtoi(parts[c(9)]) >= 0)
+      if(strtoi(parts[c(5)]) > 1) {
+        mode_and_partitions <- paste(
+          mode_and_partitions,
+          parts[c(5)],
+          "/1",
+          sep=""
+        )
+      }
+
+      if(strtoi(parts[c(10)]) >= 0) {
         paste(
           mode_and_partitions,
           "[E]",
           sep=" "
         )
+      }
       else mode_and_partitions
     }
   )
