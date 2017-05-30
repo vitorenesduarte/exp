@@ -14,7 +14,8 @@
                   jsx,
                   partisan,
                   eredis,
-                  mochiweb
+                  mochiweb,
+                  lmetrics
                  ]},
   {mod, {lsim_app, []}},
   {modules, []}
