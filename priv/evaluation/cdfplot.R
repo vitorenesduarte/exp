@@ -32,7 +32,7 @@ splot <- function(dir, simulation, key, output_file, label) {
   # labels
   labels <- get_labels(files)
 
-  par(xpd = T, mar = par()$mar + c(6,0,0,0))
+  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
 
   plot(
     range(1),
@@ -58,7 +58,7 @@ splot <- function(dir, simulation, key, output_file, label) {
   # legend
   legend(
    "bottom",
-    inset=-0.7,
+    inset=-1.05,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),

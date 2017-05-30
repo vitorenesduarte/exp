@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, simulation, key, output_file, ylabel) {
+splot <- function(dir, simulation, key, output_file, xlabel) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -33,7 +33,7 @@ splot <- function(dir, simulation, key, output_file, ylabel) {
   plot_chars <- seq(nol)
 
   # change outer margins
-  par(xpd = T, mar = par()$mar + c(6,0,0,0))
+  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
 
   # configure plot
   barplot(
@@ -41,14 +41,14 @@ splot <- function(dir, simulation, key, output_file, ylabel) {
     main=get_title(simulation),
     col=colors,
     pch=plot_chars,
-    ylab=ylabel, # y axis label
+    xlab=xlabel, # x axis label
     horiz=TRUE
   )
 
   # legend
   legend(
    "bottom",
-    inset=-0.7,
+    inset=-1.05,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),
