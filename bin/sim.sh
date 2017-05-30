@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-"${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -39,15 +39,15 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(awset)
-NODE_NUMBER_=(12)
+NODE_NUMBER_=(6)
 NODE_EVENT_NUMBER_=(50)
-PARTITION_NUMBER_=(1 3 6)
+PARTITION_NUMBER_=(1 2 3)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(delta_based)
+MODE_=(state_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
-STATE_SYNC_INTERVAL_=(1000)
+STATE_SYNC_INTERVAL_=(5000)
 EVICTION_ROUND_NUMBER_=(10)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
@@ -69,22 +69,25 @@ do
             do
               if [ "$LDB_MODE" = state_based ]; then
 
-                BRANCH=${BRANCH} \
-                  IMAGE=${IMAGE} \
-                  PULL_IMAGE=${PULL_IMAGE} \
-                  LDB_MODE=none \
-                  LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                  LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                  LDB_EVICTION_ROUND_NUMBER=-2 \
-                  LDB_REDUNDANT_DGROUPS=undefined \
-                  LDB_DGROUP_BACK_PROPAGATION=undefined \
-                  OVERLAY=${OVERLAY} \
-                  SIMULATION=${SIMULATION} \
-                  NODE_NUMBER=${NODE_NUMBER} \
-                  NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                  PARTITION_NUMBER=1 \
-                  KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
+                for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
+                do
 
+                  BRANCH=${BRANCH} \
+                    IMAGE=${IMAGE} \
+                    PULL_IMAGE=${PULL_IMAGE} \
+                    LDB_MODE=${LDB_MODE} \
+                    LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                    LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                    LDB_EVICTION_ROUND_NUMBER=-2 \
+                    LDB_REDUNDANT_DGROUPS=undefined \
+                    LDB_DGROUP_BACK_PROPAGATION=undefined \
+                    OVERLAY=${OVERLAY} \
+                    SIMULATION=${SIMULATION} \
+                    NODE_NUMBER=${NODE_NUMBER} \
+                    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                    PARTITION_NUMBER=1 \
+                    KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
+                done
 
               elif [ "$LDB_MODE" = delta_based ]; then
                 for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
