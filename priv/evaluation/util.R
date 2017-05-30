@@ -46,7 +46,7 @@ get_labels <- function(keys) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(6, 8, 11, 12)],
+          parts[c(7, 8, 11, 12)],
           collapse="_"
       )
 
@@ -59,6 +59,7 @@ get_labels <- function(keys) {
       if(strtoi(parts[c(5)]) > 1) {
         mode_and_partitions <- paste(
           mode_and_partitions,
+          " ",
           parts[c(5)],
           "/1",
           sep=""
