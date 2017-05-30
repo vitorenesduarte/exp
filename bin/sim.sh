@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPS=5
+REPS=2
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
@@ -40,16 +40,15 @@ fi
 OVERLAY_=(ring)
 SIMULATION_=(awset)
 NODE_NUMBER_=(6)
-NODE_EVENT_NUMBER_=(50)
-PARTITION_NUMBER_=(1 2 3)
+NODE_EVENT_NUMBER_=(100)
+PARTITION_NUMBER_=(3)
 ELEMENT_NODE_RATIO=5
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based)
+MODE_=(delta_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
-STATE_SYNC_INTERVAL_=(5000)
-EVICTION_ROUND_NUMBER_=(10)
+STATE_SYNC_INTERVAL_=(1000)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
 
@@ -79,7 +78,6 @@ do
                     LDB_MODE=${LDB_MODE} \
                     LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
                     LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                    LDB_EVICTION_ROUND_NUMBER=-2 \
                     LDB_REDUNDANT_DGROUPS=undefined \
                     LDB_DGROUP_BACK_PROPAGATION=undefined \
                     OVERLAY=${OVERLAY} \
@@ -103,27 +101,22 @@ do
 
                         for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
                         do
-                          for LDB_EVICTION_ROUND_NUMBER in "${EVICTION_ROUND_NUMBER_[@]}"
-                          do
+                          BRANCH=${BRANCH} \
+                            IMAGE=${IMAGE} \
+                            PULL_IMAGE=${PULL_IMAGE} \
+                            LDB_MODE=${LDB_MODE} \
+                            LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+                            LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+                            LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
+                            LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
+                            OVERLAY=${OVERLAY} \
+                            SIMULATION=${SIMULATION} \
+                            NODE_NUMBER=${NODE_NUMBER} \
+                            NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                            ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
+                            PARTITION_NUMBER=${PARTITION_NUMBER} \
+                            KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
-                            BRANCH=${BRANCH} \
-                              IMAGE=${IMAGE} \
-                              PULL_IMAGE=${PULL_IMAGE} \
-                              LDB_MODE=${LDB_MODE} \
-                              LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                              LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                              LDB_EVICTION_ROUND_NUMBER=${LDB_EVICTION_ROUND_NUMBER} \
-                              LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-                              LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-                              OVERLAY=${OVERLAY} \
-                              SIMULATION=${SIMULATION} \
-                              NODE_NUMBER=${NODE_NUMBER} \
-                              NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                              ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
-                              PARTITION_NUMBER=${PARTITION_NUMBER} \
-                              KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
-
-                          done
                         done
                       else
 
@@ -133,7 +126,6 @@ do
                           LDB_MODE=${LDB_MODE} \
                           LDB_DRIVEN_MODE=none \
                           LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                          LDB_EVICTION_ROUND_NUMBER=-1 \
                           LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
                           LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
                           OVERLAY=${OVERLAY} \
@@ -157,6 +149,6 @@ do
   done
 done
 
-"${DIR}"/start-redis-sync.sh
+#"${DIR}"/start-redis-sync.sh
 
-"${DIR}"/g-cluster.sh stop
+#"${DIR}"/g-cluster.sh stop
