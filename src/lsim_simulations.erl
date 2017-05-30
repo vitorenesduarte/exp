@@ -113,8 +113,12 @@ simple_set_simulation(Type) ->
     end,
     EventFun = fun(EventNumber) ->
         MyName = ldb_config:id(),
-        Element = atom_to_list(MyName) ++
-                  integer_to_list(EventNumber),
+        Element = atom_to_list(MyName) ++ "_"
+               ++ atom_to_list(MyName) ++ "_"
+               ++ atom_to_list(MyName) ++ "_"
+               ++ atom_to_list(MyName) ++ "_"
+               ++ atom_to_list(MyName) ++ "_"
+               ++ integer_to_list(EventNumber),
         ldb:update(?KEY, {add, Element})
     end,
     TotalEventsFun = fun() ->

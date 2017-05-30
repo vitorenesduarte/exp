@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-REPS=1
+REPS=5
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-#"${DIR}"/g-cluster.sh start
+"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -38,17 +38,17 @@ fi
 
 # lsim configuration
 OVERLAY_=(ring)
-SIMULATION_=(gset)
-NODE_NUMBER_=(6)
-NODE_EVENT_NUMBER_=(200)
-PARTITION_NUMBER_=(2 3)
+SIMULATION_=(awset)
+NODE_NUMBER_=(12)
+NODE_EVENT_NUMBER_=(50)
+PARTITION_NUMBER_=(1 3 6)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based delta_based)
+MODE_=(delta_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
 STATE_SYNC_INTERVAL_=(1000)
-EVICTION_ROUND_NUMBER_=(-1 10)
+EVICTION_ROUND_NUMBER_=(10)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
 

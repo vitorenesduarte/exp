@@ -50,7 +50,7 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   # labels
   labels <- get_labels(files)
 
-  par(xpd = T, mar = par()$mar + c(4,0,0,0))
+  par(xpd = T, mar = par()$mar + c(4.5,0,0,0))
 
   # configure plot
   boxplot(
@@ -67,7 +67,7 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   # legend
   legend(
    "bottom",
-    inset=-0.5,
+    inset=-0.53,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),
