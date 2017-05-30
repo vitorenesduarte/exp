@@ -80,6 +80,13 @@ configure() ->
                   lsim_node_event_number,
                   30),
 
+    %% configure element/node ratio
+    %% if ratio is 5, the elements added to sets
+    %% are 5 times bigger than node ids
+    configure_int("ELEMENT_NODE_RATIO",
+                  lsim_element_node_ratio,
+                  1),
+
     %% configure unique simulation timestamp
     configure_int("TIMESTAMP",
                   lsim_timestamp,

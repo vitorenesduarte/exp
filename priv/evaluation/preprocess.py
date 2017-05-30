@@ -60,6 +60,7 @@ def key(config):
         "lsim_overlay",
         "lsim_node_number",
         "lsim_node_event_number",
+        "lsim_element_node_ratio",
         "lsim_partition_number",
         "ldb_mode",
         "ldb_driven_mode",
