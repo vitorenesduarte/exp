@@ -207,8 +207,8 @@ EOF
 
 kubectl create -f "${FILE}"
 
-# wait time is number of events (each event is 1 second) plus 30 seconds
-WAIT_TIME=$((NODE_EVENT_NUMBER + 30))
+# wait time is number of events (each event is 1 second) plus 60 seconds
+WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
 
 echo "[$(date +%T)] Waiting ${WAIT_TIME} second(s) before next deploy."
 sleep ${WAIT_TIME}
