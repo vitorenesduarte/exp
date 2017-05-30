@@ -42,6 +42,7 @@ SIMULATION_=(awset)
 NODE_NUMBER_=(6)
 NODE_EVENT_NUMBER_=(50)
 PARTITION_NUMBER_=(1 2 3)
+ELEMENT_NODE_RATIO=5
 KEEP_ALIVE=false
 
 # ldb configuration
@@ -85,6 +86,7 @@ do
                     SIMULATION=${SIMULATION} \
                     NODE_NUMBER=${NODE_NUMBER} \
                     NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                    ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
                     PARTITION_NUMBER=1 \
                     KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
                 done
@@ -117,6 +119,7 @@ do
                               SIMULATION=${SIMULATION} \
                               NODE_NUMBER=${NODE_NUMBER} \
                               NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                              ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
                               PARTITION_NUMBER=${PARTITION_NUMBER} \
                               KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
@@ -137,6 +140,7 @@ do
                           SIMULATION=${SIMULATION} \
                           NODE_NUMBER=${NODE_NUMBER} \
                           NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+                          ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
                           PARTITION_NUMBER=${PARTITION_NUMBER} \
                           KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
