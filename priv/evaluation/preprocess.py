@@ -129,7 +129,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -145,7 +145,7 @@ def add(type, sizeA, sizeB):
     Sum two sizes
     """
 
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -162,7 +162,7 @@ def default(type, previous):
     - if transmission, 0
     - if memory, previous value
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -306,7 +306,7 @@ def aggregate(d):
         # sum all lists that have these types
         to_sum = []
         for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack"]:
+            if type in ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]:
                 # make list of lists into list
                 ls = [e for l in d[key][type] for e in l]
                 to_sum.append(ls)

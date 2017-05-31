@@ -43,7 +43,7 @@ PARTITION_NUMBER_=(1)
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(pure_op_based)
+MODE_=(state_based delta_based pure_op_based)
 DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
 EVICTION_ROUND_NUMBER_=(-1)
