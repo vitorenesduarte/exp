@@ -82,7 +82,7 @@ handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
 
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),
-    lsim_simulations_support:push_ldb_metrics(),
+    lsim_simulations_support:push_lmetrics(),
     tell({metrics_done, ldb_config:id()}),
     {noreply, State};
 

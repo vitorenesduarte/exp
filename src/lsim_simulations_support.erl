@@ -23,9 +23,9 @@
 -include("lsim.hrl").
 
 -export([push_lsim_metrics/1,
-         push_ldb_metrics/0]).
+         push_lmetrics/0]).
 
--define(LDB_METRICS, ldb_metrics).
+-define(LMETRICS, lmetrics).
 -define(STORE, lsim_metrics_store).
 -define(SEP, ",").
 
@@ -58,10 +58,10 @@ push_lsim_metrics(StartTime) ->
     store(FilePath, File),
     ok.
 
--spec push_ldb_metrics() -> ok.
-push_ldb_metrics() ->
-    TimeSeries = ?LDB_METRICS:get_time_series(),
-    Latency = ?LDB_METRICS:get_latency(),
+-spec push_lmetrics() -> ok.
+push_lmetrics() ->
+    TimeSeries = ?LMETRICS:get_time_series(),
+    Latency = ?LMETRICS:get_latency(),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
