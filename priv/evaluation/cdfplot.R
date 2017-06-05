@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, simulation, key, output_file, label) {
+splot <- function(dir, simulation, key, output_file, label, logx) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -13,10 +13,19 @@ splot <- function(dir, simulation, key, output_file, label) {
     }
   )
 
+  # avoid scientific notation
+  options(scipen=999)
+
   # find y max for all
-  ymaximums = lapply(ls, max)
-  maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(ls, length))
+  xminimums = lapply(ls, min)
+  xmaximums = lapply(ls, max)
+  print(xminimums)
+  print(xmaximums)
+  minx = Reduce(min, xminimums)
+  maxx = Reduce(max, xmaximums)
+  minx = if(minx == 0) 0.001 else minx
+
+  logaxis = if(logx) "x" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
@@ -37,10 +46,11 @@ splot <- function(dir, simulation, key, output_file, label) {
   plot(
     range(1),
     main=get_title(simulation),
-    xlim=c(0, maxy),
+    xlim=c(minx, maxx),
     ylim=c(0, 1),
     xlab=label,
     ylab="CDF",
+    log=logaxis
   )
 
   # configure plot

@@ -4,6 +4,7 @@ main <- function() {
   # draw!
   metrics_dir <- "processed"
   label <- "Latency (ms)"
+  logx <- TRUE
 
   # list of simulations
   simulations <- list.files(metrics_dir)
@@ -15,12 +16,12 @@ main <- function() {
     # latency local
     key <- "latency_local"
     output_file <- paste(simulation, "_", key, ".png", sep="")
-  	splot(dir, simulation, key, output_file, label)
+  	splot(dir, simulation, key, output_file, label, logx)
 
     # latency remote
     key <- "latency_remote"
     output_file <- paste(simulation, "_", key, ".png", sep="")
-  	splot(dir, simulation, key, output_file, label)
+  	splot(dir, simulation, key, output_file, label, logx)
   }
 }
 

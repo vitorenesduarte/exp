@@ -292,6 +292,12 @@ def average(d):
 
     return d
 
+def to_ms(microseconds):
+    """
+    Convertes microseconds to milliseconds.
+    """
+    return microseconds / float(1000)
+
 def aggregate(d):
     """
     Aggregate types of the same run.
@@ -327,14 +333,7 @@ def aggregate(d):
         for lord in d[key]["latency"]: # local or remote dict
             for lort in lord: # local or remote type
                 k = "latency_" + lort
-
-                latency_values = lord[lort]
-                if lort == "local":
-                    filter_fun = lambda x : x <= 65
-                elif lort == "remote":
-                    filter_fun = lambda x : x <= 650
-
-                latency_values = filter(filter_fun, latency_values)
+                latency_values = map(to_ms, lord[lort])
                 r[key][k].extend(latency_values)
 
     return r
