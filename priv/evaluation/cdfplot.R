@@ -19,8 +19,6 @@ splot <- function(dir, simulation, key, output_file, label, logx) {
   # find y max for all
   xminimums = lapply(ls, min)
   xmaximums = lapply(ls, max)
-  print(xminimums)
-  print(xmaximums)
   minx = Reduce(min, xminimums)
   maxx = Reduce(max, xmaximums)
   minx = if(minx == 0) 0.001 else minx
