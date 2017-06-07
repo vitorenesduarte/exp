@@ -9,6 +9,14 @@ CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
 
+def error(message):
+    """
+    Display error message and exit.
+    """
+    print(message)
+    print("Exiting...")
+    exit()
+
 def ls(dir):
     """
     List a directory, returning full path.
@@ -137,8 +145,7 @@ def bottom_size(type):
     if type in two:
         return [0, 0]
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found.")
 
 def add(type, sizeA, sizeB):
     """
@@ -153,8 +160,7 @@ def add(type, sizeA, sizeB):
     if type in two:
         return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found")
 
 def default(type, previous):
     """
@@ -170,8 +176,7 @@ def default(type, previous):
     if type in two:
         return previous
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found")
 
 def ignore_pre_big_bang(run):
     """
@@ -246,6 +251,12 @@ def sum_lists(ls):
     """
     return [sum(x) for x in zip(*ls)]
 
+def divide_lists(ls, by):
+    """
+    Divide lists by 'by'.
+    """
+    return [x / float(by) for x in ls]
+
 def divide_list_by(ls, n):
     """
     Divide all elements of list by n.
@@ -317,7 +328,11 @@ def aggregate(d):
                 ls = [e for l in d[key][type] for e in l]
                 to_sum.append(ls)
 
-        r[key]["transmission"] = sum_lists(to_sum)
+        # convert bytes to kbytes
+        r[key]["transmission"] = divide_lists(
+            sum_lists(to_sum),
+            1000
+        )
         r[key]["memory_crdt"] = []
         r[key]["memory_algorithm"] = []
         r[key]["latency_local"] = []
@@ -327,7 +342,6 @@ def aggregate(d):
         for [C, R] in d[key]["memory"]:
             r[key]["memory_crdt"].append(C)
             r[key]["memory_algorithm"].append(R)
-
         
         # aggregate latency values
         for lord in d[key]["latency"]: # local or remote dict
@@ -335,23 +349,6 @@ def aggregate(d):
                 k = "latency_" + lort
                 latency_values = map(to_ms, lord[lort])
                 r[key][k].extend(latency_values)
-
-    return r
-
-def group_by_simulation(d):
-    """
-    Group metrics by simulation (gset, awset, ...).
-    """
-
-    r = {}
-
-    for type in d:
-        simulation = type.split("~")[0]
-
-        if not simulation in r:
-            r[simulation] = {}
-
-        r[simulation][type] = d[type]
 
     return r
 
@@ -370,6 +367,49 @@ def save_file(path, content):
     with open(path, "w") as fd:
         fd.write(content)
 
+def get_score(type):
+    """
+    Returns the order of this type when drawing.
+    """
+
+    score = 0
+
+    parts = type.split("~")
+    mode = parts[6]
+    driven_mode = parts[7]
+    delta_mode = "_".join(parts[9:])
+
+    if mode == "state_based":
+        score += 1000
+    elif mode == "delta_based":
+        score += 2000
+    else:
+        error("Mode not found")
+
+    if driven_mode == "none":
+        score += 100
+    elif driven_mode == "state_driven":
+        score += 200
+    elif driven_mode == "digest_driven":
+        score += 300
+    else:
+        error("Driven mode not found")
+        
+    if delta_mode == "undefined_undefined":
+        score += 10
+    elif delta_mode == "False_False":
+        score += 20
+    elif delta_mode == "False_True":
+        score += 30
+    elif delta_mode == "True_False":
+        score += 40
+    elif delta_mode == "True_True":
+        score += 50
+    else:
+        error("Delta mode not found")
+        
+    return score
+
 def dump(d):
     """
     Save average to files.
@@ -378,11 +418,11 @@ def dump(d):
     # clear folder
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
-    for simulation in d:
-        for type in d[simulation]:
-            path = os.path.join(*[PROCESSED_DIR, simulation, type])
-            content = json.dumps(d[simulation][type])
-            save_file(path, content)
+    for type in d:
+        score = get_score(type)
+        path = os.path.join(*[PROCESSED_DIR, str(score) + "~" + type])
+        content = json.dumps(d[type])
+        save_file(path, content)
 
 def main():
     """
@@ -393,7 +433,6 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
-    d = group_by_simulation(d)
     dump(d)
 
 main()
