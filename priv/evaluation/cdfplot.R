@@ -17,29 +17,29 @@ splot <- function(dir, simulation, key, output_file, label, logx) {
   options(scipen=999)
 
   # find y max for all
-  xminimums = lapply(ls, min)
-  xmaximums = lapply(ls, max)
-  minx = Reduce(min, xminimums)
-  maxx = Reduce(max, xmaximums)
-  minx = if(minx == 0) 0.001 else minx
+  xminimums <- lapply(ls, min)
+  xmaximums <- lapply(ls, max)
+  minx <- Reduce(min, xminimums)
+  maxx <- Reduce(max, xmaximums)
+  minx <- if(minx == 0) 0.001 else minx
 
-  logaxis = if(logx) "x" else ""
+  logaxis <- if(logx) "x" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
   png(filename=output_file, res=80)
 
   # style stuff
-  nol = length(ls)
-  noc = if(nol >= 3) nol else 3
+  nol <- length(ls)
+  noc <- if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
-  line_types = c(1:nol)
+  line_types <- c(1:nol)
   plot_chars <- seq(nol)
 
   # labels
   labels <- get_labels(files)
 
-  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
+  par(xpd=T, mar=par()$mar + c(8.5,0,0,0))
 
   plot(
     range(1),

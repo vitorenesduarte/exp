@@ -16,9 +16,9 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   )
 
   # find the y max for all
-  ymaximums = lapply(ls, max)
-  maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(ls, length))
+  ymaximums <- lapply(ls, max)
+  maxy <- Reduce(max, ymaximums)
+  maxx <- Reduce(max, lapply(ls, length))
 
   # log axis
   logaxis <- ""
@@ -48,15 +48,15 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   png(filename=output_file, res=80)
 
   # style stuff
-  nol = length(ls)
-  noc = if(nol >= 3) nol else 3
+  nol <- length(ls)
+  noc <- if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
-  line_width = 2
-  line_types = c(1:nol)
+  line_width <- 2
+  line_types <- c(1:nol)
   plot_chars <- seq(nol)
 
   # change outer margins
-  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
+  par(xpd=T, mar=par()$mar + c(8.5,0,0,0))
 
   # configure plot
   plot(

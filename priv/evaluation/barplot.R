@@ -17,23 +17,23 @@ splot <- function(dir, simulation, key, output_file, xlabel) {
   ls <- unlist(ls)
 
   # find the y max for all
-  ymaximums = lapply(ls, max)
-  maxy = Reduce(max, ymaximums)
+  ymaximums <- lapply(ls, max)
+  maxy <- Reduce(max, ymaximums)
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
   png(filename=output_file, res=80)
 
   # style stuff
-  nol = length(ls)
-  noc = if(nol >= 3) nol else 3
+  nol <- length(ls)
+  noc <- if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
-  line_width = 2
-  line_types = c(1:nol)
+  line_width <- 2
+  line_types <- c(1:nol)
   plot_chars <- seq(nol)
 
   # change outer margins
-  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
+  par(xpd=T, mar=par()$mar + c(8.5,0,0,0))
 
   # configure plot
   barplot(
