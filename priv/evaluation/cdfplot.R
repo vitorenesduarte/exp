@@ -23,7 +23,7 @@ splot <- function(dir, simulation, key, output_file, label, logx) {
   maxx <- Reduce(max, xmaximums)
 
   minx <- if(logx && minx == 0) 0.001 else minx
-    zeros axis rif(logx) "x" else ""
+  logaxis <- if(logx) "x" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)

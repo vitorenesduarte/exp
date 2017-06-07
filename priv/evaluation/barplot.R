@@ -13,6 +13,9 @@ splot <- function(dir, simulation, key, output_file, xlabel) {
     }
   )
 
+  # avoid scientific notation
+  options(scipen=999)
+
   # flatten list
   ls <- unlist(ls)
 
