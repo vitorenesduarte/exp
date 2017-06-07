@@ -67,11 +67,6 @@ splot <- function(dir, key, output_file, xlabel) {
 
         index <- if(is_digest && is_gset_or_gcounter) last_index
         else f
-        index <- if(
-            regexpr("digest", file) > 0 && (regexpr("gset", file) > 0 ||
-             regexpr("gcounter", file) > 0)
-        ) last_index
-        else f
 
         indexes[length(indexes) + 1] <- index
       }
