@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-#${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -39,15 +39,15 @@ fi
 # lsim configuration
 OVERLAY_=(hyparview)
 SIMULATION_=(awset)
-NODE_NUMBER_=(8)
+NODE_NUMBER_=(32)
 NODE_EVENT_NUMBER_=(100)
 PARTITION_NUMBER_=(1)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based delta_based)
-DRIVEN_MODE_=(none state_driven digest_driven)
+MODE_=(delta_based)
+DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
 REDUNDANT_DGROUPS_=(false true)
 DGROUP_BACK_PROPAGATION_=(false true)
