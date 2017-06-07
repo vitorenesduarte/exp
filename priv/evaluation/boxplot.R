@@ -18,26 +18,13 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   # avoid scientific notation
   options(scipen=999)
 
-  # log axis
-  logaxis <- ""
+  yminimums <- lapply(ls, min)
+  ymaximums <- lapply(ls, max)
+  miny <- Reduce(min, yminimums)
+  maxy <- Reduce(max, ymaximums)
 
-  if(logy) {
-    ls <- lapply(
-      ls,
-      function(line) {
-        sapply(
-          line,
-          function(e) {
-            if(e == 0) CLOSE_TO_ZERO
-            else e
-          }
-        )
-      }
-    )
-
-
-    logaxis <- "y"
-  }
+  miny <- if(logy && miny == 0) 0.001 else miny
+  logaxis <- if(logy) "y" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
@@ -60,6 +47,7 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
     ls,
     main=get_title(simulation),
     xaxt="n", # remove automatic numbers
+    ylim=c(miny, maxy),
     xlab="", # x axis label
     ylab=ylabel, # y axis label
     col=colors,

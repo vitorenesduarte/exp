@@ -2,8 +2,6 @@ source("util.R")
 
 # draw!
 splot <- function(dir, simulation, key, output_file, ylabel, logy) {
-  CLOSE_TO_ZERO <- 1 # 10^-10
-
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -16,32 +14,14 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   )
 
   # find the y max for all
+  yminimums <- lapply(ls, min)
   ymaximums <- lapply(ls, max)
+  miny <- Reduce(min, yminimums)
   maxy <- Reduce(max, ymaximums)
   maxx <- Reduce(max, lapply(ls, length))
 
-  # log axis
-  logaxis <- ""
-  ylimit <- c(0, maxy)
-
-  if(logy) {
-    ls <- lapply(
-      ls,
-      function(line) {
-        sapply(
-          line,
-          function(e) {
-            if(e == 0) CLOSE_TO_ZERO
-            else e
-          }
-        )
-      }
-    )
-
-    logaxis <- "y"
-    ylimit <- c(CLOSE_TO_ZERO, maxy)
-  }
-
+  miny <- if(logy && miny == 0) 0.001 else miny
+  logaxis <- if(logy) "y" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
@@ -65,7 +45,7 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
     main=get_title(simulation),
     type="n",
     xlim=c(0, maxx), # max x
-    ylim=ylimit, # max y
+    ylim=c(miny, maxy), # max y
     xlab="Time (s)", # x axis label
     ylab=ylabel, # y axis label
     log=logaxis
