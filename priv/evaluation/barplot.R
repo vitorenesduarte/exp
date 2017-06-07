@@ -86,11 +86,11 @@ splot <- function(dir, key, output_file, xlabel) {
 
 		# style stuff
 		colors <- c(
-			"springgreen4",
+      "snow3",
       "steelblue4",
-      "darkorange",
-      "tomato1",
-      "snow3"
+			"springgreen4",
+      "darkorange1",
+      "darkgoldenrod1"
     )
 		
     # configure plot
