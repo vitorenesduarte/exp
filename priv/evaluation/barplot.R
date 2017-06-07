@@ -58,12 +58,12 @@ splot <- function(dir, key, output_file, xlabel) {
   # bar width
   width <- PLOT_SIZE / bar_number
 
-	for(i in 1:length(clusters)) {
+  for(i in 1:length(clusters)) {
     cluster <- clusters[i]
     title <- titles[i]
     indexes <- c()
 
-		# get indexes for this cluster
+    # get indexes for this cluster
     for(f in  1:length(files)) {
       file <- files[f]
       if(regexpr(cluster, file) > 0) {
@@ -80,19 +80,19 @@ splot <- function(dir, key, output_file, xlabel) {
     }
 
     # get lines of this cluster
-		lines <- ls[indexes]
+    lines <- ls[indexes]
 
     # if not an awset
 
-		# style stuff
-		colors <- c(
+    # style stuff
+    colors <- c(
       "snow3",
       "steelblue4",
-			"springgreen4",
+      "springgreen4",
       "darkorange1",
       "darkgoldenrod1"
     )
-		
+
     # configure plot
     barplot(
       lines,
@@ -110,12 +110,12 @@ splot <- function(dir, key, output_file, xlabel) {
       cex=.8 # size
     )
     title(title, line=0.5)
-	}
+  }
 
-	par(op) # Leave the last plot
+  par(op) # Leave the last plot
 
-	op <- par(usr=c(0,1,0,1), # Reset the coordinates
-						xpd=NA)         # Allow plotting outside the plot region
+  op <- par(usr=c(0,1,0,1), # Reset the coordinates
+            xpd=NA)         # Allow plotting outside the plot region
 
   # legend
   legend(
