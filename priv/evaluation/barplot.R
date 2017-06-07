@@ -31,10 +31,6 @@ splot <- function(dir, key, output_file, xlabel) {
   # flatten list
   ls <- unlist(ls)
 
-  # last index is zero
-  last_index <- length(ls) + 1
-  ls[last_index] <- 0
-
   # find the y max for all
   ymaximums <- lapply(ls, max)
   maxy <- Reduce(max, ymaximums)
@@ -50,6 +46,18 @@ splot <- function(dir, key, output_file, xlabel) {
     mar=c(3, 0, 4, 4) # spacing between plots
   )
 
+  # bar number
+  bar_number <- length(files) / length(clusters)
+
+  # plot size
+  PLOT_SIZE <-
+    if(bar_number == 3) 2.5
+    else if(bar_number == 5) 4
+    else print("BAR NUMBER NOT FOUND")
+
+  # bar width
+  width <- PLOT_SIZE / bar_number
+
 	for(i in 1:length(clusters)) {
     cluster <- clusters[i]
     title <- titles[i]
@@ -61,14 +69,13 @@ splot <- function(dir, key, output_file, xlabel) {
       if(regexpr(cluster, file) > 0) {
 
         # if any of this
-        # show an empty bar
+        # don't show the bar
         is_digest = regexpr("digest", file) > 0
         is_gset_or_gcounter = regexpr("gset", file) > 0 || regexpr("gcounter", file) > 0
 
-        index <- if(is_digest && is_gset_or_gcounter) last_index
-        else f
-
-        indexes[length(indexes) + 1] <- index
+        if(!(is_digest && is_gset_or_gcounter)) {
+          indexes[length(indexes) + 1] <- f
+        }
       }
     }
 
@@ -91,7 +98,9 @@ splot <- function(dir, key, output_file, xlabel) {
       lines,
       col=colors,
       ann=FALSE, # no axis label ?
-      horiz=TRUE
+      horiz=TRUE,
+      ylim=c(0, bar_number), # number of bars
+      width=width # bar width
     )
     # axis label
     mtext(
