@@ -63,8 +63,8 @@ configure_peer_service() ->
     partisan_config:set(partisan_peer_service_manager,
                         PeerService),
 
-    partisan_config:set(min_active_size, 2),
-    partisan_config:set(max_active_size, 3).
+    partisan_config:set(min_active_size, 3),
+    partisan_config:set(max_active_size, 4).
 
 %% @private
 configure() ->
