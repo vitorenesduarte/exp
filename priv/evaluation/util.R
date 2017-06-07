@@ -26,8 +26,8 @@ json <- function(v) {
 get_labels <- function(keys) {
   labels = list()
   labels[["state_based_none_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined"]] = "State-Based SD"
-  labels[["state_based_digest_driven_undefined_undefined"]] = "State-based DD"
+  labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
+  labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
   labels[["delta_based_none_False_False"]] = "Delta-Based"
   labels[["delta_based_none_True_False"]] = "Delta-Based RR"
   labels[["delta_based_none_False_True"]] = "Delta-Based BP"

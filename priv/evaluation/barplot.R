@@ -31,6 +31,10 @@ splot <- function(dir, key, output_file, xlabel) {
   # flatten list
   ls <- unlist(ls)
 
+  # last index is zero
+  last_index <- length(ls) + 1
+  ls[last_index] <- 0
+
   # find the y max for all
   ymaximums <- lapply(ls, max)
   maxy <- Reduce(max, ymaximums)
@@ -55,12 +59,28 @@ splot <- function(dir, key, output_file, xlabel) {
     for(f in  1:length(files)) {
       file <- files[f]
       if(regexpr(cluster, file) > 0) {
-        indexes[length(indexes) + 1] <- f
+
+        # if any of this
+        # show an empty bar
+        is_digest = regexpr("digest", file) > 0
+        is_gset_or_gcounter = regexpr("gset", file) > 0 || regexpr("gcounter", file) > 0
+
+        index <- if(is_digest && is_gset_or_gcounter) last_index
+        else f
+        index <- if(
+            regexpr("digest", file) > 0 && (regexpr("gset", file) > 0 ||
+             regexpr("gcounter", file) > 0)
+        ) last_index
+        else f
+
+        indexes[length(indexes) + 1] <- index
       }
     }
 
     # get lines of this cluster
 		lines <- ls[indexes]
+
+    # if not an awset
 
 		# style stuff
 		colors <- c(
