@@ -11,6 +11,6 @@ WORKDIR /opt
 RUN git clone $REPO -b $BRANCH
 
 WORKDIR /opt/$NAME
-RUN make stage
+RUN make
 
 CMD make run

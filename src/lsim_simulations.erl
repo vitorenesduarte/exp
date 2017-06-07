@@ -113,9 +113,17 @@ simple_set_simulation(Type) ->
     end,
     EventFun = fun(EventNumber) ->
         MyName = ldb_config:id(),
-        Element = atom_to_list(MyName) ++
-                  integer_to_list(EventNumber),
-        ldb:update(?KEY, {add, Element})
+        Ratio = lsim_config:get(lsim_element_node_ratio),
+        Element0 = lists:foldl(
+            fun(_, Acc) ->
+               Acc ++ atom_to_list(MyName) ++ "_"
+            end,
+            "",
+            lists:seq(1, Ratio)
+        ),
+
+        Element1 = Element0 ++ integer_to_list(EventNumber),
+        ldb:update(?KEY, {add, Element1})
     end,
     TotalEventsFun = fun() ->
         {ok, Value} = ldb:query(?KEY),

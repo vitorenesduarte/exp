@@ -202,15 +202,15 @@ schedule_create_barrier() ->
 %% @private
 schedule_create_partitions() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~25% of simulation time before creating partitions
-    Seconds = NodeEventNumber div 4,
+    %% wait ~50% of simulation time before creating partitions
+    Seconds = NodeEventNumber div 2,
     timer:send_after(Seconds * 1000, create_partitions).
 
 %% @private
 schedule_heal_partitions() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~50% of simulation time before healing partitions
-    Seconds = NodeEventNumber div 2,
+    %% wait ~25% of simulation time before healing partitions
+    Seconds = NodeEventNumber div 4,
     timer:send_after(Seconds * 1000, heal_partitions).
 
 %% @private

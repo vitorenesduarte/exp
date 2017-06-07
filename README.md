@@ -15,7 +15,6 @@
   - `state_driven`
   - `digest_driven`
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
-- __LDB_EVICTION_ROUND_NUMBER__: natural
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
@@ -29,6 +28,9 @@
   - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
+- __ELEMENT_NODE_RATIO__: if ratio is 5, the elements added to
+sets (if defined in the simulation configured)  are 5 times
+bigger than the node ids
 - __PARTITION_NUMBER__: number of connected components to be formed
 during the simulation. The partition is induced when the simulation
 reaches 25% of progress and healed at 75%. With static memberships

@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, ylabel, logy) {
+splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   CLOSE_TO_ZERO <- 1 # 10^-10
 
   load_dependencies(c("RColorBrewer"))
@@ -56,13 +56,13 @@ splot <- function(dir, key, output_file, ylabel, logy) {
   plot_chars <- seq(nol)
 
   # change outer margins
-  par(xpd = T, mar = par()$mar + c(6,0,0,0))
+  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
 
   # configure plot
   plot(
     range(maxx),
     range(maxy),
-    main="GSet",
+    main=get_title(simulation),
     type="n",
     xlim=c(0, maxx), # max x
     ylim=ylimit, # max y
@@ -86,7 +86,7 @@ splot <- function(dir, key, output_file, ylabel, logy) {
   # legend
   legend(
    "bottom",
-    inset=-0.7,
+    inset=-1.05,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),

@@ -1,9 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, simulation, key, output_file, ylabel, logy) {
-  CLOSE_TO_ZERO <- 0.0000001
-
+splot <- function(dir, simulation, key, output_file, xlabel) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -11,30 +9,16 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   ls <- lapply(
     files,
     function(file) {
-      json(c(dir, file))[[key]]
+      Reduce("+", json(c(dir, file))[[key]])
     }
   )
 
-  # log axis
-  logaxis <- ""
+  # flatten list
+  ls <- unlist(ls)
 
-  if(logy) {
-    ls <- lapply(
-      ls,
-      function(line) {
-        sapply(
-          line,
-          function(e) {
-            if(e == 0) CLOSE_TO_ZERO
-            else e
-          }
-        )
-      }
-    )
-
-
-    logaxis <- "y"
-  }
+  # find the y max for all
+  ymaximums = lapply(ls, max)
+  maxy = Reduce(max, ymaximums)
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
@@ -44,36 +28,32 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
   nol = length(ls)
   noc = if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
+  line_width = 2
   line_types = c(1:nol)
   plot_chars <- seq(nol)
 
-  # labels
-  labels <- get_labels(files)
-
-  par(xpd = T, mar = par()$mar + c(4.5,0,0,0))
+  # change outer margins
+  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
 
   # configure plot
-  boxplot(
+  barplot(
     ls,
     main=get_title(simulation),
-    xaxt="n", # remove automatic numbers
-    xlab="", # x axis label
-    ylab=ylabel, # y axis label
     col=colors,
-    lty=line_types,
-    log=logaxis
+    pch=plot_chars,
+    xlab=xlabel, # x axis label
+    horiz=TRUE
   )
 
   # legend
   legend(
    "bottom",
-    inset=-0.53,
+    inset=-1.05,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),
     col=colors,
-    lty=line_types,
-    pch=plot_chars
+    pch=15
   )
 
   # close device
