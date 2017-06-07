@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, label) {
+splot <- function(dir, simulation, key, output_file, label, logx) {
   load_dependencies(c("RColorBrewer"))
   files <- list.files(dir)
 
@@ -13,10 +13,17 @@ splot <- function(dir, key, output_file, label) {
     }
   )
 
+  # avoid scientific notation
+  options(scipen=999)
+
   # find y max for all
-  ymaximums = lapply(ls, max)
-  maxy = Reduce(max, ymaximums)
-  maxx = Reduce(max, lapply(ls, length))
+  xminimums = lapply(ls, min)
+  xmaximums = lapply(ls, max)
+  minx = Reduce(min, xminimums)
+  maxx = Reduce(max, xmaximums)
+  minx = if(minx == 0) 0.001 else minx
+
+  logaxis = if(logx) "x" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
@@ -32,15 +39,16 @@ splot <- function(dir, key, output_file, label) {
   # labels
   labels <- get_labels(files)
 
-  par(xpd = T, mar = par()$mar + c(6,0,0,0))
+  par(xpd = T, mar = par()$mar + c(8.5,0,0,0))
 
   plot(
     range(1),
-    main="GSet",
-    xlim=c(0, maxy),
+    main=get_title(simulation),
+    xlim=c(minx, maxx),
     ylim=c(0, 1),
     xlab=label,
     ylab="CDF",
+    log=logaxis
   )
 
   # configure plot
@@ -58,7 +66,7 @@ splot <- function(dir, key, output_file, label) {
   # legend
   legend(
    "bottom",
-    inset=-0.7,
+    inset=-1.05,
     # uncomment next line to reduce legend size
     #cex=0.8,
     legend=get_labels(files),

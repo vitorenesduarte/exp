@@ -60,11 +60,11 @@ def key(config):
         "lsim_overlay",
         "lsim_node_number",
         "lsim_node_event_number",
+        "lsim_element_node_ratio",
         "lsim_partition_number",
         "ldb_mode",
         "ldb_driven_mode",
         "ldb_state_sync_interval",
-        "ldb_eviction_round_number",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -129,7 +129,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
+    one = ["state", "digest", "delta", "delta_ack"]
     two = ["memory"]
 
     if type in one:
@@ -145,7 +145,7 @@ def add(type, sizeA, sizeB):
     Sum two sizes
     """
 
-    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
+    one = ["state", "digest", "delta", "delta_ack"]
     two = ["memory"]
 
     if type in one:
@@ -162,7 +162,7 @@ def default(type, previous):
     - if transmission, 0
     - if memory, previous value
     """
-    one = ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]
+    one = ["state", "digest", "delta", "delta_ack"]
     two = ["memory"]
 
     if type in one:
@@ -292,6 +292,12 @@ def average(d):
 
     return d
 
+def to_ms(microseconds):
+    """
+    Convertes microseconds to milliseconds.
+    """
+    return microseconds / float(1000)
+
 def aggregate(d):
     """
     Aggregate types of the same run.
@@ -306,7 +312,7 @@ def aggregate(d):
         # sum all lists that have these types
         to_sum = []
         for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack", "tcbcast", "tcbcast_ack"]:
+            if type in ["state", "digest", "delta", "delta_ack"]:
                 # make list of lists into list
                 ls = [e for l in d[key][type] for e in l]
                 to_sum.append(ls)
@@ -327,15 +333,25 @@ def aggregate(d):
         for lord in d[key]["latency"]: # local or remote dict
             for lort in lord: # local or remote type
                 k = "latency_" + lort
-
-                latency_values = lord[lort]
-                if lort == "local":
-                    filter_fun = lambda x : x <= 65
-                elif lort == "remote":
-                    filter_fun = lambda x : x <= 650
-
-                latency_values = filter(filter_fun, latency_values)
+                latency_values = map(to_ms, lord[lort])
                 r[key][k].extend(latency_values)
+
+    return r
+
+def group_by_simulation(d):
+    """
+    Group metrics by simulation (gset, awset, ...).
+    """
+
+    r = {}
+
+    for type in d:
+        simulation = type.split("~")[0]
+
+        if not simulation in r:
+            r[simulation] = {}
+
+        r[simulation][type] = d[type]
 
     return r
 
@@ -362,10 +378,11 @@ def dump(d):
     # clear folder
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
-    for key in d:
-        path = os.path.join(*[PROCESSED_DIR, key])
-        content = json.dumps(d[key])
-        save_file(path, content)
+    for simulation in d:
+        for type in d[simulation]:
+            path = os.path.join(*[PROCESSED_DIR, simulation, type])
+            content = json.dumps(d[simulation][type])
+            save_file(path, content)
 
 def main():
     """
@@ -376,6 +393,7 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
+    d = group_by_simulation(d)
     dump(d)
 
 main()
