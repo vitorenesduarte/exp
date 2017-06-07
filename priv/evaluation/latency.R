@@ -3,14 +3,26 @@ main <- function() {
   source("cdfplot.R")
   # draw!
   metrics_dir <- "processed"
-  key <- "latency_local"
-  output_file <- "latency_local.png"
   label <- "Latency (ms)"
-  splot(metrics_dir, key, output_file, label)
+  logx <- TRUE
 
-  key <- "latency_remote"
-  output_file <- "latency_remote.png"
-  splot(metrics_dir, key, output_file, label)
+  # list of simulations
+  simulations <- list.files(metrics_dir)
+  
+  for(i in 1:length(simulations)) {
+    simulation <- simulations[[i]]
+    dir <- paste(metrics_dir, simulation, sep="/")
+  
+    # latency local
+    key <- "latency_local"
+    output_file <- paste(simulation, "_", key, ".png", sep="")
+  	splot(dir, simulation, key, output_file, label, logx)
+
+    # latency remote
+    key <- "latency_remote"
+    output_file <- paste(simulation, "_", key, ".png", sep="")
+  	splot(dir, simulation, key, output_file, label, logx)
+  }
 }
 
 main()

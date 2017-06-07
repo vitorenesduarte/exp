@@ -7,13 +7,13 @@ ENV_VARS=(
   LDB_MODE
   LDB_DRIVEN_MODE
   LDB_STATE_SYNC_INTERVAL
-  LDB_EVICTION_ROUND_NUMBER
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
+  ELEMENT_NODE_RATIO
   PARTITION_NUMBER
   KEEP_ALIVE
 )
@@ -33,13 +33,13 @@ echo "    PULL_IMAGE: ${PULL_IMAGE}"
 echo "    LDB_MODE: ${LDB_MODE}"
 echo "    LDB_DRIVEN_MODE: ${LDB_DRIVEN_MODE}"
 echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
-echo "    LDB_EVICTION_ROUND_NUMBER: ${LDB_EVICTION_ROUND_NUMBER}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
+echo "    ELEMENT_NODE_RATIO: ${ELEMENT_NODE_RATIO}"
 echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
 
 # ENV SETUP:
@@ -113,8 +113,6 @@ spec:
           value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
-        - name: LDB_EVICTION_ROUND_NUMBER
-          value: "${LDB_EVICTION_ROUND_NUMBER}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
@@ -127,6 +125,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: ELEMENT_NODE_RATIO
+          value: "${ELEMENT_NODE_RATIO}"
         - name: PARTITION_NUMBER
           value: "${PARTITION_NUMBER}"
         - name: RSG
@@ -181,8 +181,6 @@ spec:
           value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
-        - name: LDB_EVICTION_ROUND_NUMBER
-          value: "${LDB_EVICTION_ROUND_NUMBER}"
         - name: LDB_REDUNDANT_DGROUPS
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
@@ -197,6 +195,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: ELEMENT_NODE_RATIO
+          value: "${ELEMENT_NODE_RATIO}"
         - name: PARTITION_NUMBER
           value: "${PARTITION_NUMBER}"
         - name: KEEP_ALIVE
@@ -207,7 +207,7 @@ EOF
 
 kubectl create -f "${FILE}"
 
-# wait time is number of events (each event is 1 second) plus 30 seconds
+# wait time is number of events (each event is 1 second) plus 60 seconds
 WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
 
 echo "[$(date +%T)] Waiting ${WAIT_TIME} second(s) before next deploy."
