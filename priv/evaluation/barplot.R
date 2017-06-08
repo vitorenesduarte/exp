@@ -36,7 +36,7 @@ splot <- function(dir, key, output_file, xlabel) {
   maxy <- Reduce(max, ymaximums)
 
   # open device
-  png(filename=output_file, width=1200, height=1200, res=180)
+  png(filename=output_file, width=1600, height=1600, res=240)
   #png(filename=output_file, res=100)
 
   # change outer margins
@@ -119,13 +119,13 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # legend
   legend(
-    .31,
+    .32,
     0,
     cex=0.8,
     legend=get_labels(files[indexes]),
     col=colors,
     pch=15,
-    # box.col=NA # remove box
+    box.col=NA # remove box
   )
 
   # close device
