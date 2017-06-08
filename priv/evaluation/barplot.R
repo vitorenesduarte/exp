@@ -52,6 +52,7 @@ splot <- function(dir, key, output_file, xlabel) {
   # plot size
   PLOT_SIZE <-
     if(bar_number == 3) 2.5
+    else if(bar_number == 4) 3.25
     else if(bar_number == 5) 4
     else print("BAR NUMBER NOT FOUND")
 
