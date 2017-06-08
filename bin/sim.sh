@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-"${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -41,7 +41,7 @@ OVERLAY_=(ring)
 SIMULATION_=(gcounter gset awset)
 NODE_NUMBER_=(8)
 NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1 2 4)
+PARTITION_NUMBER_=(2 4)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
 
