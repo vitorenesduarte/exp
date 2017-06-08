@@ -2,6 +2,7 @@ source("util.R")
 
 # draw!
 splot <- function(dir, keys, output_file, label, logx) {
+  load_dependencies(c("Hmisc"))
   files <- list.files(dir)
 
   # read all files
@@ -48,13 +49,13 @@ splot <- function(dir, keys, output_file, label, logx) {
   )
 
   # style stuff
-	colors <- c(
-		"snow3",
-		"steelblue4",
-		"springgreen4",
-		"darkorange1",
-		"darkgoldenrod1"
-	)
+  colors <- c(
+    "snow3",
+    "steelblue4",
+    "springgreen4",
+    "darkorange1",
+    "darkgoldenrod1"
+  )
   line_types <- c(1:length(colors))
   plot_chars <- seq(length(colors))
 
@@ -88,53 +89,56 @@ splot <- function(dir, keys, output_file, label, logx) {
         }
       )
 
-			# find min and max
-			xminimums <- lapply(ls, min)
-			xmaximums <- lapply(ls, max)
-			minx <- Reduce(min, xminimums)
-			maxx <- Reduce(max, xmaximums)
+      # find min and max
+      xminimums <- lapply(ls, min)
+      xmaximums <- lapply(ls, max)
+      minx <- Reduce(min, xminimums)
+      maxx <- Reduce(max, xmaximums)
 
-			minx <- if(logx && minx == 0) 0.001 else minx
-			logaxis <- if(logx) "x" else ""
+      minx <- if(logx && minx == 0) 0.001 else minx
+      logaxis <- if(logx) "x" else ""
 
       # configure plot
-			plot(
-				range(1),
-				xlim=c(0.001, 40),
-				ylim=c(0, 1),
-				xlab="",
-				ylab="",
-				log=logaxis
-			)
+      Ecdf(
+        range(1),
+        xlim=c(0.001, 40),
+        ylim=c(0, 1),
+        xlab="",
+        ylab="",
+        log=logaxis
+      )
       # axis labels
-			mtext(
-      	side=1,
-      	text=label,
-      	line=2.5,
-      	cex=.8 # size
-    	)
-			mtext(
-      	side=2,
-      	text="CDF",
-      	line=2.5,
-      	cex=.8 # size
-    	)
+      mtext(
+        side=1,
+        text=label,
+        line=2.5,
+        cex=.8 # size
+      )
+      mtext(
+        side=2,
+        text="CDF",
+        line=2.5,
+        cex=.8 # size
+      )
       title(titles[title_index], line=.8)
 
       # increment the title index
-      title_index <- title_index + 1	
+      title_index <- title_index + 1
 
-			# add plot lines
-			for(l in 1:length(ls)) {
-				plot(
-					ecdf(ls[[l]]),
-					verticals=TRUE,,
-					col=colors[[l]],
-					lty=line_types[[l]],
-					pch=plot_chars[[l]],
-					add=TRUE
-				)
-			}
+      # add plot lines
+      for(l in 1:length(ls)) {
+        print("LA")
+        print(summary(ecdf(ls[[l]])))
+        Ecdf(
+          ls[[l]],
+          #ecdf(ls[[l]]),
+          verticals=TRUE,,
+          col=colors[[l]],
+          lty=line_types[[l]],
+          pch=plot_chars[[l]],
+          add=TRUE
+        )
+      }
     }
   }
 
