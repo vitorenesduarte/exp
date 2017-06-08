@@ -2,7 +2,6 @@ source("util.R")
 
 # draw!
 splot <- function(dir, key, output_file, xlabel) {
-  load_dependencies(c("RColorBrewer", "base"))
   files <- list.files(dir)
 
   # read all files
@@ -13,7 +12,7 @@ splot <- function(dir, key, output_file, xlabel) {
     }
   )
 
-  # get clusters
+  # clusters
   clusters <- c(
     "gcounter~line", "gset~line", "awset~line",
     "gcounter~ring", "gset~ring", "awset~ring",
@@ -30,10 +29,6 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # flatten list
   ls <- unlist(ls)
-
-  # find the y max for all
-  ymaximums <- lapply(ls, max)
-  maxy <- Reduce(max, ymaximums)
 
   # open device
   png(filename=output_file, width=1600, height=1600, res=240)
@@ -65,12 +60,11 @@ splot <- function(dir, key, output_file, xlabel) {
     indexes <- c()
 
     # get indexes for this cluster
-    for(f in  1:length(files)) {
+    for(f in 1:length(files)) {
       file <- files[f]
       if(regexpr(cluster, file) > 0) {
 
-        # if any of this
-        # don't show the bar
+        # if any of this, hide
         is_digest = regexpr("digest", file) > 0
         is_gset_or_gcounter = regexpr("gset", file) > 0 || regexpr("gcounter", file) > 0
 

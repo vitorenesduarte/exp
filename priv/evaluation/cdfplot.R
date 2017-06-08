@@ -1,78 +1,158 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, simulation, key, output_file, label, logx) {
-  load_dependencies(c("RColorBrewer"))
+splot <- function(dir, keys, output_file, label, logx) {
   files <- list.files(dir)
 
   # read all files
-  ls <- lapply(
+  jsons <- lapply(
     files,
     function(file) {
-      json(c(dir, file))[[key]]
+      json(c(dir, file))
     }
   )
+
+  # topology
+  topology <- "hyparview"
+
+  # clusters
+  clusters <- c(
+    paste("gcounter", topology, sep="~"),
+    paste("gset", topology, sep="~"),
+    paste("awset", topology, sep="~")
+  )
+  titles <- c(
+    "GCounter - Local",
+    "GCounter - Remote",
+    "GSet - Local",
+    "GSet - Remote",
+    "AWSet - Local",
+    "AWSet - Remote"
+  )
+  title_index <- 1
 
   # avoid scientific notation
   options(scipen=999)
 
-  # find y max for all
-  xminimums <- lapply(ls, min)
-  xmaximums <- lapply(ls, max)
-  minx <- Reduce(min, xminimums)
-  maxx <- Reduce(max, xmaximums)
-
-  minx <- if(logx && minx == 0) 0.001 else minx
-  logaxis <- if(logx) "x" else ""
-
   # open device
-  #png(filename=output_file, width=500, height=500, res=80)
-  png(filename=output_file, res=80)
+  png(filename=output_file, width=1600, height=1600, res=240)
+  #png(filename=output_file, res=100)
 
-  # style stuff
-  nol <- length(ls)
-  noc <- if(nol >= 3) nol else 3
-  colors <- brewer.pal(name="Set1", n=noc)
-  line_types <- c(1:nol)
-  plot_chars <- seq(nol)
+  print(output_file)
 
-  # labels
-  labels <- get_labels(files)
-
-  par(xpd=T, mar=par()$mar + c(8.5,0,0,0))
-
-  plot(
-    range(1),
-    main=get_title(simulation),
-    xlim=c(minx, maxx),
-    ylim=c(0, 1),
-    xlab=label,
-    ylab="CDF",
-    log=logaxis
+  # change outer margins
+  op <- par(
+    oma=c(10,3,0,0),   # room for the legend
+    mfrow=c(3,2),      # 3x3 matrix
+    mar=c(3.5, 2, 3, 3) # spacing between plots
   )
 
-  # configure plot
-  for(i in 1:length(ls)) {
-    plot(
-      ecdf(ls[[i]]),
-      verticals=TRUE,
-      col=colors[[i]],
-      lty=line_types[[i]],
-      pch=plot_chars[[i]],
-      add=TRUE
-    )
+  # style stuff
+	colors <- c(
+		"snow3",
+		"steelblue4",
+		"springgreen4",
+		"darkorange1",
+		"darkgoldenrod1"
+	)
+  line_types <- c(1:length(colors))
+  plot_chars <- seq(length(colors))
+
+  for(c in 1:length(clusters)) {
+    for(key in keys) {
+      cluster <- clusters[c]
+      indexes <- c()
+
+      # get indexes for this cluster
+      for(f in 1:length(files)) {
+        file <- files[f]
+
+        if(regexpr(cluster, file) > 0) {
+
+          # if any of this, hide
+          is_digest = regexpr("digest", file) > 0
+          is_gset_or_gcounter = regexpr("gset", file) > 0 || regexpr("gcounter", file) > 0
+
+          if(!(is_digest && is_gset_or_gcounter)) {
+            indexes[length(indexes) + 1] <- f
+          }
+        }
+      }
+
+      cluster_jsons <- jsons[indexes]
+      # get lines
+      ls <- lapply(
+        cluster_jsons,
+        function(json) {
+          json[[key]]
+        }
+      )
+
+			# find min and max
+			xminimums <- lapply(ls, min)
+			xmaximums <- lapply(ls, max)
+			minx <- Reduce(min, xminimums)
+			maxx <- Reduce(max, xmaximums)
+
+			minx <- if(logx && minx == 0) 0.001 else minx
+			logaxis <- if(logx) "x" else ""
+
+      # configure plot
+			plot(
+				range(1),
+				xlim=c(0.001, 40),
+				ylim=c(0, 1),
+				xlab="",
+				ylab="",
+				log=logaxis
+			)
+      # axis labels
+			mtext(
+      	side=1,
+      	text=label,
+      	line=2.5,
+      	cex=.8 # size
+    	)
+			mtext(
+      	side=2,
+      	text="CDF",
+      	line=2.5,
+      	cex=.8 # size
+    	)
+      title(titles[title_index], line=.8)
+
+      # increment the title index
+      title_index <- title_index + 1	
+
+			# add plot lines
+			for(l in 1:length(ls)) {
+				plot(
+					ecdf(ls[[l]]),
+					verticals=TRUE,,
+					col=colors[[l]],
+					lty=line_types[[l]],
+					pch=plot_chars[[l]],
+					add=TRUE
+				)
+			}
+    }
   }
+
+  par(op) # Leave the last plot
+
+  op <- par(usr=c(0,1,0,1), # Reset the coordinates
+            xpd=NA)         # Allow plotting outside the plot region
 
   # legend
   legend(
-   "bottom",
-    inset=-1.05,
-    # uncomment next line to reduce legend size
-    #cex=0.8,
-    legend=get_labels(files),
+    "bottom",
+    inset=-.15,
+    cex=0.8,
+    legend=get_labels(files[indexes]),
     col=colors,
     lty=line_types,
-    pch=plot_chars
+    pch=plot_chars,
+    box.col=NA # remove box
   )
 
   # close device
