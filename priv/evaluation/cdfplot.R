@@ -57,7 +57,6 @@ splot <- function(dir, keys, output_file, label, logx) {
     "darkgoldenrod1"
   )
   line_types <- c(1:length(colors))
-  plot_chars <- seq(length(colors))
 
   for(c in 1:length(clusters)) {
     for(key in keys) {
@@ -100,9 +99,8 @@ splot <- function(dir, keys, output_file, label, logx) {
 
       # configure plot
       Ecdf(
-        range(1),
+        range(1000),
         xlim=c(0.001, 40),
-        ylim=c(0, 1),
         xlab="",
         ylab="",
         log=logaxis
@@ -127,15 +125,10 @@ splot <- function(dir, keys, output_file, label, logx) {
 
       # add plot lines
       for(l in 1:length(ls)) {
-        print("LA")
-        print(summary(ecdf(ls[[l]])))
         Ecdf(
           ls[[l]],
-          #ecdf(ls[[l]]),
-          verticals=TRUE,,
           col=colors[[l]],
           lty=line_types[[l]],
-          pch=plot_chars[[l]],
           add=TRUE
         )
       }
@@ -155,7 +148,6 @@ splot <- function(dir, keys, output_file, label, logx) {
     legend=get_labels(files[indexes]),
     col=colors,
     lty=line_types,
-    pch=plot_chars,
     box.col=NA # remove box
   )
 
