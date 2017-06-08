@@ -119,8 +119,8 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # legend
   legend(
-    .31, 0,
-    # uncomment next line to reduce legend size
+    .31,
+    0,
     cex=0.8,
     legend=get_labels(files[indexes]),
     col=colors,
