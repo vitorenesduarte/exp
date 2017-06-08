@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-#"${DIR}"/g-cluster.sh start
+"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
