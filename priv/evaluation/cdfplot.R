@@ -129,6 +129,7 @@ splot <- function(dir, keys, output_file, label, logx) {
           ls[[l]],
           col=colors[[l]],
           lty=line_types[[l]],
+          lwd=2.5,
           add=TRUE
         )
       }
@@ -142,12 +143,14 @@ splot <- function(dir, keys, output_file, label, logx) {
 
   # legend
   legend(
-    "bottom",
-    inset=-.15,
+    1.89, 0,
+    #"bottom",
+    #inset=-.15,
     cex=0.8,
     legend=get_labels(files[indexes]),
     col=colors,
     lty=line_types,
+    lwd=2.5,
     box.col=NA # remove box
   )
 
