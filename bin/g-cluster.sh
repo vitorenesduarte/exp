@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-NUM_NODES=3
+NUM_NODES=11
 NAME=lsim
-MACHINE=n1-standard-8
+MACHINE=n1-standard-1
 
 if [ "$1" = "start" ]; then
 
