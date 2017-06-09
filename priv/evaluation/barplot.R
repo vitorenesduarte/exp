@@ -31,12 +31,12 @@ splot <- function(dir, key, output_file, xlabel) {
   ls <- unlist(ls)
 
   # open device
-  png(filename=output_file, width=1600, height=1600, res=240)
+  png(filename=output_file, width=2000, height=1400, res=240)
   #png(filename=output_file, res=100)
 
   # change outer margins
   op <- par(
-    oma=c(10,3,0,0),   # room for the legend
+    oma=c(0,3,0,12),   # room for the legend
     mfrow=c(3,3),      # 3x3 matrix
     mar=c(3, 0, 4, 4) # spacing between plots
   )
@@ -114,8 +114,8 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # legend
   legend(
-    .32,
-    0,
+    .82,
+    .6,
     cex=0.8,
     legend=get_labels(files[indexes]),
     col=colors,

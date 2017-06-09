@@ -36,14 +36,14 @@ splot <- function(dir, keys, output_file, label, logx) {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=1600, height=1600, res=240)
+  png(filename=output_file, width=2000, height=1400, res=240)
   #png(filename=output_file, res=100)
 
   print(output_file)
 
   # change outer margins
   op <- par(
-    oma=c(10,3,0,0),   # room for the legend
+    oma=c(1,3,0,12),   # room for the legend
     mfrow=c(3,2),      # 3x3 matrix
     mar=c(3.5, 2, 3, 3) # spacing between plots
   )
@@ -143,7 +143,7 @@ splot <- function(dir, keys, output_file, label, logx) {
 
   # legend
   legend(
-    1.89, 0,
+    6.1, .6,
     #"bottom",
     #inset=-.15,
     cex=0.8,
