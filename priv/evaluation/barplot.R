@@ -19,7 +19,7 @@ splot <- function(dir, key, output_file, xlabel) {
     "gcounter~hyparview", "gset~hyparview", "awset~hyparview"
   )
   titles <- c(
-    "GCounter - Line", "GSet - Line", "AWSet - Line",
+    "GCounter - Path", "GSet - Path", "AWSet - Path",
     "GCounter - Ring", "GSet - Ring", "AWSet - Ring",
     "GCounter - HyParView", "GSet - HyParView", "AWSet - HyParView"
   )
