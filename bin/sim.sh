@@ -34,11 +34,11 @@ fi
 "${DIR}"/redis-deploy.sh
 
 # start dashboard
-"${DIR}"/lsim-dash-deploy.sh
+#"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-OVERLAY_=(ring)
-SIMULATION_=(gcounter gset awset)
+OVERLAY_=(line ring hyparview)
+SIMULATION_=(awset)
 NODE_NUMBER_=(8)
 NODE_EVENT_NUMBER_=(100)
 PARTITION_NUMBER_=(2 4)
