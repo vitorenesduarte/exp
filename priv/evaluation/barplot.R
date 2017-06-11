@@ -36,9 +36,9 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # change outer margins
   op <- par(
-    oma=c(0,3,0,12),   # room for the legend
+    oma=c(1,3,0,12),   # room for the legend
     mfrow=c(3,3),      # 3x3 matrix
-    mar=c(3, 0, 4, 4) # spacing between plots
+    mar=c(3.5, 2, 3, 3) # spacing between plots
   )
 
   # bar number
