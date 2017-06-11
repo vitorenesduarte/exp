@@ -39,8 +39,6 @@ get_specs(Simulation) ->
                 ldb:create(?KEY, awset)
             end,
             EventFun = fun(EventNumber, NodeEventNumber) ->
-                Element = create_element(EventNumber),
-
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -55,12 +53,13 @@ get_specs(Simulation) ->
                         ldb:update(?KEY, {add, Element});
                     false ->
                         %% remove an element added by me
+                        {ok, Query} = ldb:query(?KEY),
                         ByMe = sets:to_list(
                             sets:filter(
                                 fun(E) ->
                                     string:str(E, atom_to_list(ldb_config:id())) > 0
                                 end,
-                                ldb:query(?KEY)
+                                Query
                             )
                         ),
                         Element = lists:nth(
@@ -75,6 +74,7 @@ get_specs(Simulation) ->
                 sets:size(Value)
             end,
             CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                {ok, Query} = ldb:query(?KEY),
                 %% a node has observed all events
                 %% if it has in the set
                 %% `NodeNumber` elements ending in
@@ -83,7 +83,7 @@ get_specs(Simulation) ->
                     fun(E) ->
                         string:str(E, element_sufix(NodeEventNumber)) > 0
                     end,
-                    ldb:query(?KEY)
+                    Query
                 ),
                 sets:size(LastElements) == NodeNumber
             end,

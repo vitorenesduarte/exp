@@ -41,7 +41,7 @@
 -include_lib("kernel/include/inet.hrl").
 
 -define(NODE_NUMBER, 3).
--define(EVENT_NUMBER, 5).
+-define(EVENT_NUMBER, 50).
 -define(SIMULATION, awset).
 -define(OVERLAY, line).
 
