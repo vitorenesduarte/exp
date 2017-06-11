@@ -78,7 +78,7 @@ get_title <- function(key) {
   titles = list()
   titles[["awset"]] = "AWSet"
   titles[["gset"]] = "GSet"
-  titles[["gcounter"]] = "GCounter"
+  titles[["gcounter"]] = "PCounter"
 
   titles[[key]]
 }

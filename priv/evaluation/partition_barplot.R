@@ -17,8 +17,8 @@ splot <- function(dir, key, output_file, xlabel) {
     "gcounter~ring", "gset~ring", "awset~ring"
   )
   titles <- c(
-    "GCounter - Two Components",
-    "GCounter - Four Components",
+    "PCounter - Two Components",
+    "PCounter - Four Components",
     "GSet - Two Components",
     "GSet - Four Components",
     "AWSet - Two Components",

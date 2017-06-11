@@ -23,8 +23,8 @@ splot <- function(dir, keys, output_file, label, logx) {
     paste("awset", topology, sep="~")
   )
   titles <- c(
-    "GCounter - Local",
-    "GCounter - Remote",
+    "PCounter - Local",
+    "PCounter - Remote",
     "GSet - Local",
     "GSet - Remote",
     "AWSet - Local",
