@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-#"${DIR}"/g-cluster.sh start
+"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -31,7 +31,7 @@ else
 fi
 
 # start redis
-#"${DIR}"/redis-deploy.sh
+"${DIR}"/redis-deploy.sh
 
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
@@ -40,13 +40,13 @@ fi
 OVERLAY_=(path ring hyparview)
 SIMULATION_=(gcounter gset awset)
 NODE_NUMBER_=(8)
-NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1 2 4)
+NODE_EVENT_NUMBER_=(200)
+PARTITION_NUMBER_=(1)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(state_based delta_based)
+MODE_=(state_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
 STATE_SYNC_INTERVAL_=(1000)
 REDUNDANT_DGROUPS_=(false true)
