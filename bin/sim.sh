@@ -37,7 +37,7 @@ fi
 #"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-OVERLAY_=(path ring hyparview)
+OVERLAY_=(line ring hyparview)
 SIMULATION_=(gcounter gset awset)
 NODE_NUMBER_=(8)
 NODE_EVENT_NUMBER_=(200)
@@ -57,6 +57,12 @@ for REP in $(seq 1 $REPS)
 do
   for OVERLAY in "${OVERLAY_[@]}"
   do
+
+    # just in case
+    if [[ "$OVERLAY" = path ]]; then
+      OVERLAY=line
+    fi
+
     for SIMULATION in "${SIMULATION_[@]}"
     do
       for NODE_NUMBER in "${NODE_NUMBER_[@]}"
