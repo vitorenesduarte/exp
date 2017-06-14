@@ -41,7 +41,7 @@ echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    ELEMENT_NODE_RATIO: ${ELEMENT_NODE_RATIO}"
 echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
-
+exit
 # ENV SETUP:
 # Kubernetes server and auth token
 CONTEXT=$(kubectl config view |

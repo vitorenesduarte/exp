@@ -31,26 +31,26 @@ else
 fi
 
 # start redis
-"${DIR}"/redis-deploy.sh
+#"${DIR}"/redis-deploy.sh
 
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-OVERLAY_=(line ring hyparview)
-SIMULATION_=(awset)
+OVERLAY_=(path ring hyparview)
+SIMULATION_=(gcounter gset awset)
 NODE_NUMBER_=(8)
 NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(2 4)
+PARTITION_NUMBER_=(1 2 4)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
 
 # ldb configuration
-MODE_=(delta_based)
+MODE_=(state_based delta_based)
 DRIVEN_MODE_=(none state_driven digest_driven)
 STATE_SYNC_INTERVAL_=(1000)
-REDUNDANT_DGROUPS_=(true)
-DGROUP_BACK_PROPAGATION_=(true)
+REDUNDANT_DGROUPS_=(false true)
+DGROUP_BACK_PROPAGATION_=(false true)
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS)
@@ -107,7 +107,9 @@ do
 
                         for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
                         do
-                          if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
+                          if [[ "$LDB_DRIVEN_MODE" = digest_driven && ( "$SIMULATION" = gset || "$SIMULATION" = gcounter ) ]]; then
+                              echo "Skipping..."
+                          elif [[ "$OVERLAY" != ring || "$LDB_REDUNDANT_DGROUPS" = false || "$LDB_DGROUP_BACK_PROPAGATION" = false ]]; then
                               echo "Skipping..."
                           else
 
