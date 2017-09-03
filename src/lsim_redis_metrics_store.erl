@@ -80,15 +80,10 @@ code_change(_OldVsn, State, _Extra) ->
 get_redis_config() ->
     case lsim_orchestration:get_task(redis, ?REDIS_PORT, false) of
         {ok, {_, IpAddress, Port}} ->
-            Ip = stringify(IpAddress),
+            Ip = inet_parse:ntoa(IpAddress),
             {Ip, Port};
         {error, not_connected} ->
             ?LOG("Redis not connected. Trying again in 5 seconds."),
             timer:sleep(5000),
             get_redis_config()
     end.
-
-%% @private
-stringify({A, B, C, D}) ->
-    To = fun(V) -> integer_to_list(V) end,
-    To(A) ++ "." ++ To(B) ++ "." ++ To(C) ++ "." ++ To(D).
