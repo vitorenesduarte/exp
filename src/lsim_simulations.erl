@@ -192,7 +192,7 @@ fun_receive(TotDelv, TotStab, Tot) ->
         put(totDelv, get(totDelv) + 1)
       end,
       TotDelv1 = TotDelv + 1,
-      ct:pal("delivered ~p of ~p", [TotDelv1, Tot]),
+      lager:warning("delivered ~p of ~p", [TotDelv1, Tot]),
       %% check if all msgs were delivered on all the nodes
       case Tot =:= TotDelv1 of
         true ->
@@ -208,7 +208,7 @@ fun_receive(TotDelv, TotStab, Tot) ->
         put(totStab, get(totStab) + 1)
       end,
       TotStab1 = TotStab + 1,
-      ct:pal("stabilized ~p of ~p", [TotStab1, Tot]),
+      lager:warning("stabilized ~p of ~p", [TotStab1, Tot]),
       %% check if all msgs were stabilized on all the nodes
       case Tot =:= TotStab1 of
         true ->
