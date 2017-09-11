@@ -157,14 +157,14 @@ trcb_simulation() ->
 
       DelvFun = fun(Msg) ->
         lager:warning("Message delivered: ~p", [Msg]),
-        Receiver ! {delivery},
+        Receiver ! delivery,
         ok
         % put(counterDelv, get(counterDelv) + 1)
       end,
       featherine:tcbdelivery(DelvFun),
       StabFun = fun(Msg) ->
         lager:warning("Message stabilized: ~p", [Msg]),
-        Receiver ! {stability},
+        Receiver ! stability,
         ok
         % put(counterStab, get(counterStab) + 1)
       end,
