@@ -26,7 +26,7 @@
 
 %% lsim_simulations callbacks
 -export([get_specs/1,
-    fun_receive/4]).
+    fun_receive/3]).
 
 %% @doc
 -spec get_specs(atom()) -> [term()].
@@ -148,12 +148,8 @@ trcb_simulation() ->
       {ok, Members} = partisan_peer_service:members(),
       featherine:tcbfullmembership(Members),
 
-      put(counterDelv, 0),
-      put(counterStab, 0),
-      Self = self(),
-
       %% Spawn a receiver process to collect all delivered msgs dots and stabilized msgs per node
-      Receiver = spawn(?MODULE, fun_receive, [0, 0, lsim_config:get(lsim_node_number) * lsim_config:get(lsim_node_event_number), Self]),
+      Receiver = spawn(?MODULE, fun_receive, [0, 0, lsim_config:get(lsim_node_number) * lsim_config:get(lsim_node_event_number)]),
 
       DelvFun = fun(Msg) ->
         lager:warning("Message delivered: ~p", [Msg]),
@@ -168,14 +164,13 @@ trcb_simulation() ->
         ok
         % put(counterStab, get(counterStab) + 1)
       end,
-      featherine:tcbstability(StabFun),
-      fun_ready_to_check()
+      featherine:tcbstability(StabFun)
     end,
     EventFun = fun(_Arg) ->
         featherine:tcbcast(msg)
     end,
     TotalEventsFun = fun() ->
-        {get(counterDelv), get(counterStab)}
+        {get(totDelv), get(totStab)}
     end,
     CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
         Tot = NodeNumber * NodeEventNumber,
@@ -187,38 +182,39 @@ trcb_simulation() ->
      CheckEndFun].
 
 %% @private
-fun_ready_to_check() ->
-  receive
-    {doneDelv, N} ->
-      put(counterDelv, N);
-    {doneStab, N} ->
-      put(counterStab, N);
-    M ->
-      ct:fail("fun_ready_to_check :: received incorrect message: ~p", [M])
-  end.
-
-%% @private
-fun_receive(TotDelv, TotStab, Tot, Runner) ->
+fun_receive(TotDelv, TotStab, Tot) ->
   receive
     delivery ->
+      case TotDelv of
+        0 ->
+        put(totDelv, 1);
+        _ ->
+        put(totDelv, get(totDelv) + 1)
+      end,
       TotDelv1 = TotDelv + 1,
       ct:pal("delivered ~p of ~p", [TotDelv1, Tot]),
       %% check if all msgs were delivered on all the nodes
       case Tot =:= TotDelv1 of
         true ->
-         Runner ! {doneDelv, Tot};
+         ok;
         false ->
-          fun_receive(Tot, TotDelv1, TotStab, Runner)
+          fun_receive(Tot, TotDelv1, TotStab)
       end;
     stability ->
+      case TotStab of
+        0 ->
+        put(totStab, 1);
+        _ ->
+        put(totStab, get(totStab) + 1)
+      end,
       TotStab1 = TotStab + 1,
       ct:pal("stabilized ~p of ~p", [TotStab1, Tot]),
       %% check if all msgs were stabilized on all the nodes
       case Tot =:= TotStab1 of
         true ->
-         Runner ! {doneStab, Tot};
+         ok;
         false ->
-          fun_receive(Tot, TotDelv, TotStab1, Runner)
+          fun_receive(Tot, TotDelv, TotStab1)
       end;
     M ->
       ct:fail("UNKWONN ~p", [M])
