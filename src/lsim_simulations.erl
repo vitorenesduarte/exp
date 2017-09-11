@@ -144,6 +144,8 @@ simple_set_simulation(Type) ->
 trcb_simulation() ->
     StartFun = fun() ->
       {ok, Members} = partisan_peer_service:members(),
+        lager:info("partisan_peer_service:members(): ~p", [Members]),
+
       featherine:tcbfullmembership(Members),
 
       DelvFun = fun(Msg) ->
