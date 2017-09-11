@@ -32,7 +32,7 @@
          all/0]).
 
 %% tests
--compile([export_all]).
+-compile([nowarn_export_all, export_all]).
 
 -include("lsim.hrl").
 
