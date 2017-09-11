@@ -25,7 +25,8 @@
 -define(KEY, "events").
 
 %% lsim_simulations callbacks
--export([get_specs/1]).
+-export([get_specs/1,
+    fun_receive/4]).
 
 %% @doc
 -spec get_specs(atom()) -> [term()].
