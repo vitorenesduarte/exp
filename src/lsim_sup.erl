@@ -44,20 +44,8 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
-    Overlay = configure_var("OVERLAY",
-                            lsim_overlay,
-                            ?DEFAULT_OVERLAY),
+    PeerService = partisan_default_peer_service_manager,
 
-    PeerService = case Overlay of
-        hyparview ->
-            partisan_hyparview_peer_service_manager;
-        _ ->
-            partisan_static_peer_service_manager
-    end,
-
-
-    %% configure ldb peer service
-    ldb_config:set(ldb_peer_service, PeerService),
 
     %% configure partisan manager
     partisan_config:set(partisan_peer_service_manager,

@@ -10,7 +10,7 @@
                   crypto,
                   lager,
                   ssl,
-                  ldb,
+                  featherine,
                   jsx,
                   partisan,
                   eredis,

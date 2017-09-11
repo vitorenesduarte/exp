@@ -29,6 +29,8 @@ packageclean:
 
 check: test xref dialyzer lint
 
+trcb: trcbtest eunit xref dialyzer lint
+
 test: ct eunit
 
 lint: erl-lint shell-lint docker-lint
@@ -58,6 +60,9 @@ op-based:
 
 simulations:
 	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
+
+trcbtest:
+	${REBAR} as test ct --suite=test/lsim_trcb_SUITE
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \

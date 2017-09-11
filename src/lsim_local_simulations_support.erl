@@ -23,11 +23,19 @@
 
 -include("lsim.hrl").
 
--export([run/1]).
+-export([run/1, run_trcb/1]).
 
 run(Options) ->
     {IToNode, Nodes} = start(Options),
     construct_overlay(Options, IToNode),
+    start_experiment(Nodes),
+    wait_for_completion(Nodes),
+    stop(IToNode).
+
+run_trcb(Options) ->
+    {IToNode, Nodes} = start(Options),
+    construct_overlay_trcb(IToNode),
+    verify_overlay_trcb(IToNode),
     start_experiment(Nodes),
     wait_for_completion(Nodes),
     stop(IToNode).
@@ -72,8 +80,11 @@ start(Options) ->
     LoaderFun = fun(Node) ->
         %ct:pal("Loading lsim on node: ~p", [Node]),
 
-        %% Load ldb
-        ok = rpc:call(Node, application, load, [ldb]),
+        %% Load partisan
+        ok = rpc:call(Node, application, load, [partisan]),
+
+        %% Load featherine
+        ok = rpc:call(Node, application, load, [featherine]),
 
         %% Load lsim
         ok = rpc:call(Node, application, load, [?APP]),
@@ -84,7 +95,8 @@ start(Options) ->
         ok = rpc:call(Node,
                       application,
                       set_env,
-                      [lager, log_root, NodeDir])
+                      [lager, log_root, NodeDir]),
+        ok = rpc:call(Node, featherine_config, set, [deliver_locally, true])
     end,
     lists:foreach(LoaderFun, Nodes),
 
@@ -104,18 +116,6 @@ start(Options) ->
                               [Property, Value])
             end,
             LSimSettings1
-        ),
-
-        %% Configure ldb
-        LDBSettings = proplists:get_value(ldb_settings, Options),
-        lists:foreach(
-            fun({Property, Value}) ->
-                ok = rpc:call(Node,
-                              ldb_config,
-                              set,
-                              [Property, Value])
-            end,
-            LDBSettings
         )
     end,
     lists:foreach(ConfigureFun, Nodes),
@@ -187,6 +187,79 @@ construct_overlay(Options, IToNode) ->
         end,
         Graph
     ).
+
+%% @private Connect each node to all other nodes.
+construct_overlay_trcb(Nodes) ->
+    ct:pal("Clustering nodes."),
+    lists:foreach(fun(Node) -> cluster(Node, Nodes) end, Nodes).
+
+%% @private
+%%
+%% We have to cluster each node with all other nodes to compute the
+%% correct overlay: for instance, sometimes you'll want to establish a
+%% client/server topology, which requires all nodes talk to every other
+%% node to correctly compute the overlay.
+%%
+cluster({Name, _Node} = Myself, Nodes) when is_list(Nodes) ->
+  
+  %% Omit just ourselves.
+  OtherNodes = omit([Name], Nodes),
+      
+  lists:foreach(fun(OtherNode) -> join(Myself, OtherNode) end, OtherNodes).
+
+%% @private
+omit(OmitNameList, Nodes0) ->
+  FoldFun = fun({Name, _Node} = N, Nodes) ->
+    case lists:member(Name, OmitNameList) of
+      true ->
+        Nodes;
+      false ->
+        Nodes ++ [N]
+    end
+  end,
+  lists:foldl(FoldFun, [], Nodes0).
+
+join({_, Node}, {_, OtherNode}) ->
+  PeerPort = rpc:call(OtherNode,
+    partisan_config,
+    get,
+    [peer_port, 9000]),
+  ct:pal("Joining node: ~p to ~p at port ~p", [Node, OtherNode, PeerPort]),
+  ok = rpc:call(Node,
+    partisan_peer_service,
+    join,
+    [{OtherNode, {127, 0, 0, 1}, PeerPort}]).
+
+verify_overlay_trcb(Nodes) ->
+    %% Pause for clustering.    
+    timer:sleep(10000),
+
+    %% Verify membership.
+    %%
+    VerifyFun = fun({_Name, Node}) ->
+      {ok, Members} = rpc:call(Node, partisan_default_peer_service_manager, members, []),
+
+      %% If this node is a server, it should know about all nodes.
+      SortedNodes = lists:usort([N || {_, N} <- Nodes]) -- [Node],
+
+      SortedMembers = lists:usort(Members) -- [Node],
+
+      ct:pal("Node: ~p", [Node]),
+      ct:pal("Nodes: ~p", [Nodes]),
+      ct:pal("Members: ~p", [Members]),
+      ct:pal("SortedNodes: ~p", [SortedNodes]),
+      ct:pal("SortedMembers: ~p", [SortedMembers]),
+
+      case SortedMembers =:= SortedNodes of
+        true ->
+          ok;
+        false ->
+          ct:fail("Membership incorrect; node ~p should have ~p but has ~p", [Node, SortedNodes, SortedMembers])
+      end
+    end,
+
+    %% Verify the membership is correct.
+    lists:foreach(VerifyFun, Nodes).
 
 %% @private Poll nodes to see if simulation is ended.
 wait_for_completion(Nodes) ->
