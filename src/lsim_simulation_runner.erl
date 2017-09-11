@@ -40,7 +40,8 @@
                 start_fun :: function(),
                 event_fun :: function(),
                 total_events_fun :: function(),
-                check_end_fun :: function()}).
+                check_end_fun :: function(),
+                handle_cast_fun :: function() | undefined}).
 
 -define(DEFAULT_EVENT_INTERVAL, 1000).
 -define(SIMULATION_END_INTERVAL, 10000).
@@ -61,7 +62,16 @@ init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
                 start_fun=StartFun,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun,
-                check_end_fun=CheckEndFun}}.
+                check_end_fun=CheckEndFun,
+                handle_cast_fun=undefined}};
+init([StartFun, EventFun, TotalEventsFun, CheckEndFun, HandleCastFun]) ->
+    ?LOG("lsim_simulation_runner handle caster initialized"),
+    {ok, #state{event_count=0,
+                start_fun=StartFun,
+                event_fun=EventFun,
+                total_events_fun=TotalEventsFun,
+                check_end_fun=CheckEndFun,
+                handle_cast_fun=HandleCastFun}}.
 
 handle_call(start, _From, #state{start_fun=StartFun}=State) ->
     StartFun(),
@@ -72,6 +82,11 @@ handle_call(start, _From, #state{start_fun=StartFun}=State) ->
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
+
+handle_cast(Msg, #state{handle_cast_fun=HandleCastFun}=State) ->
+    lager:warning("handled cast message: ~p", [Msg]),
+    HandleCastFun(Msg),
+    {noreply, State};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),

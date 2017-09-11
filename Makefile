@@ -62,7 +62,7 @@ simulations:
 	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
 
 trcbtest:
-	${REBAR} as test ct --suite=test/lsim_trcb_SUITE
+	${REBAR} as test ct --suite=test/lsim_trcb_SUITE --readable=false --verbose
 
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
