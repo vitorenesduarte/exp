@@ -168,7 +168,7 @@ trcb_simulation() ->
     end,
 
     TotalEventsFun = fun() ->
-        {get(delivered), get(stability)}
+        {get(delivery), get(stability)}
     end,
 
     CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
