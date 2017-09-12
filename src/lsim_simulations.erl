@@ -148,6 +148,9 @@ trcb_simulation() ->
 
       featherine:tcbfullmembership(Members),
 
+      put(delivery, 0),
+      put(stability, 0),
+
       DelvFun = fun(Msg) ->
         lager:info("Message delivered: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, delivery),
@@ -159,10 +162,7 @@ trcb_simulation() ->
         lager:info("Message stabilized: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, stability)
       end,
-      featherine:tcbstability(StabFun),
-
-      put(delivery, 0),
-      put(stability, 0)
+      featherine:tcbstability(StabFun)
     end,
 
     EventFun = fun(_Arg) ->
@@ -179,7 +179,9 @@ trcb_simulation() ->
     end,
 
     HandleCastFun = fun(Msg) ->
-        put(Msg, get(Msg) + 1)
+        lager:info("Before Doing ~p value is: ~p", [Msg, get(Msg)]),
+        put(Msg, get(Msg) + 1),
+        lager:info("After Doing ~p value is: ~p", [Msg, get(Msg)])
     end,
 
     [StartFun,
