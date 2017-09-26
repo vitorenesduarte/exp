@@ -67,7 +67,7 @@ handle_call(members, _From, #state{connected=Connected}=State) ->
     Result = {ok, orddict:fetch_keys(Connected)},
     {reply, Result, State};
 
-handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=NodeSpec}, _From,
+handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=_NodeSpec}, _From,
             #state{connected=Connected0}=State) ->
     {Result, Connected1} = case orddict:find(LDBId, Connected0) of
         {ok, _} ->
@@ -79,7 +79,7 @@ handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=NodeSpec}, _From,
                     gen_tcp:controlling_process(Socket, Pid),
                     {ok, orddict:store(LDBId, Pid, Connected0)};
                 Error ->
-                    ?LOG("Error handling join call on node ~p to node ~p. Reason ~p", [ldb_config:id(), NodeSpec, Error]),
+                    % ?LOG("Error handling join call on node ~p to node ~p. Reason ~p", [ldb_config:id(), NodeSpec, Error]),
                     {Error, Connected0}
             end
     end,

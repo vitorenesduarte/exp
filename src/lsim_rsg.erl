@@ -39,7 +39,7 @@
 -record(state, {number_of_rules :: non_neg_integer()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
--define(PEER_SERVICE, ldb_peer_service).
+-define(PEER_SERVICE, partisan_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -58,7 +58,7 @@ init([]) ->
     {ok, #state{number_of_rules=0}}.
 
 handle_call(simulation_end, _From, State) ->
-    tell({sim_done, ldb_config:id()}),
+    tell({sim_done, node()}),
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
@@ -83,7 +83,7 @@ handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),
     lsim_simulations_support:push_lmetrics(),
-    tell({metrics_done, ldb_config:id()}),
+    tell({metrics_done, node()}),
     {noreply, State};
 
 handle_cast(Msg, State) ->
@@ -102,7 +102,7 @@ handle_info(create_barrier, State) ->
     {noreply, State};
 
 handle_info(join_peers, State) ->
-    MyName = ldb_config:id(),
+    MyName = node(),
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
@@ -113,7 +113,7 @@ handle_info(join_peers, State) ->
                                                 Nodes,
                                                 Overlay),
             ok = connect(ToConnect, ?PEER_SERVICE),
-            tell({connect_done, ldb_config:id()});
+            tell({connect_done, node()});
         _ ->
             schedule_join_peers()
     end,
@@ -171,4 +171,4 @@ tell(Msg) ->
 
 %% @private
 without_me(Members) ->
-    Members -- [ldb_config:id()].
+    Members -- [node()].

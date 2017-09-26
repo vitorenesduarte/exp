@@ -43,7 +43,7 @@ start_link(Socket) ->
 
 %% gen_server callbacks
 init([Socket]) ->
-    ?LOG("lsim_barrier_peer_service_client initialized! Node ~p listening to socket ~p", [ldb_config:id(), Socket]),
+    % ?LOG("lsim_barrier_peer_service_client initialized! Node ~p listening to socket ~p", [ldb_config:id(), Socket]),
     {ok, #state{socket=Socket}}.
 
 handle_call(Msg, _From, State) ->

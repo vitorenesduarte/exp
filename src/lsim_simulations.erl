@@ -35,64 +35,7 @@ get_specs(Simulation) ->
             [];
 
         trcb ->
-            trcb_simulation();
-
-        awset ->
-            simple_set_simulation(awset);
-
-        gcounter ->
-            StartFun = fun() ->
-                ldb:create(?KEY, gcounter)
-            end,
-            EventFun = fun(_EventNumber) ->
-                ldb:update(?KEY, increment)
-            end,
-            TotalEventsFun = fun() ->
-                {ok, Value} = ldb:query(?KEY),
-                Value
-            end,
-            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-                TotalEventsFun() == NodeNumber * NodeEventNumber
-            end,
-            [StartFun,
-             EventFun,
-             TotalEventsFun,
-             CheckEndFun];
-
-        gset ->
-            simple_set_simulation(gset);
-
-        gmap ->
-            StartFun = fun() ->
-                Type = {gmap,
-                        [{pair,
-                          [gcounter, gcounter]}]},
-                ldb:create(?KEY, Type)
-            end,
-            EventFun = fun(EventNumber) ->
-                Component = case EventNumber rem 2 of
-                    0 ->
-                        %% if even, increment the first component
-                        %% of the pair
-                        fst;
-                    1 ->
-                        %% else, the second
-                        snd
-                end,
-                Op = {apply, ?KEY, {Component, increment}},
-                ldb:update(?KEY, Op)
-            end,
-            TotalEventsFun = fun() ->
-                {ok, [{?KEY, {Fst, Snd}}]} = ldb:query(?KEY),
-                Fst + Snd
-            end,
-            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-                TotalEventsFun() == NodeNumber * NodeEventNumber
-            end,
-            [StartFun,
-             EventFun,
-             TotalEventsFun,
-             CheckEndFun]
+            trcb_simulation()
 
     end,
 
@@ -108,37 +51,6 @@ create_spec(Funs) ->
               {lsim_simulation_runner, start_link, [Funs]},
               permanent, 5000, worker, [lsim_simulation_runner]}]
     end.
-
-%% @private
-simple_set_simulation(Type) ->
-    StartFun = fun() ->
-        ldb:create(?KEY, Type)
-    end,
-    EventFun = fun(EventNumber) ->
-        MyName = ldb_config:id(),
-        Ratio = lsim_config:get(lsim_element_node_ratio),
-        Element0 = lists:foldl(
-            fun(_, Acc) ->
-               Acc ++ atom_to_list(MyName) ++ "_"
-            end,
-            "",
-            lists:seq(1, Ratio)
-        ),
-
-        Element1 = Element0 ++ integer_to_list(EventNumber),
-        ldb:update(?KEY, {add, Element1})
-    end,
-    TotalEventsFun = fun() ->
-        {ok, Value} = ldb:query(?KEY),
-        sets:size(Value)
-    end,
-    CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-        TotalEventsFun() == NodeNumber * NodeEventNumber
-    end,
-    [StartFun,
-     EventFun,
-     TotalEventsFun,
-     CheckEndFun].
 
 %% @private
 trcb_simulation() ->
@@ -174,8 +86,9 @@ trcb_simulation() ->
     end,
 
     CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-        Tot = NodeNumber * NodeEventNumber,
-        TotalEventsFun() == {Tot, Tot}
+        TheoTot = NodeNumber * NodeEventNumber,
+        {PracTotDelv, PracTotStab} = TotalEventsFun(),
+        PracTotDelv == TheoTot andalso PracTotStab >= (TheoTot - NodeNumber)
     end,
 
     HandleCastFun = fun(Msg) ->

@@ -79,12 +79,16 @@ loop(Req) ->
 
     case string:tokens(Path, "/") of
         ["membership"] ->
-            Names = ldb_whisperer:members(),
+            Names = partisan_peer_service:members(),
 
             Req:ok({
               _ContentType = "application/javascript",
-              ldb_json:encode(Names)
+              encode(Names)
             });
         _ ->
             Req:not_found()
     end.
+
+%% @doc
+encode(D) ->
+    jsx:encode(D).

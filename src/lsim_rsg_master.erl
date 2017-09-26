@@ -36,9 +36,9 @@
          code_change/3]).
 
 -record(state, {nodes :: list(node_spec()),
-                connect_done:: ordsets:ordset(ldb_node_id()),
-                sim_done :: ordsets:ordset(ldb_node_id()),
-                metrics_done :: ordsets:ordset(ldb_node_id()),
+                connect_done:: ordsets:ordset(node()),
+                sim_done :: ordsets:ordset(node()),
+                metrics_done :: ordsets:ordset(node()),
                 start_time :: timestamp()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
@@ -75,7 +75,7 @@ handle_cast({connect_done, NodeName},
             ?LOG("Everyone is CONNECT DONE. SIM GO!"),
             tell(sim_go),
             schedule_create_partitions(),
-            ldb_util:unix_timestamp();
+            unix_timestamp();
         false ->
             T0
     end,
@@ -247,4 +247,8 @@ tell(Msg, Peers) ->
 
 %% @private
 without_me(Members) ->
-    Members -- [ldb_config:id()].
+    Members -- [node()].
+
+unix_timestamp() ->
+    {Mega, Sec, _Micro} = erlang:timestamp(),
+    Mega * 1000000 + Sec.

@@ -51,7 +51,7 @@ push_lsim_metrics(StartTime) ->
        ++ LSimConfigs,
 
     FilePath = file_path(rsg),
-    File = ldb_json:encode(All),
+    File = encode(All),
 
     store(FilePath, File),
     ok.
@@ -102,8 +102,8 @@ push_lmetrics() ->
     %% process latency
     All2 = orddict:store(latency, Latency, All1),
 
-    FilePath = file_path(ldb_config:id()),
-    File = ldb_json:encode(All2),
+    FilePath = file_path(node()),
+    File = encode(All2),
 
     store(FilePath, File),
     ok.
@@ -148,3 +148,7 @@ str(V) when is_integer(V) ->
 %% @private
 store(FilePath, File) ->
     ok = ?STORE:put(FilePath, File).
+
+%% @doc
+encode(D) ->
+    jsx:encode(D).

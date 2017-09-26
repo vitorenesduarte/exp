@@ -86,7 +86,7 @@ http(Method, Path, Body0) ->
     URL = server() ++ Path,
     Headers = headers(),
     ContentType = "application/json",
-    Body1 = binary_to_list(ldb_json:encode(Body0)),
+    Body1 = binary_to_list(encode(Body0)),
     run_http(Method, {URL, Headers, ContentType, Body1}).
 
 %% @private
@@ -95,7 +95,7 @@ run_http(Method, Request) ->
 
     case httpc:request(Method, Request, [], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
-            {ok, ldb_json:decode(Body)};
+            {ok, decode(Body)};
         {error, Reason} ->
             ?LOG("Couldn't process ~p request. Reason ~p",
                  [Method, Reason]),
@@ -137,6 +137,17 @@ name(Tag) ->
 %% @private
 prefix() ->
     "/apis/extensions/v1beta1/namespaces/default".
+
+%% @doc
+encode(D) ->
+    jsx:encode(D).
+
+%% @doc
+decode(E) when is_list(E) ->
+    decode(list_to_binary(E));
+decode(E) when is_binary(E) ->
+    Opts = [{labels, atom}, return_maps],
+    jsx:decode(E, Opts).
 
 %% @private
 deploy_path() ->

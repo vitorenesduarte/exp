@@ -201,10 +201,10 @@ construct_overlay_trcb(Nodes) ->
 %% node to correctly compute the overlay.
 %%
 cluster({Name, _Node} = Myself, Nodes) when is_list(Nodes) ->
-  
+
   %% Omit just ourselves.
   OtherNodes = omit([Name], Nodes),
-      
+
   lists:foreach(fun(OtherNode) -> join(Myself, OtherNode) end, OtherNodes).
 
 %% @private
@@ -231,7 +231,7 @@ join({_, Node}, {_, OtherNode}) ->
     [{OtherNode, {127, 0, 0, 1}, PeerPort}]).
 
 verify_overlay_trcb(Nodes) ->
-    %% Pause for clustering.    
+    %% Pause for clustering.
     timer:sleep(10000),
 
     %% Verify membership.
