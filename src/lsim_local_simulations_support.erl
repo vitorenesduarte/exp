@@ -23,14 +23,7 @@
 
 -include("lsim.hrl").
 
--export([run/1, run_trcb/1]).
-
-run(Options) ->
-    {IToNode, Nodes} = start(Options),
-    construct_overlay(Options, IToNode),
-    start_experiment(Nodes),
-    wait_for_completion(Nodes),
-    stop(IToNode).
+-export([run_trcb/1]).
 
 run_trcb(Options) ->
     {IToNode, Nodes} = start(Options),
@@ -129,64 +122,6 @@ start(Options) ->
     lists:foreach(StartFun, Nodes),
 
     {IToNode, Nodes}.
-
-%% @private Connect each node to its peers.
-%%          If `Overlay' is hyparview, it's enough all peers
-%%          connected to the same node.
-%%          Otherwise use `lsim_overlay' to decide to which
-%%          nodes a node should connect.
-construct_overlay(Options, IToNode) ->
-    Overlay = proplists:get_value(
-        lsim_overlay,
-        proplists:get_value(
-            lsim_settings,
-            Options
-        )
-    ),
-
-    IToNodeSpec = lists:map(
-        fun({I, Node}) ->
-            Spec = rpc:call(Node, ldb_peer_service, myself, []),
-            {I, Spec}
-        end,
-        IToNode
-    ),
-
-    NodeNumber = orddict:size(IToNode),
-
-    %ct:pal("Nodes ~n~p~n", [IToNode]),
-    %ct:pal("Nodes Spec ~n~p~n", [IToNodeSpec]),
-
-    Graph = case Overlay of
-        hyparview ->
-            %% all nodes join the same node with I = 0
-            [{I, [0]} || I <- lists:seq(1, NodeNumber - 1)];
-        _ ->
-            %% ensure symmetric views using `lsim_overlay'
-            lsim_overlay:get(Overlay, NodeNumber)
-    end,
-
-    lists:foreach(
-        fun({I, Peers}) ->
-            Node = orddict:fetch(I, IToNode),
-            %ct:pal("Node ~p~n~n", [Node]),
-
-            lists:foreach(
-                fun(Peer) ->
-                    PeerSpec = orddict:fetch(Peer, IToNodeSpec),
-
-                    %ct:pal("PeerSpec ~p~n~n", [PeerSpec]),
-
-                    ok = rpc:call(Node,
-                                  ldb_peer_service,
-                                  join,
-                                  [PeerSpec])
-                end,
-                Peers
-            )
-        end,
-        Graph
-    ).
 
 %% @private Connect each node to all other nodes.
 construct_overlay_trcb(Nodes) ->

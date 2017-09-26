@@ -44,7 +44,7 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec members() -> {ok, [ldb_node_id()]}.
+-spec members() -> {ok, [node()]}.
 members() ->
     gen_server:call(?MODULE, members, infinity).
 
@@ -52,7 +52,7 @@ members() ->
 join(NodeSpec) ->
     gen_server:call(?MODULE, {join, NodeSpec}, infinity).
 
--spec forward_message(ldb_node_id(), handler(), message()) ->
+-spec forward_message(node(), handler(), message()) ->
     ok | error().
 forward_message(LDBId, Handler, Message) ->
     gen_server:call(?MODULE, {forward_message, LDBId, Handler, Message}, infinity).

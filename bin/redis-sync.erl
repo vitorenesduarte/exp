@@ -7,6 +7,9 @@ main(_) ->
 
     %% get all the redis keys
     {ok, Keys} = eredis:q(Redis, ["KEYS", "*"]),
+    io:format("asdad"),
+    io:format(Keys),
+    io:format("asdad"),
 
     %% clear metrics dir
     os:cmd("rm -rf " ++ metrics_dir()),

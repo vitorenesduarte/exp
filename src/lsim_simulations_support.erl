@@ -58,10 +58,16 @@ push_lsim_metrics(StartTime) ->
 
 -spec push_lmetrics() -> ok.
 push_lmetrics() ->
+?LOG("push_lmetrics()"),
     TimeSeries = ?LMETRICS:get_time_series(),
+?LOG("TimeSeries ~n", [TimeSeries]),
+
     Latency = ?LMETRICS:get_latency(),
+?LOG("Latency ~n", [Latency]),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
+?LOG("TransmissionTS ~n", [TransmissionTS]),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
+?LOG("MemoryTS ~n", [MemoryTS]),
 
     %% process transmission
     PerMessageType = lists:foldl(

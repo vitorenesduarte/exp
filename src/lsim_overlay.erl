@@ -34,49 +34,20 @@
 -spec get(atom(), pos_integer()) -> orddict:orddict().
 get(_, 1) ->
     [];
-get(hyparview, N) ->
-    %% In HyParView, everyone connects to a single node.
-    lists:foldl(
-        fun(I, Acc) ->
-            orddict:store(I, [0], Acc)
-        end,
-        [{0, []}],
-        lists:seq(1, N - 1)
-    );
-get(ring, N) ->
-    lists:foldl(
-        fun(I, Acc) ->
-            Peers = [
-                previous(I, N),
-                next(I, N)
-            ],
-            orddict:store(I, Peers, Acc)
-        end,
-        orddict:new(),
-        lists:seq(0, N - 1)
-    );
-get(line, N) ->
-    T0 = get(ring, N),
-    First = 0,
-    Last = N - 1,
-    T1 = lists:keyreplace(
-        First,
-        1,
-        T0,
-        {First, [next(First, N)]}
-    ),
-    T2 = lists:keyreplace(
-        Last,
-        1,
-        T1,
-        {Last, [previous(Last, N)]}
-    ),
-    T2.
+get(trcb, N) ->
+lists:foldl(
+    fun(I, Acc) ->
+        Peers = N -- [I],
+        orddict:store(I, Peers, Acc)
+    end,
+    orddict:new(),
+    lists:seq(0, N - 1)
+).
 
 %% @doc The first argument is my node spec,
 %%      the second argument is a list of node specs,
 %%      and the third argument is the overlay.
--spec to_connect(ldb_node_id(), list(node_spec()), atom()) ->
+-spec to_connect(node(), list(node_spec()), atom()) ->
     list(node_spec()).
 to_connect(MyName, Nodes, Overlay) ->
     NodeNumber = length(Nodes),
@@ -139,26 +110,6 @@ partitions(Nodes, N) ->
     ),
 
     {PToIPs, IPToP}.
-
-%% @private
-previous(I, N) ->
-    First = 0,
-    case I of
-        First ->
-            N - 1;
-        _ ->
-            I - 1
-    end.
-
-%% @private
-next(I, N) ->
-    Last = N - 1,
-    case I of
-        Last ->
-            0;
-        _ ->
-            I + 1
-    end.
 
 %% @private
 name_to_node_map(Nodes) ->

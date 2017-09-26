@@ -4,12 +4,6 @@ ENV_VARS=(
   BRANCH
   IMAGE
   PULL_IMAGE
-  LDB_MODE
-  LDB_DRIVEN_MODE
-  LDB_STATE_SYNC_INTERVAL
-  LDB_REDUNDANT_DGROUPS
-  LDB_DGROUP_BACK_PROPAGATION
-  OVERLAY
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
@@ -30,12 +24,6 @@ echo "[$(date +%T)] Configuration: "
 echo "    BRANCH: ${BRANCH}"
 echo "    IMAGE: ${IMAGE}"
 echo "    PULL_IMAGE: ${PULL_IMAGE}"
-echo "    LDB_MODE: ${LDB_MODE}"
-echo "    LDB_DRIVEN_MODE: ${LDB_DRIVEN_MODE}"
-echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
-echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
-echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
-echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
@@ -107,18 +95,6 @@ spec:
           value: "${TOKEN}"
         - name: TIMESTAMP
           value: "${TIMESTAMP}"
-        - name: LDB_MODE
-          value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
-        - name: LDB_STATE_SYNC_INTERVAL
-          value: "${LDB_STATE_SYNC_INTERVAL}"
-        - name: LDB_REDUNDANT_DGROUPS
-          value: "${LDB_REDUNDANT_DGROUPS}"
-        - name: LDB_DGROUP_BACK_PROPAGATION
-          value: "${LDB_DGROUP_BACK_PROPAGATION}"
-        - name: OVERLAY
-          value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER
@@ -175,20 +151,6 @@ spec:
           value: "${TOKEN}"
         - name: TIMESTAMP
           value: "${TIMESTAMP}"
-        - name: LDB_MODE
-          value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
-        - name: LDB_STATE_SYNC_INTERVAL
-          value: "${LDB_STATE_SYNC_INTERVAL}"
-        - name: LDB_REDUNDANT_DGROUPS
-          value: "${LDB_REDUNDANT_DGROUPS}"
-        - name: LDB_DGROUP_BACK_PROPAGATION
-          value: "${LDB_DGROUP_BACK_PROPAGATION}"
-        - name: LMETRICS
-          value: "true"
-        - name: OVERLAY
-          value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
         - name: NODE_NUMBER

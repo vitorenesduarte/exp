@@ -2,17 +2,16 @@
 -type error() :: {error, atom()}.
 
 %% peer service
--type ldb_node_id() :: node().
 -type node_ip() :: inet:ip_address().
 -type node_port() :: non_neg_integer().
--type node_spec() :: {ldb_node_id(), node_ip(), node_port()}.
+-type node_spec() :: {node(), node_ip(), node_port()}.
 -type handler() :: term(). %% module
 -type message() :: term().
 -type timestamp() :: non_neg_integer().
 
 %% defaults
--define(DEFAULT_OVERLAY, hyparview).
--define(DEFAULT_MODE, state_based).
+-define(DEFAULT_OVERLAY, trcb).
+-define(DEFAULT_MODE, trcb).
 
 %% logging
 -define(LOGGING, list_to_atom("true")). %% dialyzer
