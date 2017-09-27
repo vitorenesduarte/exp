@@ -44,6 +44,10 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure lsim overlay
+    _Overlay = configure_var("OVERLAY",
+                            lsim_overlay,
+                            ?DEFAULT_OVERLAY),
+
     PeerService = partisan_default_peer_service_manager,
 
 
