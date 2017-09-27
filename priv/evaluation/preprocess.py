@@ -61,12 +61,7 @@ def key(config):
         "lsim_node_number",
         "lsim_node_event_number",
         "lsim_element_node_ratio",
-        "lsim_partition_number",
-        "ldb_mode",
-        "ldb_driven_mode",
-        "ldb_state_sync_interval",
-        "ldb_redundant_dgroups",
-        "ldb_dgroup_back_propagation"
+        "lsim_partition_number"
     ]
 
     l = []
@@ -129,7 +124,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -145,7 +140,7 @@ def add(type, sizeA, sizeB):
     Sum two sizes
     """
 
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -162,7 +157,7 @@ def default(type, previous):
     - if transmission, 0
     - if memory, previous value
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["tcbcast", "tcbcast_ack"]
     two = ["memory"]
 
     if type in one:
@@ -312,7 +307,7 @@ def aggregate(d):
         # sum all lists that have these types
         to_sum = []
         for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack"]:
+            if type in ["tcbcast", "tcbcast_ack"]:
                 # make list of lists into list
                 ls = [e for l in d[key][type] for e in l]
                 to_sum.append(ls)
