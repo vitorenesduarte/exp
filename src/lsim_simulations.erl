@@ -53,6 +53,18 @@ create_spec(Funs) ->
     end.
 
 %% @private
+memory() ->
+CalcFunction = fun({ToBeAckQueue, LocalDot, DepDotList, ToBeDelvConcDots, DepGraph}) ->
+        erts_debug:flat_size(ToBeAckQueue)
+        + erts_debug:flat_size(LocalDot)
+        + erts_debug:flat_size(DepDotList)
+        + erts_debug:flat_size(ToBeDelvConcDots)
+        + erts_debug:flat_size(DepGraph)
+      end,
+      
+      featherine:tcbmemory(CalcFunction).
+
+%% @private
 trcb_simulation() ->
     StartFun = fun() ->
       {ok, Members} = partisan_peer_service:members(),
@@ -74,7 +86,10 @@ trcb_simulation() ->
         lager:info("Message stabilized: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, stability)
       end,
-      featherine:tcbstability(StabFun)
+      featherine:tcbstability(StabFun),
+
+      lmetrics:set_time_series_callback(fun() -> ToBeAdded = memory(), {ok, ToBeAdded} end)
+
     end,
 
     EventFun = fun(_Arg) ->
