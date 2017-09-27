@@ -66,28 +66,20 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     gset_test,
-     gcounter_test,
-     gmap_test
+     trcb_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-gset_test(_Config) ->
+trcb_test(_Config) ->
     run(gset).
-
-gcounter_test(_Config) ->
-    run(gcounter).
-
-gmap_test(_Config) ->
-    run(gmap).
 
 %% @private
 run(Simulation) ->
-    Overlay = hyparview,
-    Mode = state_based,
+    Overlay = trcb,
+    Mode = trcb,
 
     Options = [{node_number, ?NODE_NUMBER},
                {lsim_settings,
@@ -98,4 +90,4 @@ run(Simulation) ->
                {ldb_settings,
                 [{ldb_mode, Mode}]}],
 
-    lsim_local_simulations_support:run(Options).
+    lsim_local_simulations_support:run_trcb(Options).
