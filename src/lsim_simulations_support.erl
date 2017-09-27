@@ -37,7 +37,7 @@ push_lsim_metrics(StartTime) ->
                 lsim_node_event_number,
                 lsim_element_node_ratio,
                 lsim_partition_number],
-    LSimConfigs = get_configs(lsim, LSimVars),
+    LSimConfigs = get_configs(LSimVars),
 
     All = [{start_time, StartTime}]
        ++ LSimConfigs,
@@ -123,10 +123,10 @@ file_path(Name) ->
     Filename.
 
 %% @private
-get_configs(App, Vars) ->
+get_configs(Vars) ->
     lists:map(
         fun(Var) ->
-            Mod = sim_config,
+            Mod = lsim_config,
             {Var, Mod:get(Var)}
         end,
         Vars
