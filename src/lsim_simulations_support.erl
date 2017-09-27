@@ -88,9 +88,9 @@ push_lmetrics() ->
 
     %% process memory
     All1 = lists:foldl(
-        fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
+        fun({Timestamp, memory, RestSize}, Acc0) ->
             V = [{ts, Timestamp},
-                 {size, [CRDTSize, RestSize]}],
+                 {size, RestSize}],
             orddict:append(memory, V, Acc0)
         end,
         All0,
