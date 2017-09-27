@@ -62,7 +62,7 @@ CalcFunction = fun({ToBeAckQueue, LocalDot, DepDotList, ToBeDelvConcDots, DepGra
         + erts_debug:flat_size(DepGraph)
       end,
       
-      featherine:tcbmemory(CalcFunction).
+      {0, featherine:tcbmemory(CalcFunction)}.
 
 %% @private
 trcb_simulation() ->
