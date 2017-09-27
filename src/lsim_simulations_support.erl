@@ -31,13 +31,6 @@
 
 -spec push_lsim_metrics(timestamp()) -> ok.
 push_lsim_metrics(StartTime) ->
-    LDBVars = [ldb_mode,
-               ldb_driven_mode,
-               ldb_state_sync_interval,
-               ldb_redundant_dgroups,
-               ldb_dgroup_back_propagation],
-    LDBConfigs = get_configs(ldb, LDBVars),
-
     LSimVars = [lsim_overlay,
                 lsim_node_number,
                 lsim_simulation,
@@ -47,7 +40,6 @@ push_lsim_metrics(StartTime) ->
     LSimConfigs = get_configs(lsim, LSimVars),
 
     All = [{start_time, StartTime}]
-       ++ LDBConfigs
        ++ LSimConfigs,
 
     FilePath = file_path(rsg),
@@ -58,16 +50,16 @@ push_lsim_metrics(StartTime) ->
 
 -spec push_lmetrics() -> ok.
 push_lmetrics() ->
-?LOG("push_lmetrics()"),
+    ?LOG("push_lmetrics()"),
     TimeSeries = ?LMETRICS:get_time_series(),
-?LOG("TimeSeries ~n", [TimeSeries]),
+    ?LOG("TimeSeries ~n", [TimeSeries]),
 
     Latency = ?LMETRICS:get_latency(),
-?LOG("Latency ~n", [Latency]),
+    ?LOG("Latency ~n", [Latency]),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
-?LOG("TransmissionTS ~n", [TransmissionTS]),
+    ?LOG("TransmissionTS ~n", [TransmissionTS]),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
-?LOG("MemoryTS ~n", [MemoryTS]),
+    ?LOG("MemoryTS ~n", [MemoryTS]),
 
     %% process transmission
     PerMessageType = lists:foldl(
@@ -134,12 +126,7 @@ file_path(Name) ->
 get_configs(App, Vars) ->
     lists:map(
         fun(Var) ->
-            Mod = case App of
-                ldb ->
-                    ldb_config;
-                lsim ->
-                    lsim_config
-            end,
+            Mod = sim_config,
             {Var, Mod:get(Var)}
         end,
         Vars
