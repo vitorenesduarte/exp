@@ -26,6 +26,8 @@
          get/2,
          set/2]).
 
+-export([id/0]).
+
 -spec get(atom()) -> term().
 get(Property) ->
     {ok, Value} = application:get_env(?APP, Property),
@@ -38,3 +40,7 @@ get(Property, Default) ->
 -spec set(atom(), term()) -> ok.
 set(Property, Value) ->
     application:set_env(?APP, Property, Value).
+
+-spec id() -> node().
+id() ->
+    node().

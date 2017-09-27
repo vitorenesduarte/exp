@@ -36,9 +36,9 @@
          code_change/3]).
 
 -record(state, {nodes :: list(node_spec()),
-                connect_done:: ordsets:ordset(node()),
-                sim_done :: ordsets:ordset(node()),
-                metrics_done :: ordsets:ordset(node()),
+                connect_done:: ordsets:ordset(lsim_node_id()),
+                sim_done :: ordsets:ordset(lsim_node_id()),
+                metrics_done :: ordsets:ordset(lsim_node_id()),
                 start_time :: timestamp()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).

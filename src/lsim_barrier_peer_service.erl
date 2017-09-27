@@ -44,7 +44,7 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec members() -> {ok, [node()]}.
+-spec members() -> {ok, [lsim_node_id()]}.
 members() ->
     gen_server:call(?MODULE, members, infinity).
 
@@ -52,7 +52,7 @@ members() ->
 join(NodeSpec) ->
     gen_server:call(?MODULE, {join, NodeSpec}, infinity).
 
--spec forward_message(node(), handler(), message()) ->
+-spec forward_message(lsim_node_id(), handler(), message()) ->
     ok | error().
 forward_message(LDBId, Handler, Message) ->
     gen_server:call(?MODULE, {forward_message, LDBId, Handler, Message}, infinity).

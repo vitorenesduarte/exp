@@ -58,7 +58,7 @@ init([]) ->
     {ok, #state{number_of_rules=0}}.
 
 handle_call(simulation_end, _From, State) ->
-    tell({sim_done, node()}),
+    tell({sim_done, lsim_config:id()}),
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
@@ -83,7 +83,7 @@ handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
 handle_cast(metrics_go, State) ->
     ?LOG("Received METRICS GO. Pushing metrics."),
     lsim_simulations_support:push_lmetrics(),
-    tell({metrics_done, node()}),
+    tell({metrics_done, lsim_config:id()}),
     {noreply, State};
 
 handle_cast(Msg, State) ->
@@ -102,7 +102,7 @@ handle_info(create_barrier, State) ->
     {noreply, State};
 
 handle_info(join_peers, State) ->
-    MyName = node(),
+    MyName = lsim_config:id(),
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
@@ -113,7 +113,7 @@ handle_info(join_peers, State) ->
                                                 Nodes,
                                                 Overlay),
             ok = connect(ToConnect, ?PEER_SERVICE),
-            tell({connect_done, node()});
+            tell({connect_done, lsim_config:id()});
         _ ->
             schedule_join_peers()
     end,
@@ -171,4 +171,4 @@ tell(Msg) ->
 
 %% @private
 without_me(Members) ->
-    Members -- [node()].
+    Members -- [lsim_config:id()].

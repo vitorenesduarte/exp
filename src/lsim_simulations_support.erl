@@ -108,7 +108,7 @@ push_lmetrics() ->
     %% process latency
     All2 = orddict:store(latency, Latency, All1),
 
-    FilePath = file_path(node()),
+    FilePath = file_path(lsim_config:id()),
     File = encode(All2),
 
     store(FilePath, File),

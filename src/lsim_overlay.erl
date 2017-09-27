@@ -47,7 +47,7 @@ lists:foldl(
 %% @doc The first argument is my node spec,
 %%      the second argument is a list of node specs,
 %%      and the third argument is the overlay.
--spec to_connect(node(), list(node_spec()), atom()) ->
+-spec to_connect(lsim_node_id(), list(node_spec()), atom()) ->
     list(node_spec()).
 to_connect(MyName, Nodes, Overlay) ->
     NodeNumber = length(Nodes),

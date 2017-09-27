@@ -2,9 +2,10 @@
 -type error() :: {error, atom()}.
 
 %% peer service
+-type lsim_node_id() :: node().
 -type node_ip() :: inet:ip_address().
 -type node_port() :: non_neg_integer().
--type node_spec() :: {node(), node_ip(), node_port()}.
+-type node_spec() :: {lsim_node_id(), node_ip(), node_port()}.
 -type handler() :: term(). %% module
 -type message() :: term().
 -type timestamp() :: non_neg_integer().
