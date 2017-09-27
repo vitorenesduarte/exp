@@ -37,7 +37,7 @@ get(_, 1) ->
 get(trcb, N) ->
 lists:foldl(
     fun(I, Acc) ->
-        Peers = N -- [I],
+        Peers = lists:seq(0, I - 1) ++ lists:seq(I+1, N - 1),
         orddict:store(I, Peers, Acc)
     end,
     orddict:new(),
