@@ -3,7 +3,7 @@
  {<<"eredis">>,{pkg,<<"eredis">>,<<"1.0.8">>},0},
  {<<"featherine">>,
   {git,"https://github.com/gyounes/featherine",
-       {ref,"84b82b584a497633365130bb459e521db9817b48"}},
+       {ref,"d316791ed25e3cd901b43445cd5e24ebc97f4ad5"}},
   0},
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},0},
