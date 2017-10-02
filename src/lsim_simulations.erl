@@ -61,7 +61,7 @@ CalcFunction = fun({ToBeAckQueue, LocalDot, DepDotList, ToBeDelvConcDots, DepGra
         + erts_debug:flat_size(ToBeDelvConcDots)
         + erts_debug:flat_size(DepGraph)
       end,
-      
+
       {0, featherine:tcbmemory(CalcFunction)}.
 
 %% @private
