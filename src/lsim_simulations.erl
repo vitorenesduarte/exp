@@ -34,7 +34,9 @@ get_specs(Simulation) ->
         undefined ->
             [];
 
-        trcb ->
+        trcb_Dots ->
+            trcb_simulation();
+        trcb_VV ->
             trcb_simulation()
 
     end,

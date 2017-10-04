@@ -11,7 +11,7 @@
 -type timestamp() :: non_neg_integer().
 
 %% defaults
--define(DEFAULT_OVERLAY, trcb).
+-define(DEFAULT_OVERLAY, trcb_Dots).
 -define(DEFAULT_MODE, trcb).
 
 %% logging
