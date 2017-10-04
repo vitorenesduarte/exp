@@ -54,15 +54,19 @@ create_spec(Funs) ->
 
 %% @private
 memory() ->
-CalcFunction = fun({ToBeAckQueue, LocalDot, DepDotList, ToBeDelvConcDots, DepGraph}) ->
-        erts_debug:flat_size(ToBeAckQueue)
-        + erts_debug:flat_size(LocalDot)
-        + erts_debug:flat_size(DepDotList)
-        + erts_debug:flat_size(ToBeDelvConcDots)
-        + erts_debug:flat_size(DepGraph)
-      end,
+  % CalcFunction = fun({ToBeAckQueue, LocalDot, DepDotList, ToBeDelvConcDots, DepGraph}) ->
+  %         erts_debug:flat_size(ToBeAckQueue)
+  %         + erts_debug:flat_size(LocalDot)
+  %         + erts_debug:flat_size(DepDotList)
+  %         + erts_debug:flat_size(ToBeDelvConcDots)
+  %         + erts_debug:flat_size(DepGraph)
+  %       end,
 
-      {0, featherine:tcbmemory(CalcFunction)}.
+  CalcFunction = fun(L) ->
+    lists:foldl(fun(X, Sum) -> erts_debug:flat_size(X) + Sum end, 0, L)
+  end,
+
+  {0, featherine:tcbmemory(CalcFunction)}.
 
 %% @private
 trcb_simulation() ->
@@ -103,7 +107,8 @@ trcb_simulation() ->
     CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
         TheoTot = NodeNumber * NodeEventNumber,
         {PracTotDelv, PracTotStab} = TotalEventsFun(),
-        PracTotDelv == TheoTot andalso PracTotStab >= (TheoTot - NodeNumber)
+        % PracTotDelv == TheoTot andalso PracTotStab >= (TheoTot - NodeNumber)
+        PracTotDelv == TheoTot
     end,
 
     HandleCastFun = fun(Msg) ->
