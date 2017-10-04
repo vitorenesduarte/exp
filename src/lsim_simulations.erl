@@ -106,7 +106,7 @@ trcb_simulation() ->
 
     CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
         TheoTot = NodeNumber * NodeEventNumber,
-        {PracTotDelv, PracTotStab} = TotalEventsFun(),
+        {PracTotDelv, _PracTotStab} = TotalEventsFun(),
         % PracTotDelv == TheoTot andalso PracTotStab >= (TheoTot - NodeNumber)
         PracTotDelv == TheoTot
     end,
