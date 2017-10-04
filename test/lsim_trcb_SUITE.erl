@@ -65,43 +65,22 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     line_three_test
-     % ,
-     % ring_three_test,
-     % hyparview_three_test,
-     % line_seven_test,
-     % ring_seven_test,
-     % hyparview_seven_test
+     bla_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-line_three_test(_Config) ->
-    run(line, 3).
-
-ring_three_test(_Config) ->
-    run(ring, 3).
-
-hyparview_three_test(_Config) ->
-    run(hyparview, 3).
-
-line_seven_test(_Config) ->
-    run(line, 7).
-
-ring_seven_test(_Config) ->
-    run(ring, 7).
-
-hyparview_seven_test(_Config) ->
-    run(hyparview, 7).
+bla_test(_Config) ->
+    run(trcb, 7).
 
 %% @private
 run(_, NodeNumber) ->
     Options = [{node_number, NodeNumber},
                {lsim_settings,
                 [{lsim_node_number, NodeNumber},
-                 {lsim_simulation, trcb},
+                 {lsim_simulation, trcb_Dots},
                  {lsim_node_event_number, ?EVENT_NUMBER}]}],
 
     lsim_local_simulations_support:run_trcb(Options).
