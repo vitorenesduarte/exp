@@ -80,14 +80,14 @@ trcb_simulation() ->
       put(delivery, 0),
       put(stability, 0),
 
-      DelvFun = fun(Msg) ->
+      DelvFun = fun(_Msg) ->
         % lager:info("Message delivered: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, delivery),
         ok
       end,
       featherine:tcbdelivery(DelvFun),
 
-      StabFun = fun(Msg) ->
+      StabFun = fun(_Msg) ->
         % lager:info("Message stabilized: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, stability)
       end,
