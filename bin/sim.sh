@@ -6,7 +6,7 @@ BRANCH=$(git branch |
          grep "^\*" |
          awk '{print $2}')
 
-#"${DIR}"/g-cluster.sh start
+# "${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
@@ -37,9 +37,10 @@ fi
 #"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-SIMULATION_=(trcb)
-NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(10)
+SIMULATION_=(trcb_Dots)
+OVERLAY_=trcb
+NODE_NUMBER_=(22)
+NODE_EVENT_NUMBER_=(1000)
 PARTITION_NUMBER_=(1)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
