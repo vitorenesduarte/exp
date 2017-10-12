@@ -63,7 +63,6 @@ do
         NODE_NUMBER=${NODE_NUMBER} \
         NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
         ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
-        PARTITION_NUMBER=1 \
         KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
       done
     done
