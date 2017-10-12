@@ -47,10 +47,7 @@ docker-lint:
 eunit:
 	${REBAR} as test eunit
 
-ct: trcbtest simulations
-
-simulations:
-	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
+ct: trcbtest
 
 trcbtest:
 	${REBAR} as test ct --suite=test/lsim_trcb_SUITE --readable=false --verbose

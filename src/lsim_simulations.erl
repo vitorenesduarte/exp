@@ -33,7 +33,6 @@ get_specs(Simulation) ->
     Funs = case Simulation of
         undefined ->
             [];
-
         trcb_Dots ->
             trcb_simulation();
         trcb_VV ->
