@@ -65,7 +65,7 @@ memory() ->
   %       end,
 
   CalcFunction = fun(L) ->
-    lists:foldl(fun(X, Sum) -> erts_debug:flat_size(X) + Sum end, 0, L)
+    lists:foldl(fun(X, Sum) -> erlang:byte_size(erlang:term_to_binary(X)) + Sum end, 0, L)
   end,
 
   {0, featherine:tcbmemory(CalcFunction)}.
