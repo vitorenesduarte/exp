@@ -74,7 +74,6 @@ memory() ->
 trcb_simulation() ->
     StartFun = fun() ->
       {ok, Members} = partisan_peer_service:members(),
-        lager:info("partisan_peer_service:members(): ~p", [Members]),
 
       featherine:tcbfullmembership(Members),
 
@@ -82,14 +81,14 @@ trcb_simulation() ->
       put(stability, 0),
 
       DelvFun = fun(Msg) ->
-        lager:info("Message delivered: ~p", [Msg]),
+        % lager:info("Message delivered: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, delivery),
         ok
       end,
       featherine:tcbdelivery(DelvFun),
 
       StabFun = fun(Msg) ->
-        lager:info("Message stabilized: ~p", [Msg]),
+        % lager:info("Message stabilized: ~p", [Msg]),
         gen_server:cast(lsim_simulation_runner, stability)
       end,
       featherine:tcbstability(StabFun),
@@ -114,9 +113,9 @@ trcb_simulation() ->
     end,
 
     HandleCastFun = fun(Msg) ->
-        lager:info("Before Doing ~p value is: ~p", [Msg, get(Msg)]),
+        % lager:info("Value before ~p: ~p", [Msg, get(Msg)]),
         put(Msg, get(Msg) + 1),
-        lager:info("After Doing ~p value is: ~p", [Msg, get(Msg)])
+        lager:info("Value after ~p: ~p", [Msg, get(Msg)])
     end,
 
     [StartFun,

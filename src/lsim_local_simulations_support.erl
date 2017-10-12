@@ -179,12 +179,6 @@ verify_overlay_trcb(Nodes) ->
 
       SortedMembers = lists:usort(Members) -- [Node],
 
-      ct:pal("Node: ~p", [Node]),
-      ct:pal("Nodes: ~p", [Nodes]),
-      ct:pal("Members: ~p", [Members]),
-      ct:pal("SortedNodes: ~p", [SortedNodes]),
-      ct:pal("SortedMembers: ~p", [SortedMembers]),
-
       case SortedMembers =:= SortedNodes of
         true ->
           ok;
