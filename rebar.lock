@@ -10,7 +10,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"lmetrics">>,
   {git,"https://github.com/gyounes/lmetrics",
-       {ref,"5a292ae1f0df8190e4f3abc7cb8a2166724441ae"}},
+       {ref,"bc24b83e21eca3a7536f1ccdadeadc856633ac76"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
