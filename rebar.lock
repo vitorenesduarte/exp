@@ -2,7 +2,7 @@
 [{<<"acceptor_pool">>,{pkg,<<"acceptor_pool">>,<<"1.0.0-rc.0">>},0},
  {<<"eredis">>,{pkg,<<"eredis">>,<<"1.0.8">>},0},
  {<<"featherine">>,
-  {git,"https://github.com/gyounes/featherine",
+  {git,"git://github.com/gyounes/featherine",
        {ref,"c11013ae7c24621f2c400d38ac8918c0054cc812"}},
   0},
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
