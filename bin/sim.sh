@@ -37,10 +37,10 @@ fi
 #"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-SIMULATION_=(trcb_Dots)
+SIMULATION_=(trcb_VV)
 OVERLAY=trcb
-NODE_NUMBER_=(22)
-NODE_EVENT_NUMBER_=(1000)
+NODE_NUMBER_=(5)
+NODE_EVENT_NUMBER_=(100)
 PARTITION_NUMBER=1
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false

@@ -1,7 +1,8 @@
 # main function
 main <- function() {
-  source("boxplot.R")
-  # draw!
+    #  source("boxplot.R")
+  source("linesplot.R")
+# draw!
   metrics_dir <- "processed"
   ylabel <- "Memory (B)"
   logy <- FALSE
@@ -14,13 +15,13 @@ main <- function() {
     dir <- paste(metrics_dir, simulation, sep="/")
     
     # memory crdt
-    key <- "memory_crdt"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
-    splot(dir, simulation, key, output_file, ylabel, logy)
+    #    key <- "memory_crdt"
+    #    output_file <- paste(simulation, "_", key, ".pdf", sep="")
+    #    splot(dir, simulation, key, output_file, ylabel, logy)
 
     # memory algorithm
     key <- "memory_algorithm"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
+    output_file <- paste(simulation, "_", key, ".pdf", sep="")
     splot(dir, simulation, key, output_file, ylabel, logy)
   }
 }

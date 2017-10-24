@@ -11,7 +11,7 @@ METRICS_DIR=${DIR}/../priv/evaluation/metrics
 kubectl port-forward "${POD_NAME}" ${PORT}:${PORT} & TUNNEL_PID=$!
 
 echo "[$(date +%T)] Port forwarding starting..."
-sleep 3
+sleep 5
 
 METRICS_DIR=${METRICS_DIR} ./"${DIR}"/redis-sync.erl
 

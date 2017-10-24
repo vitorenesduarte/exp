@@ -132,10 +132,10 @@ spec:
         imagePullPolicy: "${PULL_IMAGE}"
         securityContext:
           privileged: true
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
+        # resources:
+        #   requests:
+        #     memory: "64Mi"
+        #     cpu: "250m"
         env:
         - name: BRANCH
           value: "${BRANCH}"

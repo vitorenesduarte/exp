@@ -57,11 +57,7 @@ def key(config):
 
     keys = [
         "lsim_simulation",
-        "lsim_overlay",
-        "lsim_node_number",
-        "lsim_node_event_number",
-        "lsim_element_node_ratio",
-        "lsim_partition_number"
+        "lsim_overlay"
     ]
 
     l = []
@@ -341,7 +337,7 @@ def group_by_simulation(d):
     r = {}
 
     for type in d:
-        simulation = type.split("~")[0]
+        simulation = type.split("~")[1]
 
         if not simulation in r:
             r[simulation] = {}
@@ -384,11 +380,17 @@ def main():
     Main.
     """
     d = get_metric_files()
+ 
     d = group_by_config(d)
+ 
     d = assume_unknown_values(d)
+
     d = average(d)
+ 
     d = aggregate(d)
+
     d = group_by_simulation(d)
+  
     dump(d)
 
 main()

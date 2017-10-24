@@ -12,15 +12,15 @@ pre: preprocess.py
 
 transmission: transmission.R pre
 	Rscript transmission.R
-	$(VIEWER) *transmission*.png &
+	$(VIEWER) *transmission*.pdf &
 
 memory: memory.R pre
 	Rscript memory.R
-	$(VIEWER) *memory*.png &
+	$(VIEWER) *memory*.pdf &
 
 latency: latency.R pre
 	Rscript latency.R
-	$(VIEWER) *latency*.png &
+	$(VIEWER) *latency*.pdf &
 
 clean:
-	rm *.png
+	rm *.pdf

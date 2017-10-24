@@ -14,12 +14,12 @@ main <- function() {
     dir <- paste(metrics_dir, simulation, sep="/")
 
     source("linesplot.R")
-    output_file <- paste(simulation, "_", key, "_line", ".png", sep="")
+    output_file <- paste(simulation, "_", key, "_line", ".pdf", sep="")
     splot(dir, simulation, key, output_file, ylabel, logy)
 
-    source("barplot.R")
-    output_file <- paste(simulation, "_", key, "_bar", ".png", sep="")
-    splot(dir, simulation, key, output_file, ylabel)
+#    source("barplot.R")
+#    output_file <- paste(simulation, "_", key, "_bar", ".pdf", sep="")
+#    splot(dir, simulation, key, output_file, ylabel)
   }
 }
 

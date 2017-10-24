@@ -1,10 +1,12 @@
 # main function
 main <- function() {
-  source("cdfplot.R")
+    #source("cdfplot.R")
+  source("linesplot.R")
   # draw!
   metrics_dir <- "processed"
   label <- "Latency (ms)"
-  logx <- TRUE
+  #  logx <- TRUE
+    logy <- FALSE
 
   # list of simulations
   simulations <- list.files(metrics_dir)
@@ -15,13 +17,13 @@ main <- function() {
   
     # latency local
     key <- "latency_local"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
-  	splot(dir, simulation, key, output_file, label, logx)
+    output_file <- paste(simulation, "_", key, ".pdf", sep="")
+  	splot(dir, simulation, key, output_file, label, logy)
 
     # latency remote
     key <- "latency_remote"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
-  	splot(dir, simulation, key, output_file, label, logx)
+    output_file <- paste(simulation, "_", key, ".pdf", sep="")
+  	splot(dir, simulation, key, output_file, label, logy)
   }
 }
 

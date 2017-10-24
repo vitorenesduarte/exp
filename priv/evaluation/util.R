@@ -25,48 +25,17 @@ json <- function(v) {
 # compute label name given key.
 get_labels <- function(keys) {
   labels = list()
-  labels[["pure_op_based_none_undefined_undefined"]] = "Pure"
-  labels[["state_based_none_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined"]] = "State-Based SD"
-  labels[["state_based_digest_driven_undefined_undefined"]] = "State-based DD"
-  labels[["delta_based_none_False_False"]] = "Delta-Based"
-  labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
-  labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
-  labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
-  labels[["delta_based_state_driven_False_False"]] = "Delta-Based SD"
-  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD (Remove Redundant)"
-  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD(Back-Propagation)"
-  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD (Both)"
-  labels[["delta_based_digest_driven_False_False"]] = "Delta-Based"
-  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD (Remove Redundant)"
-  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD (Back-Propagation)"
-  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD (Both)"
+  labels[["trcb_Dots~trcb"]] = "Dots"
+  labels[["trcb_VV~trcb"]] = "VVs"
   lapply(
     keys,
     function(key) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(7, 8, 10, 11)],
+          parts[c(1, 2)],
           collapse="_"
       )
-
-      mode_and_partitions = paste(
-        labels[[mode]],
-        " #", parts[c(6)],
-        sep=""
-      )
-
-      if(strtoi(parts[c(5)]) > 1) {
-        paste(
-          mode_and_partitions,
-          " ",
-          parts[c(5)],
-          "/1",
-          sep=""
-        )
-      }
-      else mode_and_partitions
     }
   )
 }
@@ -74,9 +43,9 @@ get_labels <- function(keys) {
 # get the plot title
 get_title <- function(key) {
   titles = list()
-  titles[["awset"]] = "AWSet"
-  titles[["gset"]] = "GSet"
-  titles[["gcounter"]] = "GCounter"
-
+  titles[["trcb"]] = "trcb"
+  titles[["trcb_Dots"]] = "Dots"
+  titles[["trcb_VV"]] = "VVs"
+  
   titles[[key]]
 }

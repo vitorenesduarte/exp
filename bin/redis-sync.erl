@@ -13,8 +13,9 @@ main(_) ->
 
     lists:foreach(
         fun(Filename) ->
+            io:format("Fetching key ~p ~n", [Filename]),
             %% for all the keys (files), save them in the metrics dir
-            {ok, File} = eredis:q(Redis, ["GET", Filename]),
+            {ok, File} = eredis:q(Redis, ["GET", Filename], infinity),
             save(Filename, File)
         end,
         Keys
