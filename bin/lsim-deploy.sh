@@ -35,8 +35,12 @@ echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
 CONTEXT=$(kubectl config view |
           grep current |
           awk '{print $2}')
+CLUSTER=$(kubectl config view |
+            grep -Eb2 "${CONTEXT}$" |
+            grep "cluster:" |
+            awk '{print $3}')
 APISERVER=$(kubectl config view |
-            grep -Eb1 "${CONTEXT}$" |
+            grep -Eb1 "name: ${CLUSTER}$" |
             grep "server:" |
             grep -Eo "https://[0-9\.:]+")
 TOKEN=$(kubectl describe secret |
