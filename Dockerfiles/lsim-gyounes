@@ -1,0 +1,12 @@
+FROM erlang:20.1.2
+
+MAINTAINER Georges Younes <georges.r.younes@gmail.com>
+
+
+ENV NAME=lsim
+
+COPY _build/default/rel/$NAME /$NAME
+
+WORKDIR /$NAME
+
+CMD ["bin/env"]

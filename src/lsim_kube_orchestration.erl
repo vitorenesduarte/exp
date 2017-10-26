@@ -93,7 +93,7 @@ http(Method, Path, Body0) ->
 run_http(Method, Request) ->
     Options = [{body_format, binary}],
 
-    case httpc:request(Method, Request, [], Options) of
+    case httpc:request(Method, Request, [{ssl, [{server_name_indication, disable}]}], Options) of
         {ok, {{_, 200, _}, _, Body}} ->
             {ok, decode(Body)};
         {error, Reason} ->

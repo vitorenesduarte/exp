@@ -1,0 +1,6 @@
+FROM erlang:20.1.2
+
+MAINTAINER Georges Younes <georges.r.younes@gmail.com>
+
+
+RUN apt-get update && apt-get -y install make git iptables sudo

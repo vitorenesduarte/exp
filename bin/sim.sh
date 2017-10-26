@@ -23,6 +23,26 @@ elif [ "$1" == "clone" ]; then
   IMAGE=vitorenesduarte/lsim-dev
   PULL_IMAGE=IfNotPresent
 
+elif [ "$1" == "clone-gry" ]; then
+  # build, push and use that image
+  IMAGE=gyounes/lsim-gry
+  PULL_IMAGE=Always
+  DOCKERFILE=${DIR}/../Dockerfiles/lsim-gry
+
+  BRANCH=${BRANCH} \
+    IMAGE=${IMAGE} \
+    DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
+
+elif [ "$1" == "build-gry" ]; then
+  # build, push and use that image
+  IMAGE=gyounes/lsim-gyounes
+  PULL_IMAGE=Always
+  DOCKERFILE=${DIR}/../Dockerfiles/lsim-gyounes
+
+    DIR=${DIR} \
+    IMAGE=${IMAGE} \
+    DOCKERFILE=${DOCKERFILE} "${DIR}"/image-gyounes.sh
+
 else
   # use the latest lsim image
   IMAGE=vitorenesduarte/lsim
@@ -37,7 +57,7 @@ fi
 #"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
-SIMULATION_=(trcb_VV)
+SIMULATION_=(trcb_Dots)
 OVERLAY=trcb
 NODE_NUMBER_=(5)
 NODE_EVENT_NUMBER_=(100)

@@ -36,7 +36,7 @@ CONTEXT=$(kubectl config view |
           grep current |
           awk '{print $2}')
 CLUSTER=$(kubectl config view |
-            grep -Eb2 "${CONTEXT}$" |
+            grep -Eb2 "cluster: ${CONTEXT}$" |
             grep "cluster:" |
             awk '{print $3}')
 APISERVER=$(kubectl config view |

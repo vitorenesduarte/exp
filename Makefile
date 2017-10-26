@@ -66,6 +66,10 @@ shell:
 stage:
 	${REBAR} release -d
 
+rel:
+	rm -rf _build/default/rel/
+	${REBAR} release
+
 ##
 ## Simulation targets
 ##
