@@ -1,4 +1,4 @@
-FROM erlang:20.1.2
+FROM erlang:20.1.2-slim
 
 MAINTAINER Georges Younes <georges.r.younes@gmail.com>
 

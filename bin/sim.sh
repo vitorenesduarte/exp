@@ -45,7 +45,7 @@ elif [ "$1" == "build-gry" ]; then
 
 else
   # use the latest lsim image
-  IMAGE=vitorenesduarte/lsim
+  IMAGE=gyounes/lsim-gyounes
   PULL_IMAGE=IfNotPresent
 
 fi
