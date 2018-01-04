@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 BRANCH=$(git branch |
-         grep "^\*" |
+         grep "^\\*" |
          awk '{print $2}')
 
 "${DIR}"/g-cluster.sh start

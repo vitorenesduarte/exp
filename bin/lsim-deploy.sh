@@ -50,7 +50,7 @@ CONTEXT=$(kubectl config view |
 APISERVER=$(kubectl config view |
             grep -Eb1 "${CONTEXT}$" |
             grep "server:" |
-            grep -Eo "https://[0-9\.:]+")
+            grep -Eo "https://[0-9\\.:]+")
 TOKEN=$(kubectl describe secret |
         grep "token:" |
         awk '{print $2}')
