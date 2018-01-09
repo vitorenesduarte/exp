@@ -3,20 +3,22 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/lsim-copy
 
 #"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
-  # build, push and use that image
-  PULL_IMAGE=Always
+  # build and push
+  IMAGE=${DOCKER_USER}/lsim-copy
   DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
   IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
+  # use the new image
+  PULL_IMAGE=Always
+
 else
-  # use the latest lsim image
+  # use the latest image
   PULL_IMAGE=IfNotPresent
 
 fi
