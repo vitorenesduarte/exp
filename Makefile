@@ -80,7 +80,7 @@ stage:
 logs:
 	  tail -F priv/lager/*/log/*.log
 
-run: stage
+run:
 	  _build/default/rel/${PACKAGE}/bin/env
 
 DIALYZER_APPS = kernel stdlib erts sasl eunit syntax_tools compiler crypto
