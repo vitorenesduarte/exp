@@ -42,13 +42,11 @@ created; but it's not the case if using HyParView.
 
 ```bash
 $ bin/sim.sh build
-$ bin/sim.sh clone
 $ bin/sim.sh
 ```
 
 - `build` will build a new image, push it, and the run the experiments with that image
-- `clone` will use an image that clones the repository in the current branch
-- otherwise it will run the experiments without pullling a new image (if already present)
+- if no argument, it will run the experiments using the last pushed image
 
 
 #### Google Cloud Platform
