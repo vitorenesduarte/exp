@@ -2,30 +2,21 @@
 
 REPS=1
 DIR=$(dirname "$0")
-BRANCH=$(git branch |
-         grep "^\*" |
-         awk '{print $2}')
+DOCKER_USER=vitorenesduarte
+IMAGE=${DOCKER_USER}/lsim-copy
 
-"${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build, push and use that image
-  IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=Always
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim
+  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
-  BRANCH=${BRANCH} \
-    IMAGE=${IMAGE} \
+  IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
-
-elif [ "$1" == "clone" ]; then
-  # use image that clones on start
-  IMAGE=vitorenesduarte/lsim-dev
-  PULL_IMAGE=IfNotPresent
 
 else
   # use the latest lsim image
-  IMAGE=vitorenesduarte/lsim
   PULL_IMAGE=IfNotPresent
 
 fi
@@ -39,15 +30,15 @@ fi
 # lsim configuration
 OVERLAY_=(ring)
 SIMULATION_=(awset)
-NODE_NUMBER_=(20)
-NODE_EVENT_NUMBER_=(100)
-PARTITION_NUMBER_=(1 2 3)
+NODE_NUMBER_=(3)
+NODE_EVENT_NUMBER_=(20)
+PARTITION_NUMBER_=(1)
 ELEMENT_NODE_RATIO=1
 KEEP_ALIVE=false
 
 # ldb configuration
 MODE_=(state_based delta_based)
-DRIVEN_MODE_=(none state_driven digest_driven)
+DRIVEN_MODE_=(none)
 STATE_SYNC_INTERVAL_=(1000)
 REDUNDANT_DGROUPS_=(true)
 DGROUP_BACK_PROPAGATION_=(true)
@@ -72,8 +63,7 @@ do
                 for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
                 do
 
-                  BRANCH=${BRANCH} \
-                    IMAGE=${IMAGE} \
+                  IMAGE=${IMAGE} \
                     PULL_IMAGE=${PULL_IMAGE} \
                     LDB_MODE=${LDB_MODE} \
                     LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
@@ -101,8 +91,7 @@ do
 
                         for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
                         do
-                          BRANCH=${BRANCH} \
-                            IMAGE=${IMAGE} \
+                          IMAGE=${IMAGE} \
                             PULL_IMAGE=${PULL_IMAGE} \
                             LDB_MODE=${LDB_MODE} \
                             LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
@@ -120,8 +109,7 @@ do
                         done
                       else
 
-                        BRANCH=${BRANCH} \
-                          IMAGE=${IMAGE} \
+                        IMAGE=${IMAGE} \
                           PULL_IMAGE=${PULL_IMAGE} \
                           LDB_MODE=${LDB_MODE} \
                           LDB_DRIVEN_MODE=none \
