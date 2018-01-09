@@ -46,7 +46,7 @@ $ bin/sim.sh
 ```
 
 - `build` will build a new image, push it, and the run the experiments with that image
-- if no argument, it will run the experiments using the last pushed image
+- if no argument, the experiments will be run using the last pushed image
 
 
 #### Google Cloud Platform
@@ -89,7 +89,6 @@ This will open a new chrome tab with the dashboard.
 To build and push an image:
 
 ```bash
-$ BRANCH=master \
-  IMAGE=vitorenesduarte/lsim \
+$ IMAGE=vitorenesduarte/lsim \
   DOCKERFILE=Dockerfiles/lsim bin/image.sh
 ```

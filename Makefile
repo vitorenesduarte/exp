@@ -59,6 +59,12 @@ op-based:
 simulations:
 	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
 
+xref:
+	${REBAR} xref skip_deps=true
+
+dialyzer:
+	${REBAR} dialyzer
+
 cover:
 	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
 		${REBAR} cover
@@ -84,5 +90,3 @@ run:
 	  _build/default/rel/${PACKAGE}/bin/env
 
 DIALYZER_APPS = kernel stdlib erts sasl eunit syntax_tools compiler crypto
-
-include tools.mk
