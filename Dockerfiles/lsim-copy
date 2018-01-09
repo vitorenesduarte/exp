@@ -4,7 +4,6 @@ MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
 ENV NAME=/lsim
 
-WORKDIR /opt
 COPY include $NAME/include/
 COPY bin $NAME/bin/
 COPY config $NAME/config/
