@@ -4,9 +4,9 @@ MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
 ENV NAME=/lsim
 
-COPY include $NAME/include/
 COPY bin $NAME/bin/
 COPY config $NAME/config/
+COPY include $NAME/include/
 COPY src $NAME/src/
 COPY rebar3 rebar.config rebar.lock Makefile tools.mk $NAME/
 
