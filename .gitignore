@@ -4,3 +4,4 @@ log/
 *.swo
 *.swp
 *.dump
+*.DS_Store

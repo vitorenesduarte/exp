@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ENV_VARS=(
-  BRANCH
   IMAGE
   PULL_IMAGE
   LDB_MODE
@@ -27,7 +26,6 @@ do
 done
 
 echo "[$(date +%T)] Configuration: "
-echo "    BRANCH: ${BRANCH}"
 echo "    IMAGE: ${IMAGE}"
 echo "    PULL_IMAGE: ${PULL_IMAGE}"
 echo "    LDB_MODE: ${LDB_MODE}"
@@ -91,8 +89,6 @@ spec:
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
         env:
-        - name: BRANCH
-          value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
@@ -157,8 +153,6 @@ spec:
         securityContext:
           privileged: true
         env:
-        - name: BRANCH
-          value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
