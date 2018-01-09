@@ -31,7 +31,7 @@ check: test xref dialyzer lint
 
 test: ct eunit
 
-lint: erl-lint shell-lint docker-lint
+lint: erl-lint #shell-lint docker-lint
 
 erl-lint:
 	${REBAR} as lint lint
