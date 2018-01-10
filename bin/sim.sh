@@ -3,12 +3,12 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
+IMAGE=${DOCKER_USER}/lsim-copy
 
 #"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build and push
-  IMAGE=${DOCKER_USER}/lsim-copy
   DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
   IMAGE=${IMAGE} \
