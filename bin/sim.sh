@@ -17,6 +17,20 @@ if [ "$1" == "build" ]; then
   # use the new image
   PULL_IMAGE=Always
 
+elif [ "$1" == "local" ]; then
+  # build locally
+  IMAGE=${DOCKER_USER}/lsim-copy
+  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
+
+  eval $(minikube docker-env)
+
+  docker build \
+         --no-cache \
+         -t "${IMAGE}" -f "${DOCKERFILE}" .
+
+  # use the new image
+  PULL_IMAGE=Never
+
 else
   # use the latest image
   PULL_IMAGE=IfNotPresent
