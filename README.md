@@ -1,6 +1,7 @@
 # lsim
 
-[![Build Status](https://travis-ci.org/vitorenesduarte/lsim.svg?branch=master)](https://travis-ci.org/vitorenesduarte/lsim/)
+[![Build Status](https://img.shields.io/travis/vitorenesduarte/lsim/master.svg)](https://travis-ci.org/vitorenesduarte/lsim)
+[![Coverage Status](https://img.shields.io/coveralls/github/vitorenesduarte/lsim/master.svg?maxAge=60)](https://coveralls.io/github/vitorenesduarte/lsim?branch=master)
 
 
 #### Experiments
