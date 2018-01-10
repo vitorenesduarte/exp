@@ -16,13 +16,6 @@ all: compile
 compile:
 	$(REBAR) compile
 
-clean: packageclean
-	$(REBAR) clean
-
-packageclean:
-	rm -fr *.deb
-	rm -fr *.tar.gz
-
 ##
 ## Test targets
 ##
@@ -30,6 +23,7 @@ packageclean:
 check: test xref dialyzer lint
 
 test: ct eunit
+	${REBAR} cover -v
 
 lint: erl-lint #shell-lint docker-lint
 
@@ -43,21 +37,21 @@ docker-lint:
 	for f in $$(ls -d Dockerfiles/*); do dockerlint $$f; done
 
 eunit:
-	${REBAR} as test eunit
+	${REBAR} eunit
 
 ct: state-based driven-based simulations
 
 state-based:
-	${REBAR} as test ct --suite=test/lsim_state_based_modes_SUITE
+	${REBAR} ct --suite=test/lsim_state_based_modes_SUITE
 
 driven-based:
-	${REBAR} as test ct --suite=test/lsim_driven_based_modes_SUITE
+	${REBAR} ct --suite=test/lsim_driven_based_modes_SUITE
 
 op-based:
-	${REBAR} as test ct --suite=test/lsim_op_based_modes_SUITE
+	${REBAR} ct --suite=test/lsim_op_based_modes_SUITE
 
 simulations:
-	${REBAR} as test ct --suite=test/lsim_simulations_SUITE
+	${REBAR} ct --suite=test/lsim_simulations_SUITE
 
 xref:
 	${REBAR} xref skip_deps=true
@@ -65,9 +59,8 @@ xref:
 dialyzer:
 	${REBAR} dialyzer
 
-cover:
-	pkill -9 beam.smp; ${REBAR} as test ct --cover ; \
-		${REBAR} cover
+cover: test
+	open _build/test/cover/index.html
 
 shell:
 	${REBAR} shell --apps ${PACKAGE}
