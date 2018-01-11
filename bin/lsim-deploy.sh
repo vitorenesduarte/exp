@@ -201,8 +201,8 @@ EOF
 
 kubectl create -f "${FILE}"
 
-# wait time is number of events (each event is 1 second) plus 60 seconds
-WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
+while [ $(kubectl get pods -l timestamp=$TIMESTAMP 2>/dev/null | grep lsim | wc -l) -gt 0 ]; do
+    sleep 1
+done
 
-echo "[$(date +%T)] Waiting ${WAIT_TIME} second(s) before next deploy."
-sleep ${WAIT_TIME}
+echo "Test done."
