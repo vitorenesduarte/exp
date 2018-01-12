@@ -81,11 +81,12 @@ handle_info(event, #state{event_count=Events0,
                           event_fun=EventFun,
                           total_events_fun=TotalEventsFun}=State) ->
     Events = Events0 + 1,
-    EventFun(Events),
+    NodeEventNumber = node_event_number(),
+    EventFun(Events, NodeEventNumber),
     TotalEvents = TotalEventsFun(),
     ?LOG("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
 
-    case Events == node_event_number() of
+    case Events == NodeEventNumber of
         true ->
             %% If I did all the events I should do
             schedule_simulation_end();

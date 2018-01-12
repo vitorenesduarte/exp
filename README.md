@@ -34,7 +34,7 @@ sets (if defined in the simulation configured)  are 5 times
 bigger than the node ids
 - __PARTITION_NUMBER__: number of connected components to be formed
 during the simulation. The partition is induced when the simulation
-reaches 25% of progress and healed at 75%. With static memberships
+reaches 50% of progress and healed at 75%. With static memberships
 it's easy to have control on the number of connected components
 created; but it's not the case if using HyParView.
 
