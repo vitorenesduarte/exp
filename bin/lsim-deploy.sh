@@ -201,8 +201,8 @@ EOF
 
 kubectl create -f "${FILE}"
 
-while [ $(kubectl get pods -l timestamp=$TIMESTAMP 2>/dev/null | grep lsim | wc -l) -gt 0 ]; do
+while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2> /dev/null | wc -l) -gt 0 ]; do
     sleep 1
 done
 
-echo "Test done."
+echo "[$(date +%T)] Done!"

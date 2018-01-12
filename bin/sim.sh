@@ -4,13 +4,12 @@ REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
+DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
 #"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
   # build and push
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
-
   IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
@@ -19,17 +18,13 @@ if [ "$1" == "build" ]; then
 
 elif [ "$1" == "local" ]; then
   # build locally
-  IMAGE=${DOCKER_USER}/lsim-copy
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
-
   eval $(minikube docker-env)
-
   docker build \
          --no-cache \
          -t "${IMAGE}" -f "${DOCKERFILE}" .
 
   # use the new image
-  PULL_IMAGE=Never
+  PULL_IMAGE=IfNotPresent
 
 else
   # use the latest image
