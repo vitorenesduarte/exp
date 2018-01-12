@@ -2,30 +2,32 @@
 
 REPS=1
 DIR=$(dirname "$0")
-BRANCH=$(git branch |
-         grep "^\*" |
-         awk '{print $2}')
+DOCKER_USER=vitorenesduarte
+IMAGE=${DOCKER_USER}/lsim-copy
+DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
-"${DIR}"/g-cluster.sh start
+#"${DIR}"/g-cluster.sh start
 
 if [ "$1" == "build" ]; then
-  # build, push and use that image
-  IMAGE=vitorenesduarte/lsim
-  PULL_IMAGE=Always
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim
-
-  BRANCH=${BRANCH} \
-    IMAGE=${IMAGE} \
+  # build and push
+  IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
-elif [ "$1" == "clone" ]; then
-  # use image that clones on start
-  IMAGE=vitorenesduarte/lsim-dev
+  # use the new image
+  PULL_IMAGE=Always
+
+elif [ "$1" == "local" ]; then
+  # build locally
+  eval $(minikube docker-env)
+  docker build \
+         --no-cache \
+         -t "${IMAGE}" -f "${DOCKERFILE}" .
+
+  # use the new image
   PULL_IMAGE=IfNotPresent
 
 else
-  # use the latest lsim image
-  IMAGE=vitorenesduarte/lsim
+  # use the latest image
   PULL_IMAGE=IfNotPresent
 
 fi
@@ -139,8 +141,7 @@ do
                         done
                       else
 
-                        BRANCH=${BRANCH} \
-                          IMAGE=${IMAGE} \
+                        IMAGE=${IMAGE} \
                           PULL_IMAGE=${PULL_IMAGE} \
                           LDB_MODE=${LDB_MODE} \
                           LDB_DRIVEN_MODE=none \

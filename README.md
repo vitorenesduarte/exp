@@ -1,6 +1,7 @@
 # lsim
 
-[![Build Status](https://travis-ci.org/vitorenesduarte/lsim.svg?branch=master)](https://travis-ci.org/vitorenesduarte/lsim/)
+[![Build Status](https://img.shields.io/travis/vitorenesduarte/lsim/master.svg)](https://travis-ci.org/vitorenesduarte/lsim)
+[![Coverage Status](https://img.shields.io/coveralls/github/vitorenesduarte/lsim/master.svg?maxAge=60)](https://coveralls.io/github/vitorenesduarte/lsim?branch=master)
 
 
 #### Experiments
@@ -42,13 +43,11 @@ created; but it's not the case if using HyParView.
 
 ```bash
 $ bin/sim.sh build
-$ bin/sim.sh clone
 $ bin/sim.sh
 ```
 
 - `build` will build a new image, push it, and the run the experiments with that image
-- `clone` will use an image that clones the repository in the current branch
-- otherwise it will run the experiments without pullling a new image (if already present)
+- if no argument, the experiments will be run using the last pushed image
 
 
 #### Google Cloud Platform
@@ -91,7 +90,6 @@ This will open a new chrome tab with the dashboard.
 To build and push an image:
 
 ```bash
-$ BRANCH=master \
-  IMAGE=vitorenesduarte/lsim \
+$ IMAGE=vitorenesduarte/lsim \
   DOCKERFILE=Dockerfiles/lsim bin/image.sh
 ```

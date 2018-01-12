@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ENV_VARS=(
-  BRANCH
   IMAGE
   PULL_IMAGE
   LDB_MODE
@@ -27,7 +26,6 @@ do
 done
 
 echo "[$(date +%T)] Configuration: "
-echo "    BRANCH: ${BRANCH}"
 echo "    IMAGE: ${IMAGE}"
 echo "    PULL_IMAGE: ${PULL_IMAGE}"
 echo "    LDB_MODE: ${LDB_MODE}"
@@ -50,7 +48,7 @@ CONTEXT=$(kubectl config view |
 APISERVER=$(kubectl config view |
             grep -Eb1 "${CONTEXT}$" |
             grep "server:" |
-            grep -Eo "https://[0-9\.:]+")
+            grep -Eo "https://[0-9\\.:]+")
 TOKEN=$(kubectl describe secret |
         grep "token:" |
         awk '{print $2}')
@@ -91,8 +89,6 @@ spec:
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
         env:
-        - name: BRANCH
-          value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
@@ -157,8 +153,6 @@ spec:
         securityContext:
           privileged: true
         env:
-        - name: BRANCH
-          value: "${BRANCH}"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
@@ -207,8 +201,8 @@ EOF
 
 kubectl create -f "${FILE}"
 
-# wait time is number of events (each event is 1 second) plus 60 seconds
-WAIT_TIME=$((NODE_EVENT_NUMBER + 60))
+while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2> /dev/null | wc -l) -gt 0 ]; do
+    sleep 1
+done
 
-echo "[$(date +%T)] Waiting ${WAIT_TIME} second(s) before next deploy."
-sleep ${WAIT_TIME}
+echo "[$(date +%T)] Done!"

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ENV_VARS=(
-  BRANCH
   IMAGE
   DOCKERFILE
 )
@@ -17,9 +16,7 @@ done
 # build image
 docker build \
   --no-cache \
-  --build-arg BRANCH="${BRANCH}" \
   -t "${IMAGE}" -f "${DOCKERFILE}" .
 
 # push image
 docker push "${IMAGE}"
-

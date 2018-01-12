@@ -28,6 +28,11 @@
 
 -export([init/1]).
 
+-define(CHILD(I, Type, Timeout),
+        {I, {I, start_link, []}, permanent, Timeout, Type, [I]}).
+-define(CHILD(I), ?CHILD(I, worker, 5000)).
+
+
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
@@ -136,38 +141,21 @@ lsim_specs(Simulation, Orchestration, RSG) ->
         undefined ->
             [];
         _ ->
-            BarrierPeerServiceSpecs = [{lsim_barrier_peer_service,
-                                        {lsim_barrier_peer_service,
-                                         start_link, []},
-                                        permanent, 5000, worker,
-                                        [lsim_barrier_peer_service]}],
-
-            Store = [{lsim_metrics_store,
-                      {lsim_metrics_store, start_link, []},
-                      permanent, 5000, worker,
-                      [lsim_metrics_store]}],
+            BarrierPeerServiceSpecs = [?CHILD(lsim_barrier_peer_service)],
+            Store = [?CHILD(lsim_metrics_store)],
 
             RSGSpecs = case RSG of
                 true ->
-                    [{lsim_rsg_master,
-                      {lsim_rsg_master, start_link, []},
-                      permanent, 5000, worker,
-                      [lsim_rsg_master]}];
+                    [?CHILD(lsim_rsg_master)];
                 false ->
-                    [{lsim_rsg,
-                      {lsim_rsg, start_link, []},
-                      permanent, 5000, worker,
-                      [lsim_rsg]}]
+                    [?CHILD(lsim_rsg)]
             end,
 
             HTTPSpecs = case RSG of
                 true ->
                     [];
                 false ->
-                    [{lsim_resource,
-                      {lsim_resource, start_link, []},
-                      permanent, 5000, worker,
-                      [lsim_resource]}]
+                    [?CHILD(lsim_resource)]
             end,
 
             BarrierPeerServiceSpecs ++ Store ++ RSGSpecs ++ HTTPSpecs
