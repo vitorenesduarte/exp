@@ -28,7 +28,7 @@ def ls_grep(dir, filter):
     List a directory, returning full path.
     Only files that match the filter are returned.
     """
-    return [os.path.join(dir, f) for f in os.listdir(dir) if filter(f)]
+    return [os.path.join(dir, f) for f in os.listdir(dir) if filter(f) and f[0] != '.']
 
 def get_metric_files():
     """
