@@ -5,7 +5,7 @@ POD_NAME=$(kubectl get pods |
            awk '{print $1}')
 
 PORT=6379
-DIR=$(dirname "$0")
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 METRICS_DIR=${DIR}/../priv/evaluation/metrics
 
 kubectl port-forward "${POD_NAME}" ${PORT}:${PORT} & TUNNEL_PID=$!
@@ -13,7 +13,8 @@ kubectl port-forward "${POD_NAME}" ${PORT}:${PORT} & TUNNEL_PID=$!
 echo "[$(date +%T)] Port forwarding starting..."
 sleep 3
 
-METRICS_DIR=${METRICS_DIR} ./"${DIR}"/redis-sync.erl
+cd "${DIR}"/..
+METRICS_DIR=${METRICS_DIR} "${DIR}"/redis-sync.erl
 
 echo "[$(date +%T)] All files downloaded!"
 

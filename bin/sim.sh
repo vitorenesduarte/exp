@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 REPS=1
-DIR=$(dirname "$0")
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
 
