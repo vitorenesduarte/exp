@@ -29,11 +29,21 @@
 %% @doc The first argument can be:
 %%          - `hyparview'
 %%          - `ring'
+%%          - `fullmesh'
 %%          - `line'
 %%      The second argument is the number of nodes.
 -spec get(atom(), pos_integer()) -> orddict:orddict().
 get(_, 1) ->
     [];
+get(fullmesh, N) ->
+    All = lists:seq(0, N - 1),
+    lists:foldl(
+        fun(I, Acc) ->
+            orddict:store(I, All -- [I], Acc)
+        end,
+        orddict:new(),
+        All
+    );
 get(hyparview, N) ->
     %% In HyParView, everyone connects to a single node.
     lists:foldl(
