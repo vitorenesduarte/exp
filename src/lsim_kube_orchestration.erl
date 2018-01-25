@@ -70,7 +70,7 @@ delete_task(Tag) ->
         ok ->
             ok;
         error ->
-            ?LOG("Delete failed. Trying again in 1 second"),
+            lager:info("Delete failed. Trying again in 1 second"),
             timer:sleep(1000),
             delete_task(Tag)
     end.
@@ -97,8 +97,8 @@ run_http(Method, Request) ->
         {ok, {{_, 200, _}, _, Body}} ->
             {ok, ldb_json:decode(Body)};
         {error, Reason} ->
-            ?LOG("Couldn't process ~p request. Reason ~p",
-                 [Method, Reason]),
+            lager:info("Couldn't process ~p request. Reason ~p",
+                       [Method, Reason]),
             {error, invalid}
     end.
 

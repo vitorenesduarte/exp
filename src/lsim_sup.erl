@@ -42,7 +42,7 @@ init([]) ->
 
     Children = lsim_specs(Simulation, Orchestration, RSG),
 
-    ?LOG("lsim_sup initialized!"),
+    lager:info("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, Children}}.
 

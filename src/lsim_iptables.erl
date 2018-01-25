@@ -107,7 +107,7 @@ exec(CMD) ->
 
     case Result /= "" of
         true ->
-            ?LOG("Exec ~p, Result ~p", [CMD, Result]);
+            lager:info("Exec ~p, Result ~p", [CMD, Result]);
         false ->
             ok
     end.

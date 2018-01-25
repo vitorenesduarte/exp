@@ -51,7 +51,7 @@ start_link() ->
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
-    ?LOG("lsim_rsg_master initialized"),
+    lager:info("lsim_rsg_master initialized"),
     {ok, #state{nodes=[],
                 connect_done=ordsets:new(),
                 sim_done=ordsets:new(),
@@ -66,13 +66,13 @@ handle_cast({connect_done, NodeName},
             #state{connect_done=ConnectDone0,
                    start_time=T0}=State) ->
 
-    ?LOG("Received CONNECT DONE from ~p", [NodeName]),
+    lager:info("Received CONNECT DONE from ~p", [NodeName]),
 
     ConnectDone1 = ordsets:add_element(NodeName, ConnectDone0),
 
     T1 = case ordsets:size(ConnectDone1) == node_number() of
         true ->
-            ?LOG("Everyone is CONNECT DONE. SIM GO!"),
+            lager:info("Everyone is CONNECT DONE. SIM GO!"),
             tell(sim_go),
             schedule_create_partitions(),
             ldb_util:unix_timestamp();
@@ -86,13 +86,13 @@ handle_cast({connect_done, NodeName},
 handle_cast({sim_done, NodeName},
             #state{sim_done=SimDone0}=State) ->
 
-    ?LOG("Received SIM DONE from ~p", [NodeName]),
+    lager:info("Received SIM DONE from ~p", [NodeName]),
 
     SimDone1 = ordsets:add_element(NodeName, SimDone0),
 
     case ordsets:size(SimDone1) == node_number() of
         true ->
-            ?LOG("Everyone is SIM DONE. METRICS GO!"),
+            lager:info("Everyone is SIM DONE. METRICS GO!"),
             tell(metrics_go);
         false ->
             ok
@@ -104,13 +104,13 @@ handle_cast({metrics_done, NodeName},
             #state{metrics_done=MetricsDone0,
                    start_time=StartTime}=State) ->
 
-    ?LOG("Received METRICS DONE from ~p", [NodeName]),
+    lager:info("Received METRICS DONE from ~p", [NodeName]),
 
     MetricsDone1 = ordsets:add_element(NodeName, MetricsDone0),
 
     case ordsets:size(MetricsDone1) == node_number() of
         true ->
-            ?LOG("Everyone is METRICS DONE. STOP!!!"),
+            lager:info("Everyone is METRICS DONE. STOP!!!"),
             lsim_simulations_support:push_lsim_metrics(StartTime),
             lsim_orchestration:stop_tasks([lsim, rsg]);
         false ->
@@ -221,8 +221,8 @@ connect([Node|Rest]=All) ->
         ok ->
             connect(Rest);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
-                 [Node, Error, ?INTERVAL]),
+            lager:info("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                       [Node, Error, ?INTERVAL]),
             timer:sleep(?INTERVAL),
             connect(All)
     end.

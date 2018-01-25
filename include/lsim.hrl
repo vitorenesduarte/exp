@@ -15,18 +15,13 @@
 -define(DEFAULT_MODE, state_based).
 
 %% logging
--define(LOGGING, list_to_atom("true")). %% dialyzer
--define(LOG(S),
-        ?LOG(S, [])
-       ).
--define(LOG(S, Args),
-        case ?LOGGING of
-            true ->
-                lager:info(S, Args);
-            false ->
-                ok
-        end
-       ).
+-ifdef(debug).
+-define(DEBUG(M), lager:info(M)).
+-define(DEBUG(M, A), lager:info(M, A)).
+-else.
+-define(DEBUG(_M), ok).
+-define(DEBUG(_M, _A), ok).
+-endif.
 
 %% barrier
 -define(PORT, 6866).

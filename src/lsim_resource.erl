@@ -46,7 +46,7 @@ start_link() ->
 
 %% gen_server callbacks
 init([]) ->
-    ?LOG("lsim_resource initialized"),
+    lager:info("lsim_resource initialized"),
 
     Loop = fun(Req) ->
         ?MODULE:loop(Req)

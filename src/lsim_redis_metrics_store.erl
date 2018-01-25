@@ -51,7 +51,7 @@ put(Key, Value) ->
 init([]) ->
     {Host, Port} = get_redis_config(),
     {ok, Redis} = eredis:start_link(Host, Port),
-    ?LOG("lsim_redis_metrics_store initialized"),
+    lager:info("lsim_redis_metrics_store initialized"),
     {ok, #state{redis=Redis}}.
 
 handle_call({put, Key, Value}, _From, #state{redis=Redis}=State) ->
@@ -83,7 +83,7 @@ get_redis_config() ->
             Ip = inet_parse:ntoa(IpAddress),
             {Ip, Port};
         {error, not_connected} ->
-            ?LOG("Redis not connected. Trying again in 5 seconds."),
+            lager:info("Redis not connected. Trying again in 5 seconds."),
             timer:sleep(5000),
             get_redis_config()
     end.

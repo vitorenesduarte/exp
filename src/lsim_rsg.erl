@@ -54,7 +54,7 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    ?LOG("lsim_rsg initialized"),
+    lager:info("lsim_rsg initialized"),
     {ok, #state{number_of_rules=0}}.
 
 handle_call(simulation_end, _From, State) ->
@@ -66,22 +66,22 @@ handle_call(Msg, _From, State) ->
     {noreply, State}.
 
 handle_cast(sim_go, State) ->
-    ?LOG("Received SIM GO. Starting simulation."),
+    lager:info("Received SIM GO. Starting simulation."),
     lsim_simulation_runner:start(),
     {noreply, State};
 
 handle_cast({reject_ips, IPs}, State) ->
-    ?LOG("Received REJECT IPS. ~p", [IPs]),
+    lager:info("Received REJECT IPS. ~p", [IPs]),
     LastRule = lsim_iptables:reject_ips(IPs),
     {noreply, State#state{number_of_rules=LastRule}};
 
 handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
-    ?LOG("Received HEAL PARTITIONS"),
+    lager:info("Received HEAL PARTITIONS"),
     lsim_iptables:delete_rules(LastRule),
     {noreply, State#state{number_of_rules=0}};
 
 handle_cast(metrics_go, State) ->
-    ?LOG("Received METRICS GO. Pushing metrics."),
+    lager:info("Received METRICS GO. Pushing metrics."),
     lsim_simulations_support:push_ldb_metrics(),
     tell({metrics_done, ldb_config:id()}),
     {noreply, State};
@@ -149,8 +149,8 @@ connect([Node|Rest]=All, PeerService) ->
         ok ->
             connect(Rest, PeerService);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
-                 [Node, Error, ?INTERVAL]),
+            lager:info("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                       [Node, Error, ?INTERVAL]),
             timer:sleep(?INTERVAL),
             connect(All, PeerService)
     end.
