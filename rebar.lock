@@ -6,7 +6,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"881084811455776a94a8fa28ba18446cea17e348"}},
+       {ref,"cbcb38a17c25aa77096d4e756164be0fc489d0b7"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
@@ -15,7 +15,10 @@
   0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
- {<<"types">>,{pkg,<<"types">>,<<"0.1.8">>},0}]}.
+ {<<"types">>,
+  {git,"https://github.com/lasp-lang/types",
+       {ref,"3089d212e328bf4597a3ae69f537d55ad4d4d02b"}},
+  0}]}.
 [
 {pkg_hash,[
  {<<"acceptor_pool">>, <<"679D741DF87FC13599B1AEF2DF8F78F1F880449A6BEFAB7C44FB6FAE0E92A2DE">>},
@@ -25,6 +28,5 @@
  {<<"lager">>, <<"A6DEB74DAE7927F46BD13255268308EF03EB206EC784A94EAF7C1C0F3B811615">>},
  {<<"mochiweb">>, <<"E1DAAC474DF07651E5D17CC1E642C4069C7850DC4508D3DB7263A0651330AACC">>},
  {<<"rand_compat">>, <<"624B590931D27252D0BCF710211699DB3695540706F57D2E91B918A17AB58839">>},
- {<<"time_compat">>, <<"23FE0AD1FDF3B5B88821B2D04B4B5E865BF587AE66056D671FE0F53514ED8139">>},
- {<<"types">>, <<"5782B67231E8C174FE2835395E71E669FE0121076779D2A09F1C0D58EE0E2F13">>}]}
+ {<<"time_compat">>, <<"23FE0AD1FDF3B5B88821B2D04B4B5E865BF587AE66056D671FE0F53514ED8139">>}]}
 ].
