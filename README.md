@@ -20,6 +20,7 @@
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
   - `hyparview`
+  - `fullmesh`
   - `line`
   - `ring`
 - __NODE_NUMBER__: number of nodes
