@@ -88,13 +88,14 @@ start(Options) ->
     end,
     lists:foreach(LoaderFun, Nodes),
 
-    ConfigureFun = fun(Node) ->
+    ConfigureFun = fun({I,Node}) ->
         %ct:pal("Configuring node: ~p", [Node]),
 
         %% Configure lsim
         LSimSettings0 = proplists:get_value(lsim_settings, Options),
         LSimSettings1 = LSimSettings0
-                     ++ [{lsim_timestamp, timestamp()}],
+                     ++ [{lsim_timestamp, timestamp()}]
+                     ++ [{node_numerical_id, I}],
 
         lists:foreach(
             fun({Property, Value}) ->
@@ -118,7 +119,7 @@ start(Options) ->
             LDBSettings
         )
     end,
-    lists:foreach(ConfigureFun, Nodes),
+    lists:foreach(ConfigureFun, IToNode),
 
     StartFun = fun(Node) ->
         {ok, _} = rpc:call(Node,

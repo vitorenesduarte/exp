@@ -91,7 +91,68 @@ get_specs(Simulation) ->
              EventFun,
              TotalEventsFun,
              CheckEndFun];
+        awset_single_source ->
+            StartFun = fun() ->
+                ldb:create(?KEY, awset)
+            end,
+            EventFun = fun(EventNumber, NodeEventNumber) ->
+                Addition = EventNumber rem 4 /= 0,
+                LastEvent = EventNumber == NodeEventNumber,
 
+                NumId = lsim_config:get(node_numerical_id, oops),
+                MyName = ldb_config:id(),
+                lager:info("Node Name:~p, NumId ~p",[MyName, NumId]),
+                if
+                    NumId == 0 ->
+                        %% if it's the last event,
+                        %% do an addition always,
+                        %% so that we have a way to
+                        %% detect when a node has
+                        %% observed all events
+                        case Addition orelse LastEvent of
+                            true ->
+                                Element = create_element(EventNumber),
+                                ldb:update(?KEY, {add, Element});
+                            false ->
+                                %% remove an element added by me
+                                {ok, Query} = ldb:query(?KEY),
+                                ByMe = sets:to_list(
+                                         sets:filter(
+                                           fun(E) ->
+                                                   string:str(E, atom_to_list(ldb_config:id())) > 0
+                                           end,
+                                           Query
+                                          )
+                                        ),
+                                Element = lists:nth(
+                                            rand:uniform(length(ByMe)),
+                                            ByMe
+                                           ),
+                                ldb:update(?KEY, {rmv, Element})
+                        end;
+                    true -> ok
+                end
+            end,
+            TotalEventsFun = fun() ->
+                {ok, Value} = ldb:query(?KEY),
+                sets:size(Value)
+            end,
+            CheckEndFun = fun(_NodeNumber, NodeEventNumber) ->
+                {ok, Query} = ldb:query(?KEY),
+                %% a node has observed all events if it has one
+                %% `NodeNumber` element ending in `NodeEventNumber`
+                LastElements = sets:filter(
+                    fun(E) ->
+                        string:str(E, element_sufix(NodeEventNumber)) > 0
+                    end,
+                    Query
+                ),
+                sets:size(LastElements) == 1
+            end,
+            [StartFun,
+             EventFun,
+             TotalEventsFun,
+             CheckEndFun];
         gcounter ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)

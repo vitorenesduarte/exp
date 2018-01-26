@@ -106,6 +106,12 @@ handle_info(join_peers, State) ->
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
+    NodeNames = lists:sort(lists:map(fun({Name,_,_}) -> Name end, Nodes)),
+    {_,NodeNumberId} =
+        lists:keyfind(MyName, 1,
+                      lists:zip(NodeNames, lists:seq(0, length(NodeNames) - 1))),
+    lsim_config:set(node_numerical_id, NodeNumberId),
+
     case length(Nodes) == node_number() of
         true ->
             %% if all nodes are connected

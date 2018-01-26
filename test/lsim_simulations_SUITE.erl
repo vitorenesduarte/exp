@@ -40,8 +40,8 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(NODE_NUMBER, 3).
--define(EVENT_NUMBER, 5).
+-define(NODE_NUMBER, 2).
+-define(EVENT_NUMBER, 3).
 
 %% ===================================================================
 %% common_test callbacks
@@ -67,8 +67,9 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      gset_test,
-     gcounter_test%,
-     %gmap_test
+     gcounter_test,
+     awset_test,
+     awset_single_source_test
     ].
 
 %% ===================================================================
@@ -83,6 +84,12 @@ gcounter_test(_Config) ->
 
 gmap_test(_Config) ->
     run(gmap).
+
+awset_single_source_test(_Config) ->
+    run(awset_single_source).
+
+awset_test(_Config) ->
+    run(awset).
 
 %% @private
 run(Simulation) ->
