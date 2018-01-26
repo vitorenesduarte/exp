@@ -44,8 +44,10 @@ NODE_EVENT_NUMBER=100
 KEEP_ALIVE=false
 # overlay nodes
 EXP_=(
-   "chord 16"
-   "tree  14"
+   "chord 16 true"
+   "chord 16 false"
+   "tree  14 true"
+   "tree  14 false"
 )
 
 # ldb configuration
@@ -65,6 +67,7 @@ for REP in $(seq 1 $REPS); do
     EXP=($(echo ${EXP} | tr ' ' '\n'))
     OVERLAY=${EXP[0]}
     NODE_NUMBER=${EXP[1]}
+    BREAK_LINK=${EXP[2]}
 
     for SIMULATION in "${SIMULATION_[@]}"; do
       for LDB in "${LDB_[@]}"; do
@@ -90,7 +93,7 @@ for REP in $(seq 1 $REPS); do
             SIMULATION=${SIMULATION} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-            PARTITION_NUMBER=1 \
+            BREAK_LINK=${BREAK_LINK} \
             KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
 
         fi

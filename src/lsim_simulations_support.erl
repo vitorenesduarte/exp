@@ -42,7 +42,7 @@ push_lsim_metrics(StartTime) ->
                 lsim_node_number,
                 lsim_simulation,
                 lsim_node_event_number,
-                lsim_partition_number],
+                lsim_break_link],
     LSimConfigs = get_configs(lsim, LSimVars),
 
     All = [{start_time, StartTime}]

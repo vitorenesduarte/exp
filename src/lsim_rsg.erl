@@ -75,8 +75,8 @@ handle_cast({reject_ips, IPs}, State) ->
     LastRule = lsim_iptables:reject_ips(IPs),
     {noreply, State#state{number_of_rules=LastRule}};
 
-handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
-    lager:info("Received HEAL PARTITIONS"),
+handle_cast(heal, #state{number_of_rules=LastRule}=State) ->
+    lager:info("Received HEAL"),
     lsim_iptables:delete_rules(LastRule),
     {noreply, State#state{number_of_rules=0}};
 

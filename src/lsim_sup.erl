@@ -119,10 +119,10 @@ configure() ->
                   undefined),
 
 
-    %% configure partition number
-    configure_int("PARTITION_NUMBER",
-                  lsim_partition_number,
-                  1),
+    %% configure break link
+    configure_var("BREAK_LINK",
+                  lsim_break_link,
+                  false),
 
     {Simulation, Orchestration, RSG}.
 
