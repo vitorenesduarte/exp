@@ -74,7 +74,7 @@ handle_cast({connect_done, NodeName},
         true ->
             lager:info("Everyone is CONNECT DONE. SIM GO!"),
             tell(sim_go),
-            schedule_create_partitions(),
+            schedule_break_link(),
             ldb_util:unix_timestamp();
         false ->
             T0
@@ -134,51 +134,27 @@ handle_info(create_barrier, State) ->
     end,
     {noreply, State#state{nodes=Nodes}};
 
-handle_info(create_partitions, #state{nodes=Nodes}=State) ->
-    PartitionNumber = lsim_config:get(lsim_partition_number),
+handle_info(break_link, #state{nodes=Nodes}=State) ->
 
-    case PartitionNumber > 1 of
+    case lsim_config:get(lsim_break_link) of
         true ->
-            {PartitionToIPs, IPToPartition} = lsim_overlay:partitions(Nodes, PartitionNumber),
-            lager:info("PARTITIONS ~p\n~p\n\n", [PartitionToIPs, IPToPartition]),
+            Overlay = lsim_config:get(lsim_overlay),
+            {FromName, ToIp} = lsim_overlay:break_link(Nodes, Overlay),
 
-            lists:foreach(
-                fun({Name, IP, _}) ->
-                    Partition = orddict:fetch(IP, IPToPartition),
+            lager:info("NODE ~p REJECT IP ~p\n\n", [FromName, ToIp]),
 
-                    %% calculate the list of ips to reject
-                    IPs = lists:foldl(
-                        fun({P, I}, Acc) ->
-                            %% each partition blocks
-                            %% the partitions with higher ids
-                            case P > Partition of
-                                true ->
-                                    lists:append(Acc, I);
-                                _ ->
-                                    Acc
-                            end
-                        end,
-                        [],
-                        PartitionToIPs
-                    ),
+            %% tell this node to reject this ip
+            tell({reject_ips, [ToIp]}, [FromName]),
 
-                    lager:info("NODE ~p REJECTS IPS ~p\n", [Name, IPs]),
-
-                    %% tell this node to reject these ips
-                    tell({reject_ips, IPs}, [Name])
-                end,
-                Nodes
-            ),
-
-            schedule_heal_partitions();
+            schedule_heal();
         false ->
             ok
     end,
 
     {noreply, State};
 
-handle_info(heal_partitions, State) ->
-    tell(heal_partitions),
+handle_info(heal, State) ->
+    tell(heal),
     {noreply, State};
 
 handle_info(Msg, State) ->
@@ -200,18 +176,18 @@ schedule_create_barrier() ->
     timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
-schedule_create_partitions() ->
+schedule_break_link() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~50% of simulation time before creating partitions
+    %% wait ~50% of simulation time before breaking link
     Seconds = NodeEventNumber div 2,
-    timer:send_after(Seconds * 1000, create_partitions).
+    timer:send_after(Seconds * 1000, break_link).
 
 %% @private
-schedule_heal_partitions() ->
+schedule_heal() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~25% of simulation time before healing partitions
+    %% wait ~25% of simulation time before healing
     Seconds = NodeEventNumber div 4,
-    timer:send_after(Seconds * 1000, heal_partitions).
+    timer:send_after(Seconds * 1000, heal).
 
 %% @private
 connect([]) ->

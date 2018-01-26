@@ -30,14 +30,9 @@
   - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
-- __ELEMENT_NODE_RATIO__: if ratio is 5, the elements added to
-sets (if defined in the simulation configured)  are 5 times
-bigger than the node ids
-- __PARTITION_NUMBER__: number of connected components to be formed
-during the simulation. The partition is induced when the simulation
-reaches 50% of progress and healed at 75%. With static memberships
-it's easy to have control on the number of connected components
-created; but it's not the case if using HyParView.
+- __BREAK_LINK__: boolean indicating if a special link should be broken.
+The partition is induced when the simulation
+reaches 50% of progress and healed at 75%.
 
 
 #### Kubernetes

@@ -12,8 +12,7 @@ ENV_VARS=(
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
-  ELEMENT_NODE_RATIO
-  PARTITION_NUMBER
+  BREAK_LINK
   KEEP_ALIVE
 )
 
@@ -37,8 +36,7 @@ echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
-echo "    ELEMENT_NODE_RATIO: ${ELEMENT_NODE_RATIO}"
-echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
+echo "    BREAK_LINK: ${BREAK_LINK}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
@@ -113,10 +111,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
-        - name: PARTITION_NUMBER
-          value: "${PARTITION_NUMBER}"
+        - name: BREAK_LINK
+          value: "${BREAK_LINK}"
         - name: RSG
           value: "true"
 ---
@@ -181,10 +177,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
-        - name: PARTITION_NUMBER
-          value: "${PARTITION_NUMBER}"
+        - name: BREAK_LINK
+          value: "${BREAK_LINK}"
         - name: KEEP_ALIVE
           value: "${KEEP_ALIVE}"
         - name: RSG

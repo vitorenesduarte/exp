@@ -83,8 +83,8 @@ handle_info(event, #state{event_count=Events0,
     Events = Events0 + 1,
     NodeEventNumber = node_event_number(),
     EventFun(Events, NodeEventNumber),
-    _TotalEvents = TotalEventsFun(),
-    ?DEBUG("Event ~p | Observed ~p | Node ~p", [Events, _TotalEvents, ldb_config:id()]),
+    TotalEvents = TotalEventsFun(),
+    lager:info("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
 
     case Events == NodeEventNumber of
         true ->
@@ -98,13 +98,13 @@ handle_info(event, #state{event_count=Events0,
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
                                    check_end_fun=CheckEndFun}=State) ->
-    _TotalEvents = TotalEventsFun(),
-    ?DEBUG("Events observed ~p | Node ~p", [_TotalEvents, ldb_config:id()]),
+    TotalEvents = TotalEventsFun(),
+    lager:info("Events observed ~p | Node ~p", [TotalEvents, ldb_config:id()]),
 
     case CheckEndFun(node_number(), node_event_number()) of
         true ->
             %% If everyone did all the events they should do
-            ?DEBUG("All events have been observed"),
+            lager:info("All events have been observed"),
             end_simulation();
         false ->
             schedule_simulation_end()
