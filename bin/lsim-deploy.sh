@@ -12,7 +12,6 @@ ENV_VARS=(
   SIMULATION
   NODE_NUMBER
   NODE_EVENT_NUMBER
-  ELEMENT_NODE_RATIO
   PARTITION_NUMBER
   KEEP_ALIVE
 )
@@ -37,7 +36,6 @@ echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
-echo "    ELEMENT_NODE_RATIO: ${ELEMENT_NODE_RATIO}"
 echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
 
 # ENV SETUP:
@@ -113,8 +111,6 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
         - name: PARTITION_NUMBER
           value: "${PARTITION_NUMBER}"
         - name: RSG
@@ -181,8 +177,6 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
         - name: PARTITION_NUMBER
           value: "${PARTITION_NUMBER}"
         - name: KEEP_ALIVE

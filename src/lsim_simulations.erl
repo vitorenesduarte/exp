@@ -181,16 +181,7 @@ create_spec(Funs) ->
 %% @private Create an unique element to be added to the set.
 create_element(EventNumber) ->
     MyName = ldb_config:id(),
-    Ratio = lsim_config:get(lsim_element_node_ratio),
-    Element0 = lists:foldl(
-        fun(_, Acc) ->
-           Acc ++ atom_to_list(MyName) ++ "_"
-        end,
-        "",
-        lists:seq(1, Ratio)
-    ),
-
-    Element0 ++ element_sufix(EventNumber).
+    atom_to_list(MyName) ++ element_sufix(EventNumber).
 
 %% @private Create elements suffix.
 element_sufix(EventNumber) ->

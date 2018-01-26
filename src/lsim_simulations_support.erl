@@ -42,7 +42,6 @@ push_lsim_metrics(StartTime) ->
                 lsim_node_number,
                 lsim_simulation,
                 lsim_node_event_number,
-                lsim_element_node_ratio,
                 lsim_partition_number],
     LSimConfigs = get_configs(lsim, LSimVars),
 
