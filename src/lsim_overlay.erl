@@ -126,9 +126,10 @@ to_connect(MyName, Nodes, Overlay) ->
     [lists:nth(I + 1, Sorted) || I <- orddict:fetch(MyId, Topology)].
 
 %% @doc Given a list of node specs and a overlay,
-%%      return a pair where the first component is a node name,
-%%      and the second is the ip of the node to block.
--spec break_link(list(node_spec()), atom()) -> {pos_integer(), node_ip()}.
+%%      return a tuple where the first component is a node name,
+%%      the second is the name of the node to block,
+%%      and the third its ip.
+-spec break_link(list(node_spec()), atom()) -> {ldb_node_id(), ldb_node_id(), node_ip()}.
 break_link(Nodes, Overlay) ->
     NodeNumber = length(Nodes),
     {FromId, ToId} = get_link(Overlay, NodeNumber),
@@ -136,9 +137,9 @@ break_link(Nodes, Overlay) ->
     Sorted = lists:sort(Nodes),
 
     {FromName, _, _} = lists:nth(FromId + 1, Sorted),
-    {_, ToIp, _} = lists:nth(ToId + 1, Sorted),
+    {ToName, ToIp, _} = lists:nth(ToId + 1, Sorted),
 
-    {FromName, ToIp}.
+    {FromName, ToName, ToIp}.
 
 %% @private
 previous(I, N) ->
