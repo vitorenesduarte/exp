@@ -101,9 +101,9 @@ get_specs(Simulation) ->
 
                 NumId = lsim_config:get(node_numerical_id, oops),
                 MyName = ldb_config:id(),
-                lager:info("Node Name:~p, NumId ~p",[MyName, NumId]),
-                if
-                    NumId == 0 ->
+                lager:info("Node Name:~p, NumId ~p", [MyName, NumId]),
+                case NumId of
+                    0 ->
                         %% if it's the last event,
                         %% do an addition always,
                         %% so that we have a way to
@@ -130,7 +130,7 @@ get_specs(Simulation) ->
                                            ),
                                 ldb:update(?KEY, {rmv, Element})
                         end;
-                    true -> ok
+                    _ -> ok
                 end
             end,
             TotalEventsFun = fun() ->

@@ -88,7 +88,7 @@ start(Options) ->
     end,
     lists:foreach(LoaderFun, Nodes),
 
-    ConfigureFun = fun({I,Node}) ->
+    ConfigureFun = fun({I, Node}) ->
         %ct:pal("Configuring node: ~p", [Node]),
 
         %% Configure lsim
