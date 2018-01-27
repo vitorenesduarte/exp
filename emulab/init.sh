@@ -14,7 +14,7 @@ echo -e "Args done ${GREEN}successfull${NC}" &&
 scp -o "StrictHostKeyChecking no" ./init-node.sh ${USER}@"$Main".emulab.net:~/init-node.sh &&
 echo -e "scp init-node.sh done ${GREEN}successfull${NC}" &&
 
-ssh -o "StrictHostKeyChecking no" ${USER}@"$Main".emulab.net 'bash -s'< ./init-master.sh "~/init-node.sh" "${Args[@]}" &&
+ssh -o "StrictHostKeyChecking no" ${USER}@"$Main".emulab.net 'bash -s'< ./init-master.sh "~/init-node.sh" "${USER}" "${Args[@]}" &&
 
 scp -o "StrictHostKeyChecking no" ${USER}@"$Main".emulab.net:~/.kube/config ~/.kube/config
 

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-USER=$(grep user emulab.config  | cut -d= -f2)
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 GREEN='\033[0;32m'
+
+INIT_NODE=$1; shift
+USER=$1; shift
+NODES=( "$@" )
 
 sudo swapoff -a
 echo -e "sudo swapoff -a ${GREEN}successfull${NC}"
@@ -42,17 +45,10 @@ echo -e "sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/
 sudo kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=default:default &&
 echo -e "sudo kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=default:default ${GREEN}successfull${NC}" &&
 
-arg1=$1; shift
-NODES=( "$@" )
-#array=( "$@" )
-#last_idx=$(( ${#array[@]} - 1 ))
-#NODES=${array[$last_idx]}
-#unset array[$last_idx]
-
 for NODE in ${NODES[@]};
 do
-  echo "$NODE" &&
-    ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE".emulab.net 'bash -s' < $arg1 &&
+  echo "$arg1 $NODE $USER" &&
+    ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE".emulab.net 'bash -s' < $INIT_NODE &&
     echo -e "ssh... ${GREEN}successfull${NC}"
 done 
 echo -e "${GREEN}init-master.sh DONE${NC}"
