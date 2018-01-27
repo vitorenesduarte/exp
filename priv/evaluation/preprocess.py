@@ -67,12 +67,9 @@ def key(config):
         "lsim_simulation",
         "lsim_overlay",
         "lsim_node_number",
-        "lsim_node_event_number",
-        "lsim_element_node_ratio",
-        "lsim_partition_number",
+        "lsim_break_link",
         "ldb_mode",
         "ldb_driven_mode",
-        "ldb_state_sync_interval",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -141,9 +138,9 @@ def bottom_size(type):
     two = ["memory"]
 
     if type in one:
-        return [0]
-    if type in two:
         return [0, 0]
+    if type in two:
+        return [0, 0, 0, 0]
 
     error("type not found.")
 
@@ -156,9 +153,9 @@ def add(type, sizeA, sizeB):
     two = ["memory"]
 
     if type in one:
-        return [sizeA[0] + sizeB[0]]
-    if type in two:
         return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
+    if type in two:
+        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1], sizeA[2] + sizeB[2], sizeA[3] + sizeB[3]]
 
     error("type not found")
 
@@ -172,7 +169,7 @@ def default(type, previous):
     two = ["memory"]
 
     if type in one:
-        return [0]
+        return [0, 0]
     if type in two:
         return previous
 
@@ -320,28 +317,40 @@ def aggregate(d):
         # create key in dictionary
         r[key] = {}
 
-        # sum all lists that have these types
-        to_sum = []
-        for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack"]:
-                # make list of lists into list
-                ls = [e for l in d[key][type] for e in l]
-                to_sum.append(ls)
-
-        # convert bytes to kbytes
-        r[key]["transmission"] = divide_lists(
-            sum_lists(to_sum),
-            1000
-        )
+        r[key]["transmission"] = []
+        r[key]["transmission_metadata"] = []
+        r[key]["transmission_payload"] = []
         r[key]["memory_crdt"] = []
+        r[key]["memory_crdt_metadata"] = []
+        r[key]["memory_crdt_payload"] = []
         r[key]["memory_algorithm"] = []
+        r[key]["memory_algorithm_metadata"] = []
+        r[key]["memory_algorithm_payload"] = []
         r[key]["latency_local"] = []
         r[key]["latency_remote"] = []
 
+        # sum all lists that have these types
+        for type in d[key]:
+            if type in ["state", "digest", "delta", "delta_ack"]:
+                MPs = [M + P for [M, P] in d[key][type]]
+                Ms = [M for [M, P] in d[key][type]]
+                Ps = [P for [M, P] in d[key][type]]
+                r[key]["transmission"].append(MPs)
+                r[key]["transmission_metadata"].append(Ms)
+                r[key]["transmission_payload"].append(Ps)
+
+        r[key]["transmission"] = sum_lists(r[key]["transmission"])
+        r[key]["transmission_metadata"] = sum_lists(r[key]["transmission_metadata"])
+        r[key]["transmission_payload"] = sum_lists(r[key]["transmission_payload"])
+
         # aggregate memory values
-        for [C, R] in d[key]["memory"]:
-            r[key]["memory_crdt"].append(C)
-            r[key]["memory_algorithm"].append(R)
+        for [MC, PC, MR, PR] in d[key]["memory"]:
+            r[key]["memory_crdt"].append(MC + PC)
+            r[key]["memory_crdt_metadata"].append(MC)
+            r[key]["memory_crdt_payload"].append(PC)
+            r[key]["memory_algorithm"].append(MR + PR)
+            r[key]["memory_algorithm_metadata"].append(MR)
+            r[key]["memory_algorithm_payload"].append(PR)
         
         # aggregate latency values
         for lord in d[key]["latency"]: # local or remote dict
@@ -371,13 +380,12 @@ def get_score(type):
     """
     Returns the order of this type when drawing.
     """
-
     score = 0
 
     parts = type.split("~")
-    mode = parts[6]
-    driven_mode = parts[7]
-    delta_mode = "_".join(parts[9:])
+    mode = parts[4]
+    driven_mode = parts[5]
+    delta_mode = "_".join(parts[6:])
 
     if mode == "state_based":
         score += 1000

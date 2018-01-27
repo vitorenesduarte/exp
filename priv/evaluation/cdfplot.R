@@ -14,7 +14,7 @@ splot <- function(dir, keys, output_file, label, logx) {
   )
 
   # topology
-  topology <- "hyparview"
+  topology <- "tree"
 
   # clusters
   clusters <- c(
@@ -23,8 +23,8 @@ splot <- function(dir, keys, output_file, label, logx) {
     paste("awset", topology, sep="~")
   )
   titles <- c(
-    "PCounter - Local",
-    "PCounter - Remote",
+    "GCounter - Local",
+    "GCounter - Remote",
     "GSet - Local",
     "GSet - Remote",
     "AWSet - Local",

@@ -5,24 +5,29 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-all: transmission memory latency
+all: pre split transmission latency
 
 pre: preprocess.py
 	python preprocess.py
 
-partition: partition.R pre
+split:
+	rm -r processed_driven
+	mkdir processed_driven
+	mv processed/*True~delta* processed_driven/
+
+partition: partition.R
 	Rscript partition.R
 	$(VIEWER) *partition*.png &
 
-transmission: transmission.R pre
+transmission: transmission.R
 	Rscript transmission.R
 	$(VIEWER) *transmission*.png &
 
-memory: memory.R pre
+memory: memory.R
 	Rscript memory.R
 	$(VIEWER) *memory*.png &
 
-latency: latency.R pre
+latency: latency.R
 	Rscript latency.R
 	$(VIEWER) *latency*.png &
 

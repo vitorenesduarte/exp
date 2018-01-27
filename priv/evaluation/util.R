@@ -32,43 +32,18 @@ get_labels <- function(keys) {
   labels[["delta_based_none_True_False"]] = "Delta-Based RR"
   labels[["delta_based_none_False_True"]] = "Delta-Based BP"
   labels[["delta_based_none_True_True"]] = "Delta-Based BP+RR"
-  labels[["delta_based_state_driven_False_False"]] = "Delta-Based SD"
-  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD RR"
-  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD BP"
-  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD BP+RR"
-  labels[["delta_based_digest_driven_False_False"]] = "Delta-Based"
-  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD RR"
-  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD BP"
-  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD BP+RR"
+  labels[["delta_based_state_driven_True_True"]] = "Delta-Based BP+RR SD"
+  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based BP+RR DD"
   lapply(
     keys,
     function(key) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(8, 9, 11, 12)],
+          parts[c(6, 7, 8, 9)],
           collapse="_"
       )
-
-      mode_and_partitions = if(strtoi(parts[c(7)]) > 1) {
-        paste(
-          labels[[mode]],
-          " #", parts[c(7)],
-          sep=""
-        )
-      }
-      else labels[[mode]]
-
-      if(strtoi(parts[c(6)]) > 1) {
-        paste(
-          mode_and_partitions,
-          " ",
-          parts[c(6)],
-          "/1",
-          sep=""
-        )
-      }
-      else mode_and_partitions
+      labels[[mode]]
     }
   )
 }
@@ -78,7 +53,7 @@ get_title <- function(key) {
   titles = list()
   titles[["awset"]] = "AWSet"
   titles[["gset"]] = "GSet"
-  titles[["gcounter"]] = "PCounter"
+  titles[["gcounter"]] = "GCounter"
 
   titles[[key]]
 }

@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, xlabel) {
+splot <- function(dir, key, output_file, xlabel, bar_number) {
   files <- list.files(dir)
 
   # read all files
@@ -14,14 +14,12 @@ splot <- function(dir, key, output_file, xlabel) {
 
   # clusters
   clusters <- c(
-    "gcounter~line", "gset~line", "awset~line",
-    "gcounter~ring", "gset~ring", "awset~ring",
-    "gcounter~hyparview", "gset~hyparview", "awset~hyparview"
+    "gcounter~tree", "gset~tree", "awset~tree"#,
+    #"gcounter~chord", "gset~chord", "awset~chord"
   )
   titles <- c(
-    "PCounter - Path", "GSet - Path", "AWSet - Path",
-    "PCounter - Ring", "GSet - Ring", "AWSet - Ring",
-    "PCounter - HyParView", "GSet - HyParView", "AWSet - HyParView"
+    "GCounter - Tree", "GSet - Tree", "AWSet - Tree"#,
+    #"GCounter - Chord", "GSet - Chord", "AWSet - Chord"
   )
 
   # avoid scientific notation
@@ -40,9 +38,6 @@ splot <- function(dir, key, output_file, xlabel) {
     mfrow=c(3,3),      # 3x3 matrix
     mar=c(3.5, 2, 3, 3) # spacing between plots
   )
-
-  # bar number
-  bar_number <- length(files) / length(clusters)
 
   # plot size
   PLOT_SIZE <-
