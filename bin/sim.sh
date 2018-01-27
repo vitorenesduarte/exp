@@ -44,21 +44,21 @@ NODE_EVENT_NUMBER=50
 KEEP_ALIVE=false
 # overlay nodes
 EXP_=(
-   "tree  14 true"
-   "tree  14 false"
-   "chord 16 true"
-   "chord 16 false"
+   "tree  14"
+   "chord 16"
 )
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
-# mode driven_mode bp rr
+# mode driven_mode bp rr break_link
 LDB_=(
-   "state_based none undefined undefined"
-   "delta_based none false     false"
-   "delta_based none false     true"
-   "delta_based none true      false"
-   "delta_based none true      true"
+   "state_based none          undefined undefined false"
+   "delta_based none          false     false     false"
+   "delta_based none          false     true      false"
+   "delta_based none          true      false     false"
+   "delta_based none          true      true      false"
+   "delta_based state_driven  true      true      true"
+   "delta_based digest_driven true      true      true"
 )
 
 # shellcheck disable=SC2034
@@ -67,7 +67,6 @@ for REP in $(seq 1 $REPS); do
     EXP=($(echo ${EXP} | tr ' ' '\n'))
     OVERLAY=${EXP[0]}
     NODE_NUMBER=${EXP[1]}
-    BREAK_LINK=${EXP[2]}
 
     for SIMULATION in "${SIMULATION_[@]}"; do
       for LDB in "${LDB_[@]}"; do
@@ -76,6 +75,7 @@ for REP in $(seq 1 $REPS); do
         LDB_DRIVEN_MODE=${LDB[1]}
         LDB_DGROUP_BACK_PROPAGATION=${LDB[2]}
         LDB_REDUNDANT_DGROUPS=${LDB[3]}
+        BREAK_LINK=${LDB[4]}
 
         if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
           echo "Skipping..."
