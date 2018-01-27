@@ -36,7 +36,7 @@ fi
 "${DIR}"/redis-deploy.sh
 
 # start dashboard
-"${DIR}"/lsim-dash-deploy.sh
+#"${DIR}"/lsim-dash-deploy.sh
 
 # lsim configuration
 SIMULATION_=(gcounter gset awset)
@@ -44,8 +44,8 @@ NODE_EVENT_NUMBER=50
 KEEP_ALIVE=false
 # overlay nodes
 EXP_=(
-   "tree  14"
-   "chord 16"
+   "tree 14"
+   #"chord 16"
 )
 
 # ldb configuration
