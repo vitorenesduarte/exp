@@ -74,9 +74,9 @@ push_ldb_metrics() ->
     All0 = orddict:fold(
         fun(MessageType, Metrics, Acc0) ->
             lists:foldl(
-                fun({Timestamp, Size}, Acc1) ->
+                fun({Timestamp, {MSize, PSize}}, Acc1) ->
                     V = [{ts, Timestamp},
-                         {size, [Size]}],
+                         {size, [MSize, PSize]}],
                     orddict:append(MessageType, V, Acc1)
                 end,
                 Acc0,
@@ -89,9 +89,9 @@ push_ldb_metrics() ->
 
     %% process memory
     All1 = lists:foldl(
-        fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
+        fun({Timestamp, memory, {{MCRDTSize, PCRDTSize}, {MRestSize, PRestSize}}}, Acc0) ->
             V = [{ts, Timestamp},
-                 {size, [CRDTSize, RestSize]}],
+                 {size, [MCRDTSize, PCRDTSize, MRestSize, PRestSize]}],
             orddict:append(memory, V, Acc0)
         end,
         All0,

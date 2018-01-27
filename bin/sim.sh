@@ -40,12 +40,12 @@ fi
 
 # lsim configuration
 SIMULATION_=(gcounter gset awset)
-NODE_EVENT_NUMBER=50
+NODE_EVENT_NUMBER=200
 KEEP_ALIVE=false
 # overlay nodes
 EXP_=(
    "tree 14"
-   #"chord 16"
+   "chord 16"
 )
 
 # ldb configuration
