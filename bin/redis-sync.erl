@@ -9,7 +9,7 @@ main(_) ->
     {ok, Keys} = eredis:q(Redis, ["KEYS", "*"]),
 
     %% clear metrics dir
-    os:cmd("rm -rf " ++ metrics_dir()),
+    %os:cmd("rm -rf " ++ metrics_dir()),
 
     lists:foreach(
         fun(Filename) ->

@@ -38,13 +38,15 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
+CPU=30
+
 # lsim configuration
 SIMULATION_=(gcounter gset awset)
 NODE_EVENT_NUMBER=200
 KEEP_ALIVE=false
 # overlay nodes
 EXP_=(
-   "tree 14"
+#   "tree 14"
    "chord 16"
 )
 
@@ -52,13 +54,14 @@ EXP_=(
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_link
 LDB_=(
-   "state_based none          undefined undefined false"
-   "delta_based none          false     false     false"
-   "delta_based none          false     true      false"
-   "delta_based none          true      false     false"
-   "delta_based none          true      true      false"
-   "delta_based state_driven  true      true      true"
    "delta_based digest_driven true      true      true"
+   "delta_based state_driven  true      true      true"
+   "delta_based none          true      true      true"
+   "delta_based none          true      true      false"
+   "delta_based none          true      false     false"
+   "delta_based none          false     true      false"
+   "delta_based none          false     false     false"
+   "state_based none          undefined undefined false"
 )
 
 # shellcheck disable=SC2034
@@ -94,7 +97,8 @@ for REP in $(seq 1 $REPS); do
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINK=${BREAK_LINK} \
-            KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
+            KEEP_ALIVE=${KEEP_ALIVE} \
+            CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
         fi
       done

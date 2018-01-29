@@ -14,6 +14,7 @@ ENV_VARS=(
   NODE_EVENT_NUMBER
   BREAK_LINK
   KEEP_ALIVE
+  CPU
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -37,6 +38,8 @@ echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    BREAK_LINK: ${BREAK_LINK}"
+echo "    KEEP_ALIVE: ${KEEP_ALIVE}"
+echo "    CPU: ${CPU}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
@@ -138,6 +141,9 @@ spec:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
+        resources:
+          requests:
+            cpu: "${CPU}"
         securityContext:
           privileged: true
         env:
