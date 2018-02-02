@@ -56,7 +56,7 @@ splot <- function(dir, key, output_file, bar_number) {
   # colors <- 1
 
   colors <- c(
-    "snow3",
+    "snow4",
     "steelblue4",
     "springgreen4",
     "darkorange1",

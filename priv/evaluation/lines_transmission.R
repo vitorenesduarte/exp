@@ -69,7 +69,7 @@ splot <- function(dir, key, output_file) {
     # style stuff
     #colors <- c(1, 1, 1, 1, 1)
     colors <- c(
-      "snow3",
+      "snow4",
       "steelblue4",
       "springgreen4",
       "darkorange1",

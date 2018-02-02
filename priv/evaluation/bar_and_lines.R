@@ -24,9 +24,6 @@ splot <- function(dir, key, output_file, bar_number) {
     }
   )
 
-  print(ls_x)
-  print(ls_y)
-
   # clusters
   clusters <- c(
     "gcounter~tree", "gcounter~chord",
@@ -73,7 +70,7 @@ splot <- function(dir, key, output_file, bar_number) {
   # colors <- 1
 
 	colors <- c(
-		"snow3",
+		"snow4",
 		"steelblue4",
 		"springgreen4",
 		"darkorange1",
@@ -134,9 +131,6 @@ splot <- function(dir, key, output_file, bar_number) {
 			# find the y max for all
 			x_max <- Reduce(max, lapply(lines_x, max))
 			y_max <- Reduce(max, lapply(lines_y, max))
-
-      print(x_max)
-      print(y_max)
 
 			# configure plot
 			plot(
