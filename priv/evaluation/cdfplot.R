@@ -47,11 +47,11 @@ splot <- function(dir, keys, output_file, label, logx, topology) {
 
   # style stuff
   colors <- c(
-    "snow3",
+    "snow4",
     "steelblue4",
     "springgreen4",
     "darkorange1",
-    "darkgoldenrod1"
+    "red4"
   )
   line_types <- c(1:length(colors))
 

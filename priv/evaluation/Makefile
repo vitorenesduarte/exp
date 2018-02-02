@@ -5,7 +5,7 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-all: transmission show
+all: transmission
 
 pre: preprocess.py
 	python preprocess.py
@@ -17,15 +17,19 @@ split:
 
 partition: partition.R
 	Rscript partition.R
+	make show
 
 transmission: transmission.R
 	Rscript transmission.R
+	make show
 
 memory: memory.R
 	Rscript memory.R
+	make show
 
 latency: latency.R
 	Rscript latency.R
+	make show
 
 show:
 	$(VIEWER) *.png &

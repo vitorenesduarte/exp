@@ -9,14 +9,14 @@ main <- function() {
 
   for(topo in c("tree", "chord")) {
     source("cdfplot.R")
-    output_file <- paste("latency_", topo, ".png", sep="")
+    output_file <- paste("processing_", topo, ".png", sep="")
     keys <- c("latency_local", "latency_remote")
     splot(dir, keys, output_file, label, logx, topo) 
-
-    source("cdfplot_all.R")
-    output_file <- paste("latency_all_", topo, ".png", sep="")
-    keys <- c("latency")
-    splot(dir, keys, output_file, label, logx, topo) 
+    
+    # source("cdfplot_all.R")
+    # output_file <- paste("latency_all_", topo, ".png", sep="")
+    # keys <- c("latency")
+    # splot(dir, keys, output_file, label, logx, topo) 
   }
 }
 

@@ -50,8 +50,7 @@ splot <- function(dir, key, output_file, bar_number) {
   width <- PLOT_SIZE / bar_number
 
   # angles and density
-  angle1 <- c(0, 135, 45, 135, 45)
-  angle2 <- c(0, 135, 45, 135, 45)
+  angle <- c(0, 135, 45, 135, 45)
   density <- c(0, 10, 20, 40, 60)
   # colors <- 1
 
@@ -90,25 +89,14 @@ splot <- function(dir, key, output_file, bar_number) {
 
     # configure plot
     barplot(
-      lines,
-      col=colors,
+      rev(lines),
+      col=rev(colors),
       ann=FALSE, # no axis label ?
       horiz=TRUE,
       ylim=c(0, bar_number), # number of bars
       width=width, # bar width
-      angle=angle1,
-      density=density,
-    )
-    barplot(
-      lines,
-      add=TRUE,
-      col=colors,
-      ann=FALSE, # no axis label ?
-      horiz=TRUE,
-      ylim=c(0, bar_number), # number of bars
-      width=width, # bar width
-      angle=angle2,
-      density=density,
+      angle=rev(angle),
+      density=rev(density)
     )
     # axis label
     mtext(
@@ -131,19 +119,7 @@ splot <- function(dir, key, output_file, bar_number) {
     .8, # x
     .6, # y
     cex=0.8,
-    angle=angle1,
-    density=density,
-    fill=colors,
-    legend=get_labels(files[indexes]),
-    #col=colors,
-    #pch=15,
-    box.col=NA # remove box
-  )
-  legend(
-    .8, # x
-    .6, # y
-    cex=0.8,
-    angle=angle2,
+    angle=angle,
     density=density,
     fill=colors,
     legend=get_labels(files[indexes]),
