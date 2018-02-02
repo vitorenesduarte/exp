@@ -1,7 +1,7 @@
 source("util.R")
 
 # draw!
-splot <- function(dir, key, output_file, xlabel, bar_number) {
+splot <- function(dir, key, output_file, bar_number) {
   files <- list.files(dir)
 
   # read all files
@@ -52,16 +52,16 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
   # angles and density
   angle1 <- c(0, 135, 45, 135, 45)
   angle2 <- c(0, 135, 45, 135, 45)
-  density <- c(0, 10, 20, 40, 80)
-  colors <- 1
+  density <- c(0, 10, 20, 40, 60)
+  # colors <- 1
 
-  # colors <- c(
-  #   "snow3",
-  #   "steelblue4",
-  #   "springgreen4",
-  #   "darkorange1",
-  #   "darkgoldenrod1"
-  # )
+  colors <- c(
+    "snow3",
+    "steelblue4",
+    "springgreen4",
+    "darkorange1",
+    "red4"
+  )
 
   for(i in 1:length(clusters)) {
     cluster <- clusters[i]
@@ -113,7 +113,7 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
     # axis label
     mtext(
       side=1,
-      text=xlabel,
+      text="Transmission",
       line=-.5,
       outer=TRUE,
       cex=.9 # size
@@ -133,9 +133,9 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
     cex=0.8,
     angle=angle1,
     density=density,
-    fill=TRUE,
+    fill=colors,
     legend=get_labels(files[indexes]),
-    col=colors,
+    #col=colors,
     #pch=15,
     box.col=NA # remove box
   )
@@ -145,9 +145,9 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
     cex=0.8,
     angle=angle2,
     density=density,
-    fill=TRUE,
+    fill=colors,
     legend=get_labels(files[indexes]),
-    col=colors,
+    #col=colors,
     #pch=15,
     box.col=NA # remove box
   )

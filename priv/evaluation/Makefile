@@ -31,4 +31,4 @@ show:
 	$(VIEWER) *.png &
 
 clean:
-	rm *.png
+	rm -f *.png

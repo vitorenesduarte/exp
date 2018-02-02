@@ -73,9 +73,8 @@ splot <- function(dir, key, output_file) {
       "steelblue4",
       "springgreen4",
       "darkorange1",
-      "darkgoldenrod1"
+      "red4"
     )
-
 
 		# find the y max for all
 		x_max <- Reduce(max, lapply(lines_x, max))

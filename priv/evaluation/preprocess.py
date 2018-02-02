@@ -9,7 +9,7 @@ CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
 RATIO=[1, 4, 16, 32, 64]
-COMPRESS=30 # every x
+COMPRESS=25 # every x
 
 def error(message):
     """
