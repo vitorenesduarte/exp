@@ -102,9 +102,10 @@ splot <- function(dir, key, output_file, bar_number) {
     mtext(
       side=1,
       text="Transmission",
+      font=2,
       line=-.5,
       outer=TRUE,
-      cex=.9 # size
+      cex=.8 # size
     )
     title(title, line=0)
   }

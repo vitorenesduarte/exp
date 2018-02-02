@@ -94,18 +94,20 @@ splot <- function(dir, key, output_file) {
     mtext(
       side=1, # bottom
       text="Time (s)",
+      font=2,
       line=-.5, # closeness to plot
       outer=TRUE, # outside of the plot, thus only one
-      cex=.9 # size
+      cex=.8 # size
     )
     # y axis label
     mtext(
       side=2, # left
       las=0, # vertical text
       text="Transmission",
+      font=2,
       line=1, # closeness to plot
       outer=TRUE, # outside of the plot, thus only one
-      cex=.9 # size
+      cex=.8 # size
     )
     title(title, line=0.5)
 
