@@ -29,14 +29,14 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
   ls <- unlist(ls)
 
   # open device
-  png(filename=output_file, width=2000, height=1400, res=240)
+  png(filename=output_file, width=2000, height=900, res=240)
   #png(filename=output_file, res=100)
 
   # change outer margins
   op <- par(
     oma=c(1,3,0,12),   # room for the legend
-    mfrow=c(3,3),      # 3x3 matrix
-    mar=c(3.5, 2, 3, 3) # spacing between plots
+    mfrow=c(2,3),      # 3x3 matrix
+    mar=c(3.5, 2, 1, 3) # spacing between plots
   )
 
   # plot size
@@ -48,6 +48,20 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
 
   # bar width
   width <- PLOT_SIZE / bar_number
+
+  # angles and density
+  angle1 <- c(0, 135, 45, 135, 45)
+  angle2 <- c(0, 135, 45, 135, 45)
+  density <- c(0, 10, 20, 40, 80)
+  colors <- 1
+
+  # colors <- c(
+  #   "snow3",
+  #   "steelblue4",
+  #   "springgreen4",
+  #   "darkorange1",
+  #   "darkgoldenrod1"
+  # )
 
   for(i in 1:length(clusters)) {
     cluster <- clusters[i]
@@ -74,15 +88,6 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
 
     # if not an awset
 
-    # style stuff
-    colors <- c(
-      "snow3",
-      "steelblue4",
-      "springgreen4",
-      "darkorange1",
-      "darkgoldenrod1"
-    )
-
     # configure plot
     barplot(
       lines,
@@ -90,16 +95,30 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
       ann=FALSE, # no axis label ?
       horiz=TRUE,
       ylim=c(0, bar_number), # number of bars
-      width=width # bar width
+      width=width, # bar width
+      angle=angle1,
+      density=density,
+    )
+    barplot(
+      lines,
+      add=TRUE,
+      col=colors,
+      ann=FALSE, # no axis label ?
+      horiz=TRUE,
+      ylim=c(0, bar_number), # number of bars
+      width=width, # bar width
+      angle=angle2,
+      density=density,
     )
     # axis label
     mtext(
       side=1,
       text=xlabel,
-      line=3,
-      cex=.8 # size
+      line=-.5,
+      outer=TRUE,
+      cex=.9 # size
     )
-    title(title, line=0.5)
+    title(title, line=0)
   }
 
   par(op) # Leave the last plot
@@ -109,12 +128,27 @@ splot <- function(dir, key, output_file, xlabel, bar_number) {
 
   # legend
   legend(
-    .82,
-    .6,
+    .8, # x
+    .6, # y
     cex=0.8,
+    angle=angle1,
+    density=density,
+    fill=TRUE,
     legend=get_labels(files[indexes]),
     col=colors,
-    pch=15,
+    #pch=15,
+    box.col=NA # remove box
+  )
+  legend(
+    .8, # x
+    .6, # y
+    cex=0.8,
+    angle=angle2,
+    density=density,
+    fill=TRUE,
+    legend=get_labels(files[indexes]),
+    col=colors,
+    #pch=15,
     box.col=NA # remove box
   )
 

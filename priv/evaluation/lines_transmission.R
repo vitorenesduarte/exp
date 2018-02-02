@@ -67,6 +67,7 @@ splot <- function(dir, key, output_file) {
     lines_y <- ls_y[indexes]
 
     # style stuff
+    #colors <- c(1, 1, 1, 1, 1)
     colors <- c(
       "snow3",
       "steelblue4",
