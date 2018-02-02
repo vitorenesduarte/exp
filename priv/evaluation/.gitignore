@@ -1,3 +1,4 @@
 *.png
 metrics*
 processed*
+*.tar.gz

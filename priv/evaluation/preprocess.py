@@ -352,10 +352,10 @@ def aggregate(d):
 
         def get_compress_index(key):
             m = {
-                1110: 0,
-                2120: 1,
-                2130: 2,
-                2140: 3,
+                1110: 1,
+                2120: 3,
+                2130: 0,
+                2140: 2,
                 2150: 4
             }
 
@@ -375,17 +375,17 @@ def aggregate(d):
             current_sum = 0
             run_len = len(r[key][ratio_key(ratio)])
             max_len = max(max_len, run_len)
+            index = get_compress_index(key)
 
             for i in range(run_len):
                 # update sum
                 current_sum += r[key][ratio_key(ratio)][i]
 
-                if(i % COMPRESS == 0):
+                if(i % COMPRESS == index):
                     ys.append(current_sum)
                     # reset sum
                     current_sum = 0
 
-            index = get_compress_index(key)
             for i in range(len(ys)):
                 xs.append((i * COMPRESS) + index)
 

@@ -124,7 +124,8 @@ splot <- function(dir, key, output_file, bar_number) {
       mtext(
         side=1,
         text="Transmission",
-        line=2,
+        font=2,
+        line=2, # spacing between plot
         #outer=TRUE,
         cex=.7 # size
       )
@@ -151,6 +152,7 @@ splot <- function(dir, key, output_file, bar_number) {
 			mtext(
 				side=1, # bottom
 				text="Time (s)",
+        font=2,
 				line=2, # closeness to plot
 				#outer=TRUE, # outside of the plot, thus only one
 				cex=.7 # size
@@ -160,6 +162,7 @@ splot <- function(dir, key, output_file, bar_number) {
 				side=2, # left
 				las=0, # vertical text
 				text="Transmission",
+        font=2,
 				line=2, # closeness to plot
 				#outer=TRUE, # outside of the plot, thus only one
 				cex=.7 # size
@@ -171,7 +174,8 @@ splot <- function(dir, key, output_file, bar_number) {
 					lines_y[[i]],
 					col=colors[[i]],
 					type="b",
-					pch=i
+					pch=i,
+          lty=3
 				)
 			}
     }
