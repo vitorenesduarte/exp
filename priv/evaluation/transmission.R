@@ -1,19 +1,19 @@
 # main function
 main <- function() {
-  source("barplot.R")
+  source("lines_transmission.R")
 
   # draw!
-  for(suffix in c("", "_driven")) {
-    for(key in c("transmission", "transmission_metadata", "transmission_payload")) {
+  for(suffix in c("", "_break_link")) {
+    #for(key_suffix in c("1", "4", "16", "32", "64", "metadata", "payload")) {
+    for(key_suffix in c("1_compressed")) {
+      key <- paste("transmission", key_suffix, sep="_")
       dir <- paste("processed", suffix, sep="")
-      output_file <- paste(key, "_bar", suffix, ".png", sep="")
-      label <- "Transmission (KB)"
+      output_file <- paste(key, "_line", suffix, ".png", sep="")
 
-      bar_number <- if(dir == "processed") { 5 } else { 3 }
-
-      splot(dir, key, output_file, label, bar_number)
+      splot(dir, key, output_file)
     }
   }
 }
 
 main()
+warnings()

@@ -8,6 +8,8 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
+RATIO=[1, 4, 16, 32, 64]
+COMPRESS=30 # every x
 
 def error(message):
     """
@@ -254,12 +256,6 @@ def divide_lists(ls, by):
     """
     return [x / float(by) for x in ls]
 
-def divide_list_by(ls, n):
-    """
-    Divide all elements of list by n.
-    """
-    return [e / n for e in ls]
-
 def average(d):
     """
     Average runs.
@@ -293,7 +289,7 @@ def average(d):
                     sum[i] = sum_lists(ls)
 
             # avg of sum
-            avg = [divide_list_by(ls, runs_number) for ls in sum]
+            avg = [divide_lists(ls, runs_number) for ls in sum]
 
             # store avg
             d[key][type] = avg
@@ -311,13 +307,19 @@ def aggregate(d):
     Aggregate types of the same run.
     """
 
+    def ratio_key(ratio):
+        return "transmission_" + str(ratio)
+
     r = {}
 
     for key in d:
         # create key in dictionary
         r[key] = {}
 
-        r[key]["transmission"] = []
+        # store transmission for different ratios
+        # between metadata and payload
+        for ratio in RATIO:
+            r[key][ratio_key(ratio)] = []
         r[key]["transmission_metadata"] = []
         r[key]["transmission_payload"] = []
         r[key]["memory_crdt"] = []
@@ -326,22 +328,70 @@ def aggregate(d):
         r[key]["memory_algorithm"] = []
         r[key]["memory_algorithm_metadata"] = []
         r[key]["memory_algorithm_payload"] = []
+        r[key]["latency"] = []
         r[key]["latency_local"] = []
         r[key]["latency_remote"] = []
 
-        # sum all lists that have these types
-        for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack"]:
-                MPs = [M + P for [M, P] in d[key][type]]
+        # fetch all lists that have these types
+        for type in ["state", "digest", "delta", "delta_ack"]:
+            if type in d[key]:
                 Ms = [M for [M, P] in d[key][type]]
                 Ps = [P for [M, P] in d[key][type]]
-                r[key]["transmission"].append(MPs)
                 r[key]["transmission_metadata"].append(Ms)
                 r[key]["transmission_payload"].append(Ps)
 
-        r[key]["transmission"] = sum_lists(r[key]["transmission"])
+                for ratio in RATIO:
+                    MPs = [M + P*ratio for [M, P] in d[key][type]]
+                    r[key][ratio_key(ratio)].append(MPs)
+
+        # sum the fetched lists
+        for ratio in RATIO:
+            r[key][ratio_key(ratio)] = sum_lists(r[key][ratio_key(ratio)])
         r[key]["transmission_metadata"] = sum_lists(r[key]["transmission_metadata"])
         r[key]["transmission_payload"] = sum_lists(r[key]["transmission_payload"])
+
+        def get_compress_index(key):
+            m = {
+                1110: 0,
+                2120: 1,
+                2130: 2,
+                2140: 3,
+                2150: 4
+            }
+
+            score = get_score(key)
+            if score in m:
+                return (COMPRESS * m[score]) / 5
+            else:
+                return 0
+
+        # compress transmissions
+        # e.g. sum every 10 values
+        # and average them
+        max_len = 0
+        for ratio in RATIO:
+            xs = []
+            ys = []
+            current_sum = 0
+            run_len = len(r[key][ratio_key(ratio)])
+            max_len = max(max_len, run_len)
+
+            for i in range(run_len):
+                # update sum
+                current_sum += r[key][ratio_key(ratio)][i]
+
+                if(i % COMPRESS == 0):
+                    ys.append(current_sum)
+                    # reset sum
+                    current_sum = 0
+
+            index = get_compress_index(key)
+            for i in range(len(ys)):
+                xs.append((i * COMPRESS) + index)
+
+            ys = divide_lists(ys, COMPRESS)
+            r[key][ratio_key(ratio) + "_compressed"] = ys
+            r[key][ratio_key(ratio) + "_compressed_x"] = xs
 
         # aggregate memory values
         for [MC, PC, MR, PR] in d[key]["memory"]:
@@ -358,6 +408,8 @@ def aggregate(d):
                 k = "latency_" + lort
                 latency_values = map(to_ms, lord[lort])
                 r[key][k].extend(latency_values)
+
+        r[key]["latency"] = r[key]["latency_local"] + r[key]["latency_remote"]
 
     return r
 

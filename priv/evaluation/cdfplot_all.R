@@ -20,12 +20,9 @@ splot <- function(dir, keys, output_file, label, logx, topology) {
     paste("awset", topology, sep="~")
   )
   titles <- c(
-    "GCounter (Send)",
-    "GCounter (Receive)",
-    "GSet (Send)",
-    "GSet (Receive)",
-    "AWSet (Send)",
-    "AWSet (Receive)"
+    "GCounter",
+    "GSet",
+    "AWSet"
   )
   title_index <- 1
 
