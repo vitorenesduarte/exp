@@ -36,10 +36,10 @@
          terminate/2,
          code_change/3]).
 
--record(state, {to_reconnect :: node_spec() | undefined}).
+-record(state, {to_reconnect :: node_spec() | undefined,
+                partisan_manager :: atom()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
--define(PEER_SERVICE, ldb_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -53,9 +53,11 @@ simulation_end() ->
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
+    Manager = partisan_config:get(partisan_peer_service_manager),
 
     lager:info("lsim_rsg initialized"),
-    {ok, #state{to_reconnect=undefined}}.
+    {ok, #state{to_reconnect=undefined,
+                partisan_manager=Manager}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -70,15 +72,15 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start(),
     {noreply, State};
 
-handle_cast({break_link, {_, Ip, _}=Spec}, State) ->
+handle_cast({break_link, {_, Ip, _}=Spec}, #state{partisan_manager=Manager}=State) ->
     lager:info("Received BREAK LINK. ~p", [Spec]),
-    Manager = partisan_config:get(partisan_peer_service_manager),
     Manager:close_connections([Ip]),
     {noreply, State#state{to_reconnect=Spec}};
 
-handle_cast(heal_link, #state{to_reconnect=Spec}=State) ->
+handle_cast(heal_link, #state{to_reconnect=Spec,
+                              partisan_manager=Manager}=State) ->
     lager:info("Received HEAL LINK."),
-    connect([Spec], ?PEER_SERVICE),
+    connect([Spec], Manager),
     {noreply, State#state{to_reconnect=undefined}};
 
 handle_cast(metrics_go, State) ->
@@ -102,7 +104,7 @@ handle_info(create_barrier, State) ->
 
     {noreply, State};
 
-handle_info(join_peers, State) ->
+handle_info(join_peers, #state{partisan_manager=Manager}=State) ->
     MyName = ldb_config:id(),
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
@@ -113,7 +115,7 @@ handle_info(join_peers, State) ->
             ToConnect = lsim_overlay:to_connect(MyName,
                                                 Nodes,
                                                 Overlay),
-            ok = connect(ToConnect, ?PEER_SERVICE),
+            ok = connect(ToConnect, Manager),
             tell({connect_done, ldb_config:id()});
         _ ->
             schedule_join_peers()
