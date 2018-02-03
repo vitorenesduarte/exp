@@ -72,7 +72,8 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start(),
     {noreply, State};
 
-handle_cast({break_link, {_, Ip, _}=Spec}, #state{partisan_manager=Manager}=State) ->
+handle_cast({break_link, {Name, Ip, ?BARRIER_PORT}}, #state{partisan_manager=Manager}=State) ->
+    Spec = {Name, Ip, ?PORT},
     lager:info("Received BREAK LINK. ~p", [Spec]),
     Manager:close_connections([Ip]),
     {noreply, State#state{to_reconnect=Spec}};
