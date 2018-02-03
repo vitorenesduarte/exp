@@ -24,7 +24,7 @@ elif [ "$1" == "local" ]; then
          -t "${IMAGE}" -f "${DOCKERFILE}" .
 
   # use the new image
-  PULL_IMAGE=IfNotPresent
+  PULL_IMAGE=Never
 
 else
   # use the latest image
@@ -38,16 +38,17 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
-CPU=30
+CPU=0.1
 
 # lsim configuration
 SIMULATION_=(gcounter gset awset)
-NODE_EVENT_NUMBER=200
-KEEP_ALIVE=false
+SIMULATION_=(awset)
+NODE_EVENT_NUMBER=50
 # overlay nodes
 EXP_=(
-#   "tree 14"
-   "chord 16"
+   # "tree 14"
+   # "chord 16"
+   "fullmesh 2"
 )
 
 # ldb configuration
@@ -57,11 +58,11 @@ LDB_=(
    "delta_based digest_driven true      true      true"
    "delta_based state_driven  true      true      true"
    "delta_based none          true      true      true"
-   "delta_based none          true      true      false"
-   "delta_based none          true      false     false"
-   "delta_based none          false     true      false"
-   "delta_based none          false     false     false"
-   "state_based none          undefined undefined false"
+   # "delta_based none          true      true      false"
+   # "delta_based none          true      false     false"
+   # "delta_based none          false     true      false"
+   # "delta_based none          false     false     false"
+   # "state_based none          undefined undefined false"
 )
 
 # shellcheck disable=SC2034
@@ -97,7 +98,6 @@ for REP in $(seq 1 $REPS); do
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINK=${BREAK_LINK} \
-            KEEP_ALIVE=${KEEP_ALIVE} \
             CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
         fi
