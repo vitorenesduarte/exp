@@ -234,7 +234,7 @@ wait_for_completion(Nodes) ->
 stop(IToNode) ->
     StopFun = fun({I, _Node}) ->
         Name = get_node_name(I),
-        case ct_slave:stop(Name) of
+        case ct_slave:stop(Name, [{stop_timeout, 10}]) of
             {ok, _} ->
                 ok;
             Error ->
