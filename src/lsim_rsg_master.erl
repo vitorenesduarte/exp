@@ -152,8 +152,8 @@ handle_info(break_link, #state{nodes=Nodes}=State) ->
             lager:info("BREAK LINK ~p ~p\n\n", [A, B]),
 
             %% break links
-            tell({break_link, [B]}, [AName]),
-            tell({break_link, [A]}, [BName]),
+            tell({break_link, B}, [AName]),
+            tell({break_link, A}, [BName]),
 
             schedule_heal_link(),
 
