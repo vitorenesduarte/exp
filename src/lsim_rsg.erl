@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {number_of_rules :: non_neg_integer()}).
+-record(state, {to_reconnect :: node_spec() | undefined}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(PEER_SERVICE, ldb_peer_service).
@@ -55,7 +55,7 @@ init([]) ->
     schedule_create_barrier(),
 
     lager:info("lsim_rsg initialized"),
-    {ok, #state{number_of_rules=0}}.
+    {ok, #state{to_reconnect=undefined}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -70,15 +70,15 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start(),
     {noreply, State};
 
-handle_cast({reject_ips, IPs}, State) ->
-    lager:info("Received REJECT IPS. ~p", [IPs]),
-    LastRule = lsim_iptables:reject_ips(IPs),
-    {noreply, State#state{number_of_rules=LastRule}};
+handle_cast({break_link, Spec}, State) ->
+    lager:info("Received BREAK LINK. ~p", [Spec]),
+    disconnect([Spec], ?PEER_SERVICE),
+    {noreply, State#state{to_reconnect=Spec}};
 
-handle_cast(heal, #state{number_of_rules=LastRule}=State) ->
-    lager:info("Received HEAL"),
-    lsim_iptables:delete_rules(LastRule),
-    {noreply, State#state{number_of_rules=0}};
+handle_cast(heal_link, #state{to_reconnect=Spec}=State) ->
+    lager:info("Received HEAL LINK."),
+    connect([Spec], ?PEER_SERVICE),
+    {noreply, State#state{to_reconnect=undefined}};
 
 handle_cast(metrics_go, State) ->
     lager:info("Received METRICS GO. Pushing metrics."),
@@ -154,6 +154,11 @@ connect([Node|Rest]=All, PeerService) ->
             timer:sleep(?INTERVAL),
             connect(All, PeerService)
     end.
+
+%% @private
+disconnect(Specs, PeerService) ->
+    Ips = [Ip || {_, Ip, _} <- Specs],
+    PeerService:close_connections(Ips).
 
 %% @private
 tell(Msg) ->

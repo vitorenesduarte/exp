@@ -129,17 +129,16 @@ to_connect(MyName, Nodes, Overlay) ->
 %%      return a tuple where the first component is a node name,
 %%      the second is the name of the node to block,
 %%      and the third its ip.
--spec break_link(list(node_spec()), atom()) -> {ldb_node_id(), ldb_node_id(), node_ip()}.
+-spec break_link(list(node_spec()), atom()) -> {node_spec(), node_spec()}.
 break_link(Nodes, Overlay) ->
     NodeNumber = length(Nodes),
-    {FromId, ToId} = get_link(Overlay, NodeNumber),
+    {AId, BId} = get_link(Overlay, NodeNumber),
 
     Sorted = lists:sort(Nodes),
 
-    {FromName, _, _} = lists:nth(FromId + 1, Sorted),
-    {ToName, ToIp, _} = lists:nth(ToId + 1, Sorted),
-
-    {FromName, ToName, ToIp}.
+    A = lists:nth(AId + 1, Sorted),
+    B = lists:nth(BId + 1, Sorted),
+    {A, B}.
 
 %% @private
 previous(I, N) ->
@@ -163,6 +162,8 @@ next(I, N) ->
 
 %% @private
 %% automatically generated
+get_link(fullmesh, 2) ->
+    {0, 1};
 get_link(tree, 14) ->
     {11, 12};
 get_link(chord, 16) ->
