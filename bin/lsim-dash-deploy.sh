@@ -11,16 +11,8 @@ fi
 
 # ENV SETUP:
 # Kubernetes server and auth token
-CONTEXT=$(kubectl config view |
-          grep current |
-          awk '{print $2}')
-APISERVER=$(kubectl config view |
-            grep -Eb1 "${CONTEXT}$" |
-            grep "server:" |
-            grep -Eo "https://[0-9\\.:]+")
-TOKEN=$(kubectl describe secret |
-        grep "token:" |
-        awk '{print $2}')
+APISERVER=$(bin/k8s_api_server.sh)
+TOKEN=$(bin/k8s_api_token.sh)
 
 # YAML file
 FILE=/tmp/lsim-dash.yaml
