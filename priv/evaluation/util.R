@@ -26,41 +26,44 @@ json <- function(v) {
 get_labels <- function(keys) {
   labels = list()
   labels[["state_based_none_undefined_undefined"]] = "State-Based"
-  labels[["state_based_state_driven_undefined_undefined"]] = "State-Based SD"
-  labels[["state_based_digest_driven_undefined_undefined"]] = "State-based DD"
+  labels[["state_based_state_driven_undefined_undefined"]] = "State-Driven"
+  labels[["state_based_digest_driven_undefined_undefined"]] = "Digest-Driven"
   labels[["delta_based_none_False_False"]] = "Delta-Based"
-  labels[["delta_based_none_True_False"]] = "Delta-Based (Remove Redundant)"
-  labels[["delta_based_none_False_True"]] = "Delta-Based (Back-Propagation)"
-  labels[["delta_based_none_True_True"]] = "Delta-Based (Both)"
+  labels[["delta_based_none_True_False"]] = "Delta-Based RR"
+  labels[["delta_based_none_False_True"]] = "Delta-Based BP"
+  labels[["delta_based_none_True_True"]] = "Delta-Based BP+RR"
   labels[["delta_based_state_driven_False_False"]] = "Delta-Based SD"
-  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD (Remove Redundant)"
-  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD(Back-Propagation)"
-  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD (Both)"
+  labels[["delta_based_state_driven_True_False"]] = "Delta-Based SD RR"
+  labels[["delta_based_state_driven_False_True"]] = "Delta-Based SD BP"
+  labels[["delta_based_state_driven_True_True"]] = "Delta-Based SD BP+RR"
   labels[["delta_based_digest_driven_False_False"]] = "Delta-Based"
-  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD (Remove Redundant)"
-  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD (Back-Propagation)"
-  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD (Both)"
+  labels[["delta_based_digest_driven_True_False"]] = "Delta-Based DD RR"
+  labels[["delta_based_digest_driven_False_True"]] = "Delta-Based DD BP"
+  labels[["delta_based_digest_driven_True_True"]] = "Delta-Based DD BP+RR"
   lapply(
     keys,
     function(key) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(7, 8, 10, 11)],
+          parts[c(8, 9, 11, 12)],
           collapse="_"
       )
 
-      mode_and_partitions = paste(
-        labels[[mode]],
-        " #", parts[c(6)],
-        sep=""
-      )
+      mode_and_partitions = if(strtoi(parts[c(7)]) > 1) {
+        paste(
+          labels[[mode]],
+          " #", parts[c(7)],
+          sep=""
+        )
+      }
+      else labels[[mode]]
 
-      if(strtoi(parts[c(5)]) > 1) {
+      if(strtoi(parts[c(6)]) > 1) {
         paste(
           mode_and_partitions,
           " ",
-          parts[c(5)],
+          parts[c(6)],
           "/1",
           sep=""
         )
@@ -75,7 +78,7 @@ get_title <- function(key) {
   titles = list()
   titles[["awset"]] = "AWSet"
   titles[["gset"]] = "GSet"
-  titles[["gcounter"]] = "GCounter"
+  titles[["gcounter"]] = "PCounter"
 
   titles[[key]]
 }

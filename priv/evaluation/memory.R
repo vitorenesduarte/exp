@@ -4,7 +4,6 @@ main <- function() {
   # draw!
   metrics_dir <- "processed"
   ylabel <- "Memory (B)"
-  logy <- FALSE
 
   # list of simulations
   simulations <- list.files(metrics_dir)
@@ -13,15 +12,19 @@ main <- function() {
     simulation <- simulations[[i]]
     dir <- paste(metrics_dir, simulation, sep="/")
     
-    # memory crdt
-    key <- "memory_crdt"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
-    splot(dir, simulation, key, output_file, ylabel, logy)
+    for(f in c("boxplot", "linesplot")) {
+      r <- paste(f, ".R", sep="")
+      source(r)
 
-    # memory algorithm
-    key <- "memory_algorithm"
-    output_file <- paste(simulation, "_", key, ".png", sep="")
-    splot(dir, simulation, key, output_file, ylabel, logy)
+      logy <- if(f == "boxplot") TRUE else FALSE
+
+      for(key in c("memory_crdt", "memory_algorithm")) {
+        output_file <- paste(simulation, "_",
+                             key, "_",
+                             f, ".png", sep="")
+        splot(dir, simulation, key, output_file, ylabel, logy)
+      }
+    }
   }
 }
 

@@ -15,48 +15,39 @@ splot <- function(dir, simulation, key, output_file, ylabel, logy) {
     }
   )
 
-  # log axis
-  logaxis <- ""
+  # avoid scientific notation
+  options(scipen=999)
 
-  if(logy) {
-    ls <- lapply(
-      ls,
-      function(line) {
-        sapply(
-          line,
-          function(e) {
-            if(e == 0) CLOSE_TO_ZERO
-            else e
-          }
-        )
-      }
-    )
+  yminimums <- lapply(ls, min)
+  ymaximums <- lapply(ls, max)
+  miny <- Reduce(min, yminimums)
+  maxy <- Reduce(max, ymaximums)
 
-
-    logaxis <- "y"
-  }
+  miny <- if(logy && miny == 0) 0.001 else miny
+  logaxis <- if(logy) "y" else ""
 
   # open device
   #png(filename=output_file, width=500, height=500, res=80)
   png(filename=output_file, res=80)
 
   # style stuff
-  nol = length(ls)
-  noc = if(nol >= 3) nol else 3
+  nol <- length(ls)
+  noc <- if(nol >= 3) nol else 3
   colors <- brewer.pal(name="Set1", n=noc)
-  line_types = c(1:nol)
+  line_types <- c(1:nol)
   plot_chars <- seq(nol)
 
   # labels
   labels <- get_labels(files)
 
-  par(xpd = T, mar = par()$mar + c(4.5,0,0,0))
+  par(xpd=T, mar=par()$mar + c(4.5,0,0,0))
 
   # configure plot
   boxplot(
     ls,
     main=get_title(simulation),
     xaxt="n", # remove automatic numbers
+    ylim=c(miny, maxy),
     xlab="", # x axis label
     ylab=ylabel, # y axis label
     col=colors,

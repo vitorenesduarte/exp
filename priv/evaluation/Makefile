@@ -10,6 +10,10 @@ all: transmission memory latency
 pre: preprocess.py
 	python preprocess.py
 
+partition: partition.R pre
+	Rscript partition.R
+	$(VIEWER) *partition*.png &
+
 transmission: transmission.R pre
 	Rscript transmission.R
 	$(VIEWER) *transmission*.png &

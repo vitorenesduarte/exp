@@ -14,7 +14,10 @@ splot <- function(dir, keys, output_file, label, logx) {
   )
 
   # topology
-  topology <- "hyparview"
+  topology <- "ring"
+
+  # connected components
+  components <- 4
 
   # clusters
   clusters <- c(
@@ -30,6 +33,11 @@ splot <- function(dir, keys, output_file, label, logx) {
     "AWSet - Local",
     "AWSet - Remote"
   )
+  labels <- c(
+    "Delta-Based",
+    "Delta-Based State-Driven",
+    "Delta-Based Digest-Driven"
+  )
   title_index <- 1
 
   # avoid scientific notation
@@ -43,7 +51,7 @@ splot <- function(dir, keys, output_file, label, logx) {
 
   # change outer margins
   op <- par(
-    oma=c(1,3,0,12),   # room for the legend
+    oma=c(1,3,0,14),   # room for the legend
     mfrow=c(3,2),      # 3x3 matrix
     mar=c(3.5, 2, 3, 3) # spacing between plots
   )
@@ -67,7 +75,7 @@ splot <- function(dir, keys, output_file, label, logx) {
       for(f in 1:length(files)) {
         file <- files[f]
 
-        if(regexpr(cluster, file) > 0) {
+        if(regexpr(cluster, file) > 0 && regexpr(paste("~", components, "~", sep=""), file) > 0) {
 
           # if any of this, hide
           is_digest = regexpr("digest", file) > 0
@@ -143,11 +151,11 @@ splot <- function(dir, keys, output_file, label, logx) {
 
   # legend
   legend(
-    6.1, .6,
+    5.6, .6,
     #"bottom",
     #inset=-.15,
     cex=0.8,
-    legend=get_labels(files[indexes]),
+    legend=labels,
     col=colors,
     lty=line_types,
     lwd=2.5,
