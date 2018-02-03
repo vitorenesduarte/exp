@@ -70,9 +70,10 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start(),
     {noreply, State};
 
-handle_cast({break_link, Spec}, State) ->
+handle_cast({break_link, {_, Ip, _}=Spec}, State) ->
     lager:info("Received BREAK LINK. ~p", [Spec]),
-    disconnect([Spec], ?PEER_SERVICE),
+    Manager = partisan_config:get(partisan_peer_service_manager),
+    Manager:close_connections([Ip]),
     {noreply, State#state{to_reconnect=Spec}};
 
 handle_cast(heal_link, #state{to_reconnect=Spec}=State) ->
@@ -154,11 +155,6 @@ connect([Node|Rest]=All, PeerService) ->
             timer:sleep(?INTERVAL),
             connect(All, PeerService)
     end.
-
-%% @private
-disconnect(Specs, PeerService) ->
-    Ips = [Ip || {_, Ip, _} <- Specs],
-    PeerService:close_connections(Ips).
 
 %% @private
 tell(Msg) ->
