@@ -147,24 +147,26 @@ handle_info(break_link, #state{nodes=Nodes}=State) ->
     MetricsNodes = case lsim_config:get(lsim_break_link) of
         true ->
             Overlay = lsim_config:get(lsim_overlay),
-            {FromName, ToName, ToIp} = lsim_overlay:break_link(Nodes, Overlay),
+            {{AName, _, _}=A, {BName, _, _}=B} = lsim_overlay:break_link(Nodes, Overlay),
 
-            lager:info("NODE ~p REJECT IP ~p\n\n", [FromName, ToIp]),
+            lager:info("BREAK LINK ~p ~p\n\n", [A, B]),
 
-            %% tell this node to reject this ip
-            tell({reject_ips, [ToIp]}, [FromName]),
+            %% break links
+            tell({break_link, B}, [AName]),
+            tell({break_link, A}, [BName]),
 
-            schedule_heal(),
+            schedule_heal_link(),
 
-            [FromName, ToName];
+            [AName, BName];
         false ->
             rsgs()
     end,
 
     {noreply, State#state{metrics_nodes=MetricsNodes}};
 
-handle_info(heal, State) ->
-    tell(heal),
+handle_info(heal_link, #state{metrics_nodes=MetricsNodes}=State) ->
+    %% only need to notify the same nodes we are interested in the metrics
+    tell(heal_link, MetricsNodes),
     {noreply, State};
 
 handle_info(Msg, State) ->
@@ -193,11 +195,11 @@ schedule_break_link() ->
     timer:send_after(Seconds * 1000, break_link).
 
 %% @private
-schedule_heal() ->
+schedule_heal_link() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
     %% wait ~25% of simulation time before healing
     Seconds = NodeEventNumber div 4,
-    timer:send_after(Seconds * 1000, heal).
+    timer:send_after(Seconds * 1000, heal_link).
 
 %% @private
 connect([]) ->

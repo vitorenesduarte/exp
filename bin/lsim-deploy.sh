@@ -13,7 +13,6 @@ ENV_VARS=(
   NODE_NUMBER
   NODE_EVENT_NUMBER
   BREAK_LINK
-  KEEP_ALIVE
   CPU
 )
 
@@ -38,7 +37,6 @@ echo "    SIMULATION: ${SIMULATION}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    BREAK_LINK: ${BREAK_LINK}"
-echo "    KEEP_ALIVE: ${KEEP_ALIVE}"
 echo "    CPU: ${CPU}"
 
 # ENV SETUP:
@@ -185,8 +183,6 @@ spec:
           value: "${NODE_EVENT_NUMBER}"
         - name: BREAK_LINK
           value: "${BREAK_LINK}"
-        - name: KEEP_ALIVE
-          value: "${KEEP_ALIVE}"
         - name: RSG
           value: "false"
 EOF

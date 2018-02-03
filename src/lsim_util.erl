@@ -28,7 +28,7 @@
 %%      genenerate the node spec.
 -spec generate_spec(list(), node_port()) -> node_spec().
 generate_spec(IpStr, Port) ->
-    NameStr = "lsim-" ++ integer_to_list(Port) ++ "@" ++ IpStr,
+    NameStr = "lsim-" ++ integer_to_list(?PORT) ++ "@" ++ IpStr,
 
     ParsedName = list_to_atom(NameStr),
     {ok, ParsedIp} = inet_parse:address(IpStr),
