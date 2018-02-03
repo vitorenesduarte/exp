@@ -69,6 +69,7 @@ handle_call(members, _From, #state{connected=Connected}=State) ->
 
 handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=NodeSpec}, _From,
             #state{connected=Connected0}=State) ->
+    lager:info("NEW BARRIER JOIN ~p", [NodeSpec]),
     {Result, Connected1} = case orddict:find(LDBId, Connected0) of
         {ok, _} ->
             {ok, Connected0};
