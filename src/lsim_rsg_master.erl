@@ -1,4 +1,4 @@
-%%
+%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -35,12 +35,12 @@
          terminate/2,
          code_change/3]).
 
--record(state, {nodes :: list(node_spec()),
+-record(state, {nodes :: undefined | list(node_spec()),
                 connect_done:: ordsets:ordset(ldb_node_id()),
                 sim_done :: ordsets:ordset(ldb_node_id()),
                 metrics_done :: ordsets:ordset(ldb_node_id()),
-                metrics_nodes :: list(ldb_node_id()),
-                start_time :: timestamp()}).
+                metrics_nodes :: undefined | list(ldb_node_id()),
+                start_time :: undefined | timestamp()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -54,36 +54,40 @@ init([]) ->
     schedule_create_barrier(),
     lager:info("lsim_rsg_master initialized"),
 
-    {ok, #state{nodes=[],
+    {ok, #state{nodes=undefined,
                 connect_done=ordsets:new(),
                 sim_done=ordsets:new(),
                 metrics_done=ordsets:new(),
-                metrics_nodes=[],
-                start_time=0}}.
+                metrics_nodes=undefined,
+                start_time=undefined}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast({connect_done, NodeName},
-            #state{connect_done=ConnectDone0,
-                   start_time=T0}=State) ->
+            #state{nodes=Nodes,
+                   connect_done=ConnectDone0}=State) ->
 
     lager:info("Received CONNECT DONE from ~p", [NodeName]),
 
     ConnectDone1 = ordsets:add_element(NodeName, ConnectDone0),
 
-    T1 = case ordsets:size(ConnectDone1) == node_number() of
+    {T1, MetricsNodes1} = case ordsets:size(ConnectDone1) == node_number() of
         true ->
             lager:info("Everyone is CONNECT DONE. SIM GO!"),
+
+            MetricsNodes0 = configure_break_link_metrics(Nodes),
+
+            T0 = ldb_util:unix_timestamp(),
             tell(sim_go),
-            schedule_break_link(),
-            ldb_util:unix_timestamp();
+            {T0, MetricsNodes0};
         false ->
-            T0
+            {undefined, undefined}
     end,
 
     {noreply, State#state{connect_done=ConnectDone1,
+                          metrics_nodes=MetricsNodes1,
                           start_time=T1}};
 
 handle_cast({sim_done, NodeName},
@@ -139,33 +143,14 @@ handle_info(create_barrier, State) ->
     end,
     {noreply, State#state{nodes=Nodes}};
 
-handle_info(break_link, #state{nodes=Nodes}=State) ->
-
-    %% list of nodes from which we want metrics
-    %% - in case of break link, only the involved nodes
-    %% - otherwise, all
-    MetricsNodes = case lsim_config:get(lsim_break_link) of
-        true ->
-            Overlay = lsim_config:get(lsim_overlay),
-            {{AName, _, _}=A, {BName, _, _}=B} = lsim_overlay:break_link(Nodes, Overlay),
-
-            lager:info("BREAK LINK ~p ~p\n\n", [A, B]),
-
-            %% break links
-            tell({break_link, B}, [AName]),
-            tell({break_link, A}, [BName]),
-
-            schedule_heal_link(),
-
-            [AName, BName];
-        false ->
-            rsgs()
-    end,
-
-    {noreply, State#state{metrics_nodes=MetricsNodes}};
+handle_info(break_link, #state{metrics_nodes=MetricsNodes}=State) ->
+    lager:info("BREAK LINK ~p", [MetricsNodes]),
+    tell(break_link, MetricsNodes),
+    schedule_heal_link(),
+    {noreply, State};
 
 handle_info(heal_link, #state{metrics_nodes=MetricsNodes}=State) ->
-    %% only need to notify the same nodes we are interested in the metrics
+    lager:info("HEAL LINK"),
     tell(heal_link, MetricsNodes),
     {noreply, State};
 
@@ -178,6 +163,26 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% @private
+configure_break_link_metrics(Nodes) ->
+    %% list of nodes from which we want metrics
+    %% - in case of break link, only the involved nodes
+    %% - otherwise, all
+    case lsim_config:get(lsim_break_link) of
+        true ->
+            Overlay = lsim_config:get(lsim_overlay),
+            {{AName, _, _}=A, {BName, _, _}=B} = lsim_overlay:break_link(Nodes, Overlay),
+
+            tell({break_link_info, B}, [AName]),
+            tell({break_link_info, A}, [BName]),
+
+            schedule_break_link(),
+
+            [AName, BName];
+        false ->
+            rsgs()
+    end.
 
 %% @private
 node_number() ->

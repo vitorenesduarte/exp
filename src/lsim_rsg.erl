@@ -36,7 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {to_reconnect :: node_spec() | undefined,
+-record(state, {break_link_spec :: node_spec() | undefined,
                 partisan_manager :: atom()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
@@ -56,7 +56,7 @@ init([]) ->
     Manager = partisan_config:get(partisan_peer_service_manager),
 
     lager:info("lsim_rsg initialized"),
-    {ok, #state{to_reconnect=undefined,
+    {ok, #state{break_link_spec=undefined,
                 partisan_manager=Manager}}.
 
 handle_call(simulation_end, _From, State) ->
@@ -72,17 +72,24 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start(),
     {noreply, State};
 
-handle_cast({break_link, {Name, Ip, ?BARRIER_PORT}}, #state{partisan_manager=Manager}=State) ->
+handle_cast({break_link_info, {Name, Ip, ?BARRIER_PORT}}, State) ->
     Spec = {Name, Ip, ?PORT},
-    lager:info("Received BREAK LINK. ~p", [Spec]),
-    Manager:close_connections([Ip]),
-    {noreply, State#state{to_reconnect=Spec}};
+    lager:info("Received BREAK LINK INFO. ~p", [Spec]),
 
-handle_cast(heal_link, #state{to_reconnect=Spec,
+    ldb_whisperer:update_metrics_membership([Name]),
+    {noreply, State#state{break_link_spec=Spec}};
+
+handle_cast(break_link, #state{break_link_spec={_, Ip, _},
+                               partisan_manager=Manager}=State) ->
+    lager:info("Received BREAK LINK."),
+    Manager:close_connections([Ip]),
+    {noreply, State};
+
+handle_cast(heal_link, #state{break_link_spec=Spec,
                               partisan_manager=Manager}=State) ->
     lager:info("Received HEAL LINK."),
     connect([Spec], Manager),
-    {noreply, State#state{to_reconnect=undefined}};
+    {noreply, State};
 
 handle_cast(metrics_go, State) ->
     lager:info("Received METRICS GO. Pushing metrics."),
