@@ -38,35 +38,36 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
-CPU=0.1
+CPU=30
 
 # lsim configuration
 SIMULATION_CONFIG_=(
   # "gcounter 0"
   # "gset 0"
   "gmap 100"
+  "gmap 30"
   "gmap 10"
 )
-NODE_EVENT_NUMBER=100
+NODE_EVENT_NUMBER=200
 # overlay nodes
 OVERLAY_CONFIG_=(
-   # "tree 14"
-   # "chord 16"
-   "fullmesh 2"
+   "tree 14"
+   "chord 16"
+   # "fullmesh 2"
 )
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_link
 LDB_=(
-   "delta_based digest_driven true      true      true"
-   "delta_based state_driven  true      true      true"
-   "delta_based none          true      true      true"
-   # "delta_based none          true      true      false"
-   # "delta_based none          true      false     false"
-   # "delta_based none          false     true      false"
-   # "delta_based none          false     false     false"
-   # "state_based none          undefined undefined false"
+   # "delta_based digest_driven true      true      true"
+   # "delta_based state_driven  true      true      true"
+   # "delta_based none          true      true      true"
+   "delta_based none          true      true      false"
+   "delta_based none          true      false     false"
+   "delta_based none          false     true      false"
+   "delta_based none          false     false     false"
+   "state_based none          undefined undefined false"
 )
 
 # shellcheck disable=SC2034
