@@ -33,6 +33,7 @@ the simulation. The event interval is 1 second
 - __BREAK_LINK__: boolean indicating if a special link should be broken.
 The partition is induced when the simulation
 reaches 50% of progress and healed at 75%.
+- __GMAP_SIMULATION_KEY_PERCENTAGE__: percentage of keys update at each event in the gmap simulation
 
 
 #### Kubernetes
