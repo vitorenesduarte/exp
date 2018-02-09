@@ -181,13 +181,13 @@ get_specs(Simulation) ->
             end,
             TotalEventsFun = fun() ->
                 {ok, Query} = ldb:query(?KEY),
-                length(Query)
+                orddict:size(Query)
             end,
             CheckEndFun = fun(NodeNumber, _NodeEventNumber) ->
                 {ok, Query} = ldb:query(?KEY),
                 %% a node has observed all events
                 %% if key `done' counter value equals to node number.
-                dict_ext:fetch(done, Query, 0) == NodeNumber
+                orddict_ext:fetch(done, Query, 0) == NodeNumber
             end,
             [StartFun,
              EventFun,
