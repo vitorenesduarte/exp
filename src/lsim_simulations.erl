@@ -137,7 +137,7 @@ get_specs(Simulation) ->
                 Type = {gmap, [lwwregister]},
                 ldb:create(?KEY, Type)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber) ->
+            EventFun = fun(EventNumber, NodeNumber, NodeEventNumber) ->
                 LastEvent = EventNumber == NodeEventNumber,
 
                 Op = case LastEvent of
@@ -147,10 +147,33 @@ get_specs(Simulation) ->
                         %% `state_gcounter' -> `gcounter'
                         {apply, done, state_gcounter, increment};
                     false ->
-                        %% update 1/NodeNumber of some percentage of keys
-                        %Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
-                        % FIXME
-                        {apply, a, {set, 10, value}}
+                        Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
+                        KeysPerNode = round(?GMAP_KEY_NUMBER / NodeNumber),
+                        KeysPerIteration = round((Percentage * KeysPerNode) / 100),
+
+                        %% node with id i has keys from [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
+                        NumericalId = lsim_config:get(lsim_numerical_id),
+                        Start = NumericalId * KeysPerNode,
+                        End0 = ((NumericalId + 1) * KeysPerNode) - 1,
+                        %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
+                        End = min(?GMAP_KEY_NUMBER, End0),
+
+                        %% shuffle possible keys
+                        %% and take the first `KeysPerIteration'
+                        ShuffledKeys = lsim_util:shuffle_list(
+                            lists:seq(Start, End)
+                        ),
+                        Keys = lists:sublist(ShuffledKeys, KeysPerIteration),
+
+                        Ops = lists:map(
+                            fun(Key) ->
+                                Timestamp = erlang:system_time(microsecond),
+                                {Key, Timestamp, Timestamp}
+                            end,
+                            Keys
+                        ),
+
+                        {apply_all, Ops}
                 end,
 
                 ldb:update(?KEY, Op)
@@ -163,7 +186,19 @@ get_specs(Simulation) ->
                 {ok, Query} = ldb:query(?KEY),
                 %% a node has observed all events
                 %% if key `done' counter value equals to node number.
-                orddict_ext:fetch(done, Query, 0) == NodeNumber
+                Ended = orddict_ext:fetch(done, Query, 0) == NodeNumber,
+
+                case Ended of
+                    true ->
+                        %% assert the number of keys in the end of
+                        %% the simulation is correct
+                        true = orddict:size(Query) == ?GMAP_KEY_NUMBER + 1;
+                    false ->
+                        ok
+                end,
+
+                %% return
+                Ended
             end,
             [StartFun,
              EventFun,
