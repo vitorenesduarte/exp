@@ -38,7 +38,7 @@ start_experiment(Nodes) ->
     timer:sleep(5000),
     lists:foreach(
         fun(Node) ->
-            ok = rpc:call(Node, lsim_simulation_runner, start, [])
+            ok = rpc:call(Node, lsim_simulation_runner, start_simulation, [])
         end,
         Nodes
     ).
