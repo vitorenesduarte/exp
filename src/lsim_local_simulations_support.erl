@@ -26,21 +26,21 @@
 -export([run/1]).
 
 run(Options) ->
-    {IToNode, Nodes} = start(Options),
-    construct_overlay(Options, IToNode),
-    start_experiment(Nodes),
-    wait_for_completion(Nodes),
-    stop(IToNode).
+    IdToNode = start(Options),
+    construct_overlay(Options, IdToNode),
+    start_experiment(IdToNode),
+    wait_for_completion(IdToNode),
+    stop(IdToNode).
 
 %% @private
-start_experiment(Nodes) ->
+start_experiment(IdToNode) ->
     %% wait for connectedness
     timer:sleep(5000),
     lists:foreach(
-        fun(Node) ->
+        fun({_Id, Node}) ->
             ok = rpc:call(Node, lsim_simulation_runner, start_simulation, [])
         end,
-        Nodes
+        IdToNode
     ).
 
 %% @private Start nodes.
@@ -64,14 +64,11 @@ start(Options) ->
         end
     end,
 
-    IToNode = lists:foldl(InitializerFun,
-                          orddict:new(),
-                          lists:seq(0, NodeNumber - 1)),
-    Nodes = [Node || {_I, Node} <- IToNode],
+    IdToNode = lists:foldl(InitializerFun,
+                           orddict:new(),
+                           lists:seq(0, NodeNumber - 1)),
 
-    LoaderFun = fun(Node) ->
-        %ct:pal("Loading lsim on node: ~p", [Node]),
-
+    LoaderFun = fun({_Id, Node}) ->
         %% Load ldb
         ok = rpc:call(Node, application, load, [ldb]),
 
@@ -86,15 +83,14 @@ start(Options) ->
                       set_env,
                       [lager, log_root, NodeDir])
     end,
-    lists:foreach(LoaderFun, Nodes),
+    lists:foreach(LoaderFun, IdToNode),
 
-    ConfigureFun = fun(Node) ->
-        %ct:pal("Configuring node: ~p", [Node]),
-
+    ConfigureFun = fun({Id, Node}) ->
         %% Configure lsim
         LSimSettings0 = proplists:get_value(lsim_settings, Options),
         LSimSettings1 = LSimSettings0
-                     ++ [{lsim_timestamp, timestamp()}],
+                     ++ [{lsim_timestamp, timestamp()},
+                         {lsim_numerical_id, Id}],
 
         lists:foreach(
             fun({Property, Value}) ->
@@ -118,24 +114,24 @@ start(Options) ->
             LDBSettings
         )
     end,
-    lists:foreach(ConfigureFun, Nodes),
+    lists:foreach(ConfigureFun, IdToNode),
 
-    StartFun = fun(Node) ->
+    StartFun = fun({_Id, Node}) ->
         {ok, _} = rpc:call(Node,
                            application,
                            ensure_all_started,
                            [?APP])
     end,
-    lists:foreach(StartFun, Nodes),
+    lists:foreach(StartFun, IdToNode),
 
-    {IToNode, Nodes}.
+    IdToNode.
 
 %% @private Connect each node to its peers.
 %%          If `Overlay' is hyparview, it's enough all peers
 %%          connected to the same node.
 %%          Otherwise use `lsim_overlay' to decide to which
 %%          nodes a node should connect.
-construct_overlay(Options, IToNode) ->
+construct_overlay(Options, IdToNode) ->
     Overlay = proplists:get_value(
         lsim_overlay,
         proplists:get_value(
@@ -144,38 +140,24 @@ construct_overlay(Options, IToNode) ->
         )
     ),
 
-    IToNodeSpec = lists:map(
-        fun({I, Node}) ->
+    IdToNodeSpec = lists:map(
+        fun({Id, Node}) ->
             Spec = rpc:call(Node, ldb_peer_service, myself, []),
-            {I, Spec}
+            {Id, Spec}
         end,
-        IToNode
+        IdToNode
     ),
 
-    NodeNumber = orddict:size(IToNode),
-
-    %ct:pal("Nodes ~n~p~n", [IToNode]),
-    %ct:pal("Nodes Spec ~n~p~n", [IToNodeSpec]),
-
-    Graph = case Overlay of
-        hyparview ->
-            %% all nodes join the same node with I = 0
-            [{I, [0]} || I <- lists:seq(1, NodeNumber - 1)];
-        _ ->
-            %% ensure symmetric views using `lsim_overlay'
-            lsim_overlay:get(Overlay, NodeNumber)
-    end,
+    NodeNumber = orddict:size(IdToNode),
+    Graph = lsim_overlay:get(Overlay, NodeNumber),
 
     lists:foreach(
         fun({I, Peers}) ->
-            Node = orddict:fetch(I, IToNode),
-            %ct:pal("Node ~p~n~n", [Node]),
+            Node = orddict:fetch(I, IdToNode),
 
             lists:foreach(
                 fun(Peer) ->
-                    PeerSpec = orddict:fetch(Peer, IToNodeSpec),
-
-                    %ct:pal("PeerSpec ~p~n~n", [PeerSpec]),
+                    PeerSpec = orddict:fetch(Peer, IdToNodeSpec),
 
                     ok = rpc:call(Node,
                                   ldb_peer_service,
@@ -189,15 +171,15 @@ construct_overlay(Options, IToNode) ->
     ).
 
 %% @private Poll nodes to see if simulation is ended.
-wait_for_completion(Nodes) ->
+wait_for_completion(IdToNode) ->
     ct:pal("Waiting for simulation to end"),
 
-    NodeNumber = length(Nodes),
+    NodeNumber = length(IdToNode),
 
     Result = wait_until(
         fun() ->
             Ended = lists:foldl(
-                fun(Node, Acc) ->
+                fun({_Id, Node}, Acc) ->
                     SimulationEnd = rpc:call(Node,
                                              lsim_config,
                                              get,
@@ -212,7 +194,7 @@ wait_for_completion(Nodes) ->
                     end
                 end,
                 0,
-                Nodes
+                IdToNode
             ),
 
             %ct:pal("~p of ~p with simulation as true", [Ended, NodeNumber]),
@@ -231,7 +213,7 @@ wait_for_completion(Nodes) ->
     end.
 
 %% @private Stop nodes.
-stop(IToNode) ->
+stop(IdToNode) ->
     StopFun = fun({I, _Node}) ->
         Name = get_node_name(I),
         case ct_slave:stop(Name) of
@@ -241,7 +223,7 @@ stop(IToNode) ->
                 ct:fail(Error)
         end
     end,
-    lists:foreach(StopFun, IToNode).
+    lists:foreach(StopFun, IdToNode).
 
 %% @private Start erlang distribution.
 start_erlang_distribution() ->
@@ -264,11 +246,7 @@ get_node_name(I) ->
 
 %% @private
 timestamp() ->
-    {Mega, Sec, Micro} = erlang:timestamp(),
-    ME = 1000000000000000,
-    SE = 1000000000,
-    MiE = 1000,
-    Mega * ME + Sec * SE + Micro * MiE.
+    erlang:system_time(microsecond).
 
 %% @doc Wait until `Fun' returns true or `Retry' reaches 0.
 %%      The sleep time between retries is `Delay'.
