@@ -148,18 +148,19 @@ get_specs(Simulation) ->
                         {apply, done, state_gcounter, increment};
                     false ->
                         Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
-                        KeysPerNode = round(?GMAP_KEY_NUMBER / NodeNumber),
-                        KeysPerIteration = round((Percentage * KeysPerNode) / 100),
+                        KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
-                        %% node with id i has keys from [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
+                        %% node with id i has keys in
+                        %% [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
                         NumericalId = lsim_config:get(lsim_numerical_id),
-                        Start = NumericalId * KeysPerNode,
-                        End0 = ((NumericalId + 1) * KeysPerNode) - 1,
+                        Start = NumericalId * KeysPerNode + 1,
+                        End0 = ((NumericalId + 1) * KeysPerNode),
                         %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
                         End = min(?GMAP_KEY_NUMBER, End0),
 
                         %% shuffle possible keys
                         %% and take the first `KeysPerIteration'
+                        KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
                         ShuffledKeys = lsim_util:shuffle_list(
                             lists:seq(Start, End)
                         ),
@@ -180,13 +181,13 @@ get_specs(Simulation) ->
             end,
             TotalEventsFun = fun() ->
                 {ok, Query} = ldb:query(?KEY),
-                orddict:size(Query)
+                length(Query)
             end,
             CheckEndFun = fun(NodeNumber, _NodeEventNumber) ->
                 {ok, Query} = ldb:query(?KEY),
                 %% a node has observed all events
                 %% if key `done' counter value equals to node number.
-                orddict_ext:fetch(done, Query, 0) == NodeNumber
+                dict_ext:fetch(done, Query, 0) == NodeNumber
             end,
             [StartFun,
              EventFun,
@@ -216,3 +217,7 @@ create_element(EventNumber) ->
 %% @private Create elements suffix.
 element_sufix(EventNumber) ->
     "#" ++ integer_to_list(EventNumber).
+
+%% @private Round up.
+round_up(A) ->
+    trunc(A) + 1.
