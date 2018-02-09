@@ -10,10 +10,10 @@ ENV_VARS=(
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
   SIMULATION
+  GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
   BREAK_LINK
-  GMAP_SIMULATION_KEY_PERCENTAGE
   CPU
 )
 
@@ -35,10 +35,10 @@ echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
+echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    BREAK_LINK: ${BREAK_LINK}"
-echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    CPU: ${CPU}"
 
 # ENV SETUP:
@@ -110,14 +110,14 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
         - name: BREAK_LINK
           value: "${BREAK_LINK}"
-        - name: GMAP_SIMULATION_KEY_PERCENTAGE
-          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: RSG
           value: "true"
 ---
@@ -181,14 +181,14 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
         - name: BREAK_LINK
           value: "${BREAK_LINK}"
-        - name: GMAP_SIMULATION_KEY_PERCENTAGE
-          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: RSG
           value: "false"
 EOF

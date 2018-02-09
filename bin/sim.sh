@@ -41,11 +41,15 @@ fi
 CPU=0.1
 
 # lsim configuration
-SIMULATION_=(gcounter gset awset)
-SIMULATION_=(awset)
-NODE_EVENT_NUMBER=50
+SIMULATION_CONFIG_=(
+  # "gcounter 0"
+  # "gset 0"
+  "gmap 100"
+  "gmap 10"
+)
+NODE_EVENT_NUMBER=100
 # overlay nodes
-EXP_=(
+OVERLAY_CONFIG_=(
    # "tree 14"
    # "chord 16"
    "fullmesh 2"
@@ -67,12 +71,16 @@ LDB_=(
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS); do
-  for EXP in "${EXP_[@]}"; do
-    EXP=($(echo ${EXP} | tr ' ' '\n'))
-    OVERLAY=${EXP[0]}
-    NODE_NUMBER=${EXP[1]}
+  for OVERLAY_CONFIG in "${OVERLAY_CONFIG_[@]}"; do
+    OVERLAY_CONFIG=($(echo ${OVERLAY_CONFIG} | tr ' ' '\n'))
+    OVERLAY=${OVERLAY_CONFIG[0]}
+    NODE_NUMBER=${OVERLAY_CONFIG[1]}
 
-    for SIMULATION in "${SIMULATION_[@]}"; do
+    for SIM_CONFIG in "${SIM_CONFIG_[@]}"; do
+      SIM_CONFIG=($(echo ${SIM_CONFIG} | tr ' ' '\n'))
+      SIMULATION=${SIM_CONFIG[0]}
+      GMAP_SIMULATION_KEY_PERCENTAGE=${SIM_CONFIG[1]}
+
       for LDB in "${LDB_[@]}"; do
         LDB=($(echo ${LDB} | tr ' ' '\n'))
         LDB_MODE=${LDB[0]}
@@ -95,6 +103,7 @@ for REP in $(seq 1 $REPS); do
             LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
             OVERLAY=${OVERLAY} \
             SIMULATION=${SIMULATION} \
+            GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINK=${BREAK_LINK} \
