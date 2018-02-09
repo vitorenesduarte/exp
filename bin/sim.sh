@@ -51,8 +51,8 @@ SIM_CONFIG_=(
 NODE_EVENT_NUMBER=200
 # overlay nodes
 OVERLAY_CONFIG_=(
-   "tree 14"
    "chord 16"
+   "tree 14"
    # "fullmesh 2"
 )
 
