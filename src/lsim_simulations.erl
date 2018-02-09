@@ -168,7 +168,7 @@ get_specs(Simulation) ->
                         Ops = lists:map(
                             fun(Key) ->
                                 Timestamp = erlang:system_time(microsecond),
-                                {Key, Timestamp, Timestamp}
+                                {Key, {set, Timestamp, Timestamp}}
                             end,
                             Keys
                         ),
