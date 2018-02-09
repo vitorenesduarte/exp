@@ -186,19 +186,7 @@ get_specs(Simulation) ->
                 {ok, Query} = ldb:query(?KEY),
                 %% a node has observed all events
                 %% if key `done' counter value equals to node number.
-                Ended = orddict_ext:fetch(done, Query, 0) == NodeNumber,
-
-                case Ended of
-                    true ->
-                        %% assert the number of keys in the end of
-                        %% the simulation is correct
-                        true = orddict:size(Query) == ?GMAP_KEY_NUMBER + 1;
-                    false ->
-                        ok
-                end,
-
-                %% return
-                Ended
+                orddict_ext:fetch(done, Query, 0) == NodeNumber
             end,
             [StartFun,
              EventFun,
