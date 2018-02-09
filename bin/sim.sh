@@ -41,7 +41,7 @@ fi
 CPU=30
 
 # lsim configuration
-SIMULATION_CONFIG_=(
+SIM_CONFIG_=(
   # "gcounter 0"
   # "gset 0"
   "gmap 100"
