@@ -124,6 +124,11 @@ configure() ->
                   lsim_break_link,
                   false),
 
+    %% configure gmap simulation key percentage
+    configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",
+                  lsim_gmap_simulation_key_percentage,
+                  100),
+
     {Simulation, Orchestration, RSG}.
 
 %% @private
