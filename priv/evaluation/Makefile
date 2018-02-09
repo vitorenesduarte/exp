@@ -5,7 +5,9 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-all: transmission
+default: transmission
+
+all: pre split default
 
 pre: preprocess.py
 	python preprocess.py

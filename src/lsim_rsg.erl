@@ -69,7 +69,7 @@ handle_call(Msg, _From, State) ->
 
 handle_cast(sim_go, State) ->
     lager:info("Received SIM GO. Starting simulation."),
-    lsim_simulation_runner:start(),
+    lsim_simulation_runner:start_simulation(),
     {noreply, State};
 
 handle_cast({break_link_info, {Name, Ip, ?BARRIER_PORT}}, State) ->

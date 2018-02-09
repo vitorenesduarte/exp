@@ -26,7 +26,7 @@
 
 %% lsim_simulation_runner callbacks
 -export([start_link/1,
-         start/0]).
+         start_simulation/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -37,7 +37,6 @@
          code_change/3]).
 
 -record(state, {event_count :: non_neg_integer(),
-                start_fun :: function(),
                 event_fun :: function(),
                 total_events_fun :: function(),
                 check_end_fun :: function()}).
@@ -50,23 +49,25 @@
 start_link(Funs) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Funs, []).
 
--spec start() -> ok.
-start() ->
-    gen_server:call(?MODULE, start, infinity).
+-spec start_simulation() -> ok.
+start_simulation() ->
+    gen_server:call(?MODULE, start_simulation, infinity).
 
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
     lager:info("lsim_simulation_runner initialized"),
+
+    %% start fun is called here,
+    %% and start simulation schedules the first event
+    StartFun(),
+
     {ok, #state{event_count=0,
-                start_fun=StartFun,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun,
                 check_end_fun=CheckEndFun}}.
 
-handle_call(start, _From, #state{start_fun=StartFun}=State) ->
-    StartFun(),
+handle_call(start_simulation, _From, State) ->
     schedule_event(),
-
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
