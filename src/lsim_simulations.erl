@@ -23,6 +23,7 @@
 -include("lsim.hrl").
 
 -define(KEY, "events").
+-define(GMAP_KEY_NUMBER, 1000).
 
 %% lsim_simulations callbacks
 -export([get_specs/1]).
@@ -38,7 +39,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, awset)
             end,
-            EventFun = fun(EventNumber, NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber) ->
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -96,7 +97,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
             end,
-            EventFun = fun(_EventNumber, _NodeEventNumber) ->
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber) ->
                 ldb:update(?KEY, increment)
             end,
             TotalEventsFun = fun() ->
@@ -115,7 +116,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
             end,
-            EventFun = fun(EventNumber, _NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber) ->
                 Element = create_element(EventNumber),
                 ldb:update(?KEY, {add, Element})
             end,
@@ -133,30 +134,36 @@ get_specs(Simulation) ->
 
         gmap ->
             StartFun = fun() ->
-                Type = {gmap,
-                        [{pair,
-                          [gcounter, gcounter]}]},
+                Type = {gmap, [lwwregister]},
                 ldb:create(?KEY, Type)
             end,
-            EventFun = fun(EventNumber, _NodeEventNumber) ->
-                Component = case EventNumber rem 2 of
-                    0 ->
-                        %% if even, increment the first component
-                        %% of the pair
-                        fst;
-                    1 ->
-                        %% else, the second
-                        snd
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber) ->
+                LastEvent = EventNumber == NodeEventNumber,
+
+                Op = case LastEvent of
+                    true ->
+                        %% TODO ldb should support rewriting of ops
+                        %% that contain crdt types as the case of this one
+                        %% `state_gcounter' -> `gcounter'
+                        {apply, done, state_gcounter, increment};
+                    false ->
+                        %% update 1/NodeNumber of some percentage of keys
+                        %Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
+                        % FIXME
+                        {apply, a, {set, 10, value}}
                 end,
-                Op = {apply, ?KEY, {Component, increment}},
+
                 ldb:update(?KEY, Op)
             end,
             TotalEventsFun = fun() ->
-                {ok, [{?KEY, {Fst, Snd}}]} = ldb:query(?KEY),
-                Fst + Snd
+                {ok, Query} = ldb:query(?KEY),
+                orddict:size(Query)
             end,
-            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
-                TotalEventsFun() == NodeNumber * NodeEventNumber
+            CheckEndFun = fun(NodeNumber, _NodeEventNumber) ->
+                {ok, Query} = ldb:query(?KEY),
+                %% a node has observed all events
+                %% if key `done' counter value equals to node number.
+                orddict_ext:fetch(done, Query, 0) == NodeNumber
             end,
             [StartFun,
              EventFun,

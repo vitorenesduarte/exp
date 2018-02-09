@@ -1,4 +1,4 @@
-%
+%%
 %% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
