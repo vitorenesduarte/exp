@@ -36,7 +36,8 @@
          terminate/2,
          code_change/3]).
 
--record(state, {break_link_spec :: node_spec() | undefined,
+-record(state, {node_number :: non_neg_integer(),
+                break_link_spec :: node_spec() | undefined,
                 partisan_manager :: atom()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
@@ -53,10 +54,13 @@ simulation_end() ->
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
+
+    NodeNumber = lsim_config:get(lsim_node_number),
     Manager = partisan_config:get(partisan_peer_service_manager),
 
     lager:info("lsim_rsg initialized"),
-    {ok, #state{break_link_spec=undefined,
+    {ok, #state{node_number=NodeNumber,
+                break_link_spec=undefined,
                 partisan_manager=Manager}}.
 
 handle_call(simulation_end, _From, State) ->
@@ -69,7 +73,7 @@ handle_call(Msg, _From, State) ->
 
 handle_cast(sim_go, State) ->
     lager:info("Received SIM GO. Starting simulation."),
-    lsim_simulation_runner:start(),
+    lsim_simulation_runner:start_simulation(),
     {noreply, State};
 
 handle_cast({break_link_info, {Name, Ip, ?BARRIER_PORT}}, State) ->
@@ -112,17 +116,21 @@ handle_info(create_barrier, State) ->
 
     {noreply, State};
 
-handle_info(join_peers, #state{partisan_manager=Manager}=State) ->
+handle_info(join_peers, #state{node_number=NodeNumber,
+                               partisan_manager=Manager}=State) ->
     MyName = ldb_config:id(),
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
-    case length(Nodes) == node_number() of
+    case length(Nodes) == NodeNumber of
         true ->
             %% if all nodes are connected
-            ToConnect = lsim_overlay:to_connect(MyName,
-                                                Nodes,
-                                                Overlay),
+            {NumericalId, ToConnect} = lsim_overlay:numerical_id_and_neighbors(MyName,
+                                                                               Nodes,
+                                                                               Overlay),
+            %% set numerical id
+            lsim_config:set(lsim_numerical_id, NumericalId),
+            %% and connect to neighbors
             ok = connect(ToConnect, Manager),
             tell({connect_done, ldb_config:id()});
         _ ->
@@ -139,10 +147,6 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%% @private
-node_number() ->
-    lsim_config:get(lsim_node_number).
 
 %% @private
 schedule_create_barrier() ->

@@ -38,41 +38,50 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
-CPU=0.1
+CPU=30
 
 # lsim configuration
-SIMULATION_=(gcounter gset awset)
-SIMULATION_=(awset)
-NODE_EVENT_NUMBER=50
+SIM_CONFIG_=(
+  # "gcounter 0"
+  # "gset 0"
+  "gmap 100"
+  "gmap 30"
+  "gmap 10"
+)
+NODE_EVENT_NUMBER=200
 # overlay nodes
-EXP_=(
-   # "tree 14"
-   # "chord 16"
-   "fullmesh 2"
+OVERLAY_CONFIG_=(
+   "chord 16"
+   "tree 14"
+   # "fullmesh 2"
 )
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_link
 LDB_=(
-   "delta_based digest_driven true      true      true"
-   "delta_based state_driven  true      true      true"
-   "delta_based none          true      true      true"
-   # "delta_based none          true      true      false"
-   # "delta_based none          true      false     false"
-   # "delta_based none          false     true      false"
-   # "delta_based none          false     false     false"
-   # "state_based none          undefined undefined false"
+   # "delta_based digest_driven true      true      true"
+   # "delta_based state_driven  true      true      true"
+   # "delta_based none          true      true      true"
+   "delta_based none          true      true      false"
+   "delta_based none          true      false     false"
+   "delta_based none          false     true      false"
+   "delta_based none          false     false     false"
+   "state_based none          undefined undefined false"
 )
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS); do
-  for EXP in "${EXP_[@]}"; do
-    EXP=($(echo ${EXP} | tr ' ' '\n'))
-    OVERLAY=${EXP[0]}
-    NODE_NUMBER=${EXP[1]}
+  for OVERLAY_CONFIG in "${OVERLAY_CONFIG_[@]}"; do
+    OVERLAY_CONFIG=($(echo ${OVERLAY_CONFIG} | tr ' ' '\n'))
+    OVERLAY=${OVERLAY_CONFIG[0]}
+    NODE_NUMBER=${OVERLAY_CONFIG[1]}
 
-    for SIMULATION in "${SIMULATION_[@]}"; do
+    for SIM_CONFIG in "${SIM_CONFIG_[@]}"; do
+      SIM_CONFIG=($(echo ${SIM_CONFIG} | tr ' ' '\n'))
+      SIMULATION=${SIM_CONFIG[0]}
+      GMAP_SIMULATION_KEY_PERCENTAGE=${SIM_CONFIG[1]}
+
       for LDB in "${LDB_[@]}"; do
         LDB=($(echo ${LDB} | tr ' ' '\n'))
         LDB_MODE=${LDB[0]}
@@ -95,6 +104,7 @@ for REP in $(seq 1 $REPS); do
             LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
             OVERLAY=${OVERLAY} \
             SIMULATION=${SIMULATION} \
+            GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINK=${BREAK_LINK} \

@@ -23,6 +23,7 @@
 -include("lsim.hrl").
 
 -define(KEY, "events").
+-define(GMAP_KEY_NUMBER, 1000).
 
 %% lsim_simulations callbacks
 -export([get_specs/1]).
@@ -38,7 +39,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, awset)
             end,
-            EventFun = fun(EventNumber, NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber) ->
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -96,7 +97,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
             end,
-            EventFun = fun(_EventNumber, _NodeEventNumber) ->
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber) ->
                 ldb:update(?KEY, increment)
             end,
             TotalEventsFun = fun() ->
@@ -115,7 +116,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
             end,
-            EventFun = fun(EventNumber, _NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber) ->
                 Element = create_element(EventNumber),
                 ldb:update(?KEY, {add, Element})
             end,
@@ -133,27 +134,38 @@ get_specs(Simulation) ->
 
         gmap ->
             StartFun = fun() ->
-                Type = {gmap,
-                        [{pair,
-                          [gcounter, gcounter]}]},
+                Type = {gmap, [gcounter]},
                 ldb:create(?KEY, Type)
             end,
-            EventFun = fun(EventNumber, _NodeEventNumber) ->
-                Component = case EventNumber rem 2 of
-                    0 ->
-                        %% if even, increment the first component
-                        %% of the pair
-                        fst;
-                    1 ->
-                        %% else, the second
-                        snd
-                end,
-                Op = {apply, ?KEY, {Component, increment}},
-                ldb:update(?KEY, Op)
+            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
+                Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
+                KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
+
+                %% node with id i has keys in
+                %% [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
+                NumericalId = lsim_config:get(lsim_numerical_id),
+                Start = NumericalId * KeysPerNode + 1,
+                End0 = ((NumericalId + 1) * KeysPerNode),
+                %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
+                End = min(?GMAP_KEY_NUMBER, End0),
+
+                %% shuffle possible keys
+                %% and take the first `KeysPerIteration'
+                KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
+                ShuffledKeys = lsim_util:shuffle_list(
+                    lists:seq(Start, End)
+                ),
+                Keys = lists:sublist(ShuffledKeys, KeysPerIteration),
+
+                Ops = lists:map(fun(Key) -> {Key, increment} end, Keys),
+                ldb:update(?KEY, {apply_all, [{gmap_events, increment} | Ops]})
             end,
             TotalEventsFun = fun() ->
-                {ok, [{?KEY, {Fst, Snd}}]} = ldb:query(?KEY),
-                Fst + Snd
+                {ok, Query} = ldb:query(?KEY),
+                case lists:keyfind(gmap_events, 1, Query) of
+                    {gmap_events, V} -> V;
+                    false -> 0
+                end
             end,
             CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
                 TotalEventsFun() == NodeNumber * NodeEventNumber
@@ -186,3 +198,7 @@ create_element(EventNumber) ->
 %% @private Create elements suffix.
 element_sufix(EventNumber) ->
     "#" ++ integer_to_list(EventNumber).
+
+%% @private Round up.
+round_up(A) ->
+    trunc(A) + 1.

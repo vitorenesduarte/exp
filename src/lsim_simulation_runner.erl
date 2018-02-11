@@ -26,7 +26,7 @@
 
 %% lsim_simulation_runner callbacks
 -export([start_link/1,
-         start/0]).
+         start_simulation/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -37,10 +37,11 @@
          code_change/3]).
 
 -record(state, {event_count :: non_neg_integer(),
-                start_fun :: function(),
                 event_fun :: function(),
                 total_events_fun :: function(),
-                check_end_fun :: function()}).
+                check_end_fun :: function(),
+                node_number :: non_neg_integer(),
+                node_event_number :: non_neg_integer()}).
 
 -define(DEFAULT_EVENT_INTERVAL, 1000).
 -define(SIMULATION_END_INTERVAL, 10000).
@@ -50,23 +51,31 @@
 start_link(Funs) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Funs, []).
 
--spec start() -> ok.
-start() ->
-    gen_server:call(?MODULE, start, infinity).
+-spec start_simulation() -> ok.
+start_simulation() ->
+    gen_server:call(?MODULE, start_simulation, infinity).
 
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
     lager:info("lsim_simulation_runner initialized"),
+
+    %% start fun is called here,
+    %% and start simulation schedules the first event
+    StartFun(),
+
+    %% get node number and node event number
+    NodeNumber = lsim_config:get(lsim_node_number),
+    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+
     {ok, #state{event_count=0,
-                start_fun=StartFun,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun,
-                check_end_fun=CheckEndFun}}.
+                check_end_fun=CheckEndFun,
+                node_number=NodeNumber,
+                node_event_number=NodeEventNumber}}.
 
-handle_call(start, _From, #state{start_fun=StartFun}=State) ->
-    StartFun(),
+handle_call(start_simulation, _From, State) ->
     schedule_event(),
-
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
@@ -79,10 +88,11 @@ handle_cast(Msg, State) ->
 
 handle_info(event, #state{event_count=Events0,
                           event_fun=EventFun,
-                          total_events_fun=TotalEventsFun}=State) ->
+                          total_events_fun=TotalEventsFun,
+                          node_number=NodeNumber,
+                          node_event_number=NodeEventNumber}=State) ->
     Events = Events0 + 1,
-    NodeEventNumber = node_event_number(),
-    EventFun(Events, NodeEventNumber),
+    EventFun(Events, NodeNumber, NodeEventNumber),
     TotalEvents = TotalEventsFun(),
     lager:info("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
 
@@ -97,11 +107,13 @@ handle_info(event, #state{event_count=Events0,
     {noreply, State#state{event_count=Events}};
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
-                                   check_end_fun=CheckEndFun}=State) ->
+                                   check_end_fun=CheckEndFun,
+                                   node_number=NodeNumber,
+                                   node_event_number=NodeEventNumber}=State) ->
     TotalEvents = TotalEventsFun(),
     lager:info("Events observed ~p | Node ~p", [TotalEvents, ldb_config:id()]),
 
-    case CheckEndFun(node_number(), node_event_number()) of
+    case CheckEndFun(NodeNumber, NodeEventNumber) of
         true ->
             %% If everyone did all the events they should do
             lager:info("All events have been observed"),
@@ -121,14 +133,6 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%% @private
-node_number() ->
-    lsim_config:get(lsim_node_number).
-
-%% @private
-node_event_number() ->
-    lsim_config:get(lsim_node_event_number).
 
 %% @private
 schedule_event() ->

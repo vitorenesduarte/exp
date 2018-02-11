@@ -10,6 +10,7 @@ ENV_VARS=(
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
   SIMULATION
+  GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
   BREAK_LINK
@@ -34,6 +35,7 @@ echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
+echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    BREAK_LINK: ${BREAK_LINK}"
@@ -108,6 +110,8 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
@@ -177,6 +181,8 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER

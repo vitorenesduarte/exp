@@ -128,50 +128,50 @@ splot <- function(dir, key, output_file, bar_number) {
       )
     }
     else {
-			# find the y max for all
-			x_max <- Reduce(max, lapply(lines_x, max))
-			y_max <- Reduce(max, lapply(lines_y, max))
+      # find the y max for all
+      x_max <- Reduce(max, lapply(lines_x, max))
+      y_max <- Reduce(max, lapply(lines_y, max))
 
-			# configure plot
-			plot(
-				range(x_max),
-				range(y_max),
-				type="n",
-				xlim=c(0, x_max), # max x
-				ylim=c(0, y_max), # max y
-				xlab="",
-				ylab="",
-			)
-			# x axis label
-			mtext(
-				side=1, # bottom
-				text="Time (s)",
+      # configure plot
+      plot(
+        range(x_max),
+        range(y_max),
+        type="n",
+        xlim=c(0, x_max), # max x
+        ylim=c(0, y_max), # max y
+        xlab="",
+        ylab="",
+      )
+      # x axis label
+      mtext(
+        side=1, # bottom
+        text="Time (s)",
         font=2,
-				line=2, # closeness to plot
-				#outer=TRUE, # outside of the plot, thus only one
-				cex=.7 # size
-			)
-			# y axis label
-			mtext(
-				side=2, # left
-				las=0, # vertical text
-				text="Transmission",
+        line=2, # closeness to plot
+        #outer=TRUE, # outside of the plot, thus only one
+        cex=.7 # size
+      )
+      # y axis label
+      mtext(
+        side=2, # left
+        las=0, # vertical text
+        text="Transmission",
         font=2,
-				line=2, # closeness to plot
-				#outer=TRUE, # outside of the plot, thus only one
-				cex=.7 # size
-			)
-      
+        line=2, # closeness to plot
+        #outer=TRUE, # outside of the plot, thus only one
+        cex=.7 # size
+      )
+
       for(i in 1:length(lines_y)) {
-				lines(
-					lines_x[[i]],
-					lines_y[[i]],
-					col=colors[[i]],
-					type="b",
-					pch=i,
+        lines(
+          lines_x[[i]],
+          lines_y[[i]],
+          col=colors[[i]],
+          type="b",
+          pch=i,
           lty=3
-				)
-			}
+        )
+      }
     }
     title(title, line=0.3)
   }

@@ -11,13 +11,21 @@ main(_) ->
     %% clear metrics dir
     %os:cmd("rm -rf " ++ metrics_dir()),
 
+    io:format("Keys found ~p~n", [Keys]),
+    KeyNumber = length(Keys),
+
     lists:foreach(
-        fun(Filename) ->
+        fun(Index) ->
+            Filename = lists:nth(Index, Keys),
+            io:format("(~p of ~p) Fetching key ~p~n",
+                      [Index, KeyNumber, Filename]),
             %% for all the keys (files), save them in the metrics dir
-            {ok, File} = eredis:q(Redis, ["GET", Filename]),
+            {ok, File} = eredis:q(Redis,
+                                  ["GET", Filename],
+                                  infinity),
             save(Filename, File)
         end,
-        Keys
+        lists:seq(1, KeyNumber)
     ),
 
     ok.

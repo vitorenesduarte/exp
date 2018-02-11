@@ -23,8 +23,7 @@
 -include("lsim.hrl").
 
 -export([get/2,
-         to_connect/3,
-         numerical_id/2,
+         numerical_id_and_neighbors/3,
          break_link/2]).
 
 %% @doc The first argument can be:
@@ -90,40 +89,22 @@ get(line, N) ->
     ),
     T2.
 
-%% @doc Get numerical id.
--spec numerical_id(ldb_node_id(), list(node_spec())) -> non_neg_integer().
-numerical_id(MyName, Nodes) ->
-    Sorted = lists:sort(Nodes),
-
-    %% compute id
-    lists:foldl(
-        fun({Name, _, _}, Acc) ->
-            case Name < MyName of
-                true ->
-                    Acc + 1;
-                false ->
-                    Acc
-            end
-        end,
-        0,
-        Sorted
-    ).
 
 %% @doc The first argument is my node spec,
 %%      the second argument is a list of node specs,
 %%      and the third argument is the overlay.
--spec to_connect(ldb_node_id(), list(node_spec()), atom()) ->
-    list(node_spec()).
-to_connect(MyName, Nodes, Overlay) ->
+-spec numerical_id_and_neighbors(ldb_node_id(), list(node_spec()), atom()) ->
+    {non_neg_integer(), list(node_spec())}.
+numerical_id_and_neighbors(MyName, Nodes, Overlay) ->
     NodeNumber = length(Nodes),
     Sorted = lists:sort(Nodes),
 
-    MyId = numerical_id(MyName, Sorted),
+    NumericalId = numerical_id(MyName, Sorted),
 
     %% id -> [id]
     Topology = get(Overlay, NodeNumber),
 
-    [lists:nth(I + 1, Sorted) || I <- orddict:fetch(MyId, Topology)].
+    {NumericalId, [lists:nth(I + 1, Sorted) || I <- orddict:fetch(NumericalId, Topology)]}.
 
 %% @doc Given a list of node specs and a overlay,
 %%      return a tuple where the first component is a node name,
@@ -139,6 +120,23 @@ break_link(Nodes, Overlay) ->
     A = lists:nth(AId + 1, Sorted),
     B = lists:nth(BId + 1, Sorted),
     {A, B}.
+
+%% @private Get numerical id, given the name a list of sorted specs by name.
+-spec numerical_id(ldb_node_id(), list(node_spec())) -> non_neg_integer().
+numerical_id(MyName, Sorted) ->
+    %% compute id
+    lists:foldl(
+        fun({Name, _, _}, Acc) ->
+            case Name < MyName of
+                true ->
+                    Acc + 1;
+                false ->
+                    Acc
+            end
+        end,
+        0,
+        Sorted
+    ).
 
 %% @private
 previous(I, N) ->

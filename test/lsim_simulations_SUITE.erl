@@ -67,8 +67,8 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      gset_test,
-     gcounter_test%,
-     %gmap_test
+     gcounter_test,
+     gmap_test
     ].
 
 %% ===================================================================
