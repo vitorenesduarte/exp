@@ -11,11 +11,11 @@ echo -e "Main done ${GREEN}successfull${NC}" &&
 Args=$(tail -n +2 nodesTable | awk '{print $4}' | tr '\n' ' ') &&
 echo -e "Args done ${GREEN}successfull${NC}" &&
 
-scp -o "StrictHostKeyChecking no" ./init-node.sh ${USER}@"$Main".emulab.net:~/init-node.sh &&
+scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" ./init-node.sh ${USER}@"$Main".emulab.net:~/init-node.sh &&
 echo -e "scp init-node.sh done ${GREEN}successfull${NC}" &&
 
-ssh -o "StrictHostKeyChecking no" ${USER}@"$Main".emulab.net 'bash -s'< ./init-master.sh "~/init-node.sh" "${USER}" "${Args[@]}" &&
+ssh -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" ${USER}@"$Main".emulab.net 'bash -s'< ./init-master.sh "~/init-node.sh" "${USER}" "${Args[@]}" &&
 
-scp -o "StrictHostKeyChecking no" ${USER}@"$Main".emulab.net:~/.kube/config ~/.kube/config
+scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" ${USER}@"$Main".emulab.net:~/.kube/config ~/.kube/config
 
 echo -e "ssh init-master.sh done ${GREEN}successfull${NC}"
