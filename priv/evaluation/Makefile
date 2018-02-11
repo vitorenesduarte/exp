@@ -7,15 +7,13 @@ endif
 
 default: transmission
 
-all: pre split default
+all: pre default
 
 pre: preprocess.py
+	rm -rf processed processed_break_link
+	mkdir processed processed_break_link
 	python preprocess.py
-
-split:
-	rm -rf processed_break_link
-	mkdir processed_break_link
-	mv processed/*True~delta* processed_break_link/
+	-mv processed/*True~delta* processed_break_link/
 
 partition: partition.R
 	Rscript partition.R

@@ -40,7 +40,7 @@ get_labels <- function(keys) {
       parts <-  strsplit(key, "~")[[1]]
 
       mode <- paste(
-          parts[c(6, 7, 8, 9)],
+          parts[c(7, 8, 9, 10)],
           collapse="_"
       )
       labels[[mode]]

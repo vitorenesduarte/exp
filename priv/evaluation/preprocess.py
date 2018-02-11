@@ -66,6 +66,7 @@ def key(config):
     start_time = config["start_time"]
 
     keys = [
+        "lsim_gmap_simulation_key_percentage",
         "lsim_simulation",
         "lsim_overlay",
         "lsim_node_number",
@@ -435,9 +436,9 @@ def get_score(type):
     score = 0
 
     parts = type.split("~")
-    mode = parts[4]
-    driven_mode = parts[5]
-    delta_mode = "_".join(parts[6:])
+    mode = parts[5]
+    driven_mode = parts[6]
+    delta_mode = "_".join(parts[7:])
 
     if mode == "state_based":
         score += 1000
