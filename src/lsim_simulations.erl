@@ -134,64 +134,41 @@ get_specs(Simulation) ->
 
         gmap ->
             StartFun = fun() ->
-                Type = {gmap, [lwwregister]},
+                Type = {gmap, [gcounter]},
                 ldb:create(?KEY, Type)
             end,
-            EventFun = fun(EventNumber, NodeNumber, NodeEventNumber) ->
-                LastEvent = EventNumber == NodeEventNumber,
+            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
+                Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
+                KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
-                Op = case LastEvent of
-                    true ->
-                        %% TODO ldb should support rewriting of ops
-                        %% that contain crdt types as the case of this one
-                        %% `state_gcounter' -> `gcounter'
-                        {apply, done, state_gcounter, increment};
-                    false ->
-                        Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
-                        KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
+                %% node with id i has keys in
+                %% [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
+                NumericalId = lsim_config:get(lsim_numerical_id),
+                Start = NumericalId * KeysPerNode + 1,
+                End0 = ((NumericalId + 1) * KeysPerNode),
+                %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
+                End = min(?GMAP_KEY_NUMBER, End0),
 
-                        %% node with id i has keys in
-                        %% [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
-                        NumericalId = lsim_config:get(lsim_numerical_id),
-                        Start = NumericalId * KeysPerNode + 1,
-                        End0 = ((NumericalId + 1) * KeysPerNode),
-                        %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
-                        End = min(?GMAP_KEY_NUMBER, End0),
+                %% shuffle possible keys
+                %% and take the first `KeysPerIteration'
+                KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
+                ShuffledKeys = lsim_util:shuffle_list(
+                    lists:seq(Start, End)
+                ),
+                Keys = lists:sublist(ShuffledKeys, KeysPerIteration),
 
-                        %% shuffle possible keys
-                        %% and take the first `KeysPerIteration'
-                        KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
-                        ShuffledKeys = lsim_util:shuffle_list(
-                            lists:seq(Start, End)
-                        ),
-                        Keys = lists:sublist(ShuffledKeys, KeysPerIteration),
-
-                        Ops = lists:map(
-                            fun(Key) ->
-                                Timestamp = erlang:system_time(microsecond),
-                                {Key, {set, Timestamp, Timestamp}}
-                            end,
-                            Keys
-                        ),
-
-                        {apply_all, Ops}
-                end,
-
-                ldb:update(?KEY, Op)
+                Ops = lists:map(fun(Key) -> {Key, increment} end, Keys),
+                ldb:update(?KEY, {apply_all, [{gmap_events, increment} | Ops]})
             end,
             TotalEventsFun = fun() ->
                 {ok, Query} = ldb:query(?KEY),
-                length(Query)
-            end,
-            CheckEndFun = fun(NodeNumber, _NodeEventNumber) ->
-                {ok, Query} = ldb:query(?KEY),
-                %% a node has observed all events
-                %% if key `done' counter value equals to node number.
-                Done = case lists:keyfind(done, 1, Query) of
-                    {done, V} -> V;
+                case lists:keyfind(gmap_events, 1, Query) of
+                    {gmap_events, V} -> V;
                     false -> 0
-                end,
-                Done == NodeNumber
+                end
+            end,
+            CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
+                TotalEventsFun() == NodeNumber * NodeEventNumber
             end,
             [StartFun,
              EventFun,
