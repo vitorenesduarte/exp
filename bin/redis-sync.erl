@@ -3,48 +3,50 @@
 %%! -pa _build/default/lib/eredis/ebin/
 
 main(_) ->
-    Redis = redis_connection(),
+    %% connect to redis
+    redis(connect),
 
     %% get all the redis keys
-    {ok, Keys} = eredis:q(Redis, ["KEYS", "*"]),
+    Keys = redis(fetch_keys),
+    io:format("Found ~p keys!~n", [length(Keys)]),
 
-    %% clear metrics dir
-    %os:cmd("rm -rf " ++ metrics_dir()),
-
-    io:format("Keys found ~p~n", [Keys]),
-    KeyNumber = length(Keys),
+    %% get all non-existing keys
+    NonExisting = [Key || Key <- Keys, not file(exists, Key)],
+    KeyNumber = length(NonExisting),
+    io:format("Non-existing keys: ~p~n", [NonExisting]),
 
     lists:foreach(
-        fun(Index) ->
-            Filename = lists:nth(Index, Keys),
-            io:format("(~p of ~p) Fetching key ~p~n",
-                      [Index, KeyNumber, Filename]),
-            %% for all the keys (files), save them in the metrics dir
-            {ok, File} = eredis:q(Redis,
-                                  ["GET", Filename],
-                                  infinity),
-            save(Filename, File)
+        fun({Index, Key}) ->
+            io:format("(~p of ~p)~n", [Index, KeyNumber]),
+            File = redis(fetch_key, Key),
+            file(save, Key, File)
         end,
-        lists:seq(1, KeyNumber)
+        lists:zip(lists:seq(1, KeyNumber), NonExisting)
     ),
 
     ok.
 
 %% @private
-redis_connection() ->
+redis(connect) ->
     {ok, Redis} = eredis:start_link(),
-    Redis.
+    put(redis, Redis);
+redis(fetch_keys) ->
+    {ok, Keys} = eredis:q(get(redis), ["KEYS", "*"]),
+    lists:map(fun(Key) -> binary_to_list(Key) end, Keys).
+redis(fetch_key, Key) ->
+    {ok, File} = eredis:q(get(redis), ["GET", Key], infinity),
+    File.
 
 %% @private
-metrics_dir() ->
-    os:getenv("METRICS_DIR").
-
-%% @private
-save(Filename, File) ->
-    Path = get_path(Filename),
+file(path, Key) ->
+    filename:join(
+        os:getenv("METRICS_DIR"),
+        Key
+    );
+file(exists, Key) ->
+    Path = file(path, Key),
+    filelib:is_file(Path).
+file(save, Key, File) ->
+    Path = file(path, Key),
     ok = filelib:ensure_dir(Path),
     ok = file:write_file(Path, File).
-
-%% @private
-get_path(Filename) ->
-    metrics_dir() ++ "/" ++ binary_to_list(Filename).
