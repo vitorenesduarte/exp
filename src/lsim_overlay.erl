@@ -24,7 +24,7 @@
 
 -export([get/2,
          numerical_id_and_neighbors/3,
-         break_link/2]).
+         break_links/2]).
 
 %% @doc The first argument can be:
 %%          - `hyparview'
@@ -106,20 +106,34 @@ numerical_id_and_neighbors(MyName, Nodes, Overlay) ->
 
     {NumericalId, [lists:nth(I + 1, Sorted) || I <- orddict:fetch(NumericalId, Topology)]}.
 
-%% @doc Given a list of node specs and a overlay,
-%%      return a tuple where the first component is a node name,
-%%      the second is the name of the node to block,
-%%      and the third its ip.
--spec break_link(list(node_spec()), atom()) -> {node_spec(), node_spec()}.
-break_link(Nodes, Overlay) ->
+%% @doc Given break links configuration,
+%%      a list of node specs and a overlay,
+%%      returns a tuple:
+%%      {names of interesting (we want metrics from) nodes, map from name to links to break}
+-spec break_links(none | one | log | half,
+                  [node_spec()],
+                  atom()) ->
+    {[ldb_node_id()], [{ldb_node_id(), [node_spec()]}]}.
+break_links(none, Nodes, _Overlay) ->
+    %% all nodes are interesting
+    {Names, _, _} = lists:unzip3(Nodes),
+    %% and no links to break
+    Links = [],
+    {Names, Links};
+break_links(one, Nodes, Overlay) ->
     NodeNumber = length(Nodes),
-    {AId, BId} = get_link(Overlay, NodeNumber),
+    {AId, BId} = get_predefined_link(Overlay, NodeNumber),
 
     Sorted = lists:sort(Nodes),
 
-    A = lists:nth(AId + 1, Sorted),
-    B = lists:nth(BId + 1, Sorted),
-    {A, B}.
+    {AName, _, _}=A = lists:nth(AId + 1, Sorted),
+    {BName, _, _}=B = lists:nth(BId + 1, Sorted),
+
+    Names = [AName, BName],
+    Links = [{AName, [B]},
+             {BName, [A]}],
+
+    {Names, Links}.
 
 %% @private Get numerical id, given the name a list of sorted specs by name.
 -spec numerical_id(ldb_node_id(), list(node_spec())) -> non_neg_integer().
@@ -160,10 +174,10 @@ next(I, N) ->
 
 %% @private
 %% automatically generated
-get_link(fullmesh, 2) ->
+get_predefined_link(fullmesh, 2) ->
     {0, 1};
-get_link(tree, 14) ->
+get_predefined_link(tree, 14) ->
     {11, 12};
-get_link(chord, 16) ->
+get_predefined_link(chord, 16) ->
     {10, 14}.
 

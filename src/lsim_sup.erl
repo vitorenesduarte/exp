@@ -119,10 +119,10 @@ configure() ->
                   undefined),
 
 
-    %% configure break link
-    configure_var("BREAK_LINK",
-                  lsim_break_link,
-                  false),
+    %% configure break links
+    configure_var("BREAK_LINKS",
+                  lsim_break_links,
+                  none),
 
     %% configure gmap simulation key percentage
     configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",

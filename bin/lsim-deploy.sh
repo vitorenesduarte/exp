@@ -13,7 +13,7 @@ ENV_VARS=(
   GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
-  BREAK_LINK
+  BREAK_LINKS
   CPU
 )
 
@@ -38,7 +38,7 @@ echo "    SIMULATION: ${SIMULATION}"
 echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
-echo "    BREAK_LINK: ${BREAK_LINK}"
+echo "    BREAK_LINKS: ${BREAK_LINKS}"
 echo "    CPU: ${CPU}"
 
 # ENV SETUP:
@@ -116,8 +116,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: BREAK_LINK
-          value: "${BREAK_LINK}"
+        - name: BREAK_LINKS
+          value: "${BREAK_LINKS}"
         - name: RSG
           value: "true"
 ---
@@ -187,8 +187,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: BREAK_LINK
-          value: "${BREAK_LINK}"
+        - name: BREAK_LINKS
+          value: "${BREAK_LINKS}"
         - name: RSG
           value: "false"
 EOF
