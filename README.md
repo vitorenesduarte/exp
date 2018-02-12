@@ -36,8 +36,9 @@ Links are broken when the simulation
 reaches 50% of progress and healed at 75%. Possible values for break link:
   - `none`: no link is broken
   - `one`: a predefined link is broken
-  - `half`: half of the links are broken
-  - `log`: log of the links are broken
+  - `half`: 1/2 of the links are broken
+  - `quarter`: 1/4 of the links are broken
+  - `eighth`: 1/8 of the links are broken
 
 
 #### Kubernetes
