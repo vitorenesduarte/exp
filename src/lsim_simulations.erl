@@ -149,13 +149,15 @@ get_specs(Simulation) ->
                 %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
                 End = min(?GMAP_KEY_NUMBER, End0),
 
-                %% shuffle possible keys
-                %% and take the first `KeysPerIteration'
+                %% create my keys
+                MyKeys0 = lists:seq(Start, End),
+
+                %% shuffle keys
+                MyKeys = lsim_util:shuffle_list(MyKeys0),
+
+                %% take the first `KeysPerIteration'
                 KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
-                ShuffledKeys = lsim_util:shuffle_list(
-                    lists:seq(Start, End)
-                ),
-                Keys = lists:sublist(ShuffledKeys, KeysPerIteration),
+                Keys = lists:sublist(MyKeys, KeysPerIteration),
 
                 Ops = lists:map(fun(Key) -> {Key, increment} end, Keys),
                 ldb:update(?KEY, {apply_all, [{gmap_events, increment} | Ops]})

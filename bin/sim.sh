@@ -46,7 +46,7 @@ SIM_CONFIG_=(
   "gmap 10"
   "gmap 30"
 )
-NODE_EVENT_NUMBER=200
+NODE_EVENT_NUMBER=100
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
