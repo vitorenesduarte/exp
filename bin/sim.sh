@@ -44,7 +44,7 @@ OVERLAY_CONFIG_=(
 SIM_CONFIG_=(
   "gset 0"
   "gmap 10"
-  "gmap 50"
+  "gmap 30"
 )
 NODE_EVENT_NUMBER=200
 
