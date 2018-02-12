@@ -45,13 +45,15 @@ SIM_CONFIG_=(
   # "awset 0"
   # "gmap 100"
   "gset 0"
+  "gmap 10"
+  "gmap 50"
+  "gmap 100"
 )
-NODE_EVENT_NUMBER=50
+NODE_EVENT_NUMBER=100
 # overlay nodes
 OVERLAY_CONFIG_=(
-   # "chord 16"
-   # "tree 14"
-    "fullmesh 2"
+   "chord 16"
+   "tree 14"
 )
 
 # ldb configuration
