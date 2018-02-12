@@ -6,13 +6,14 @@ DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
 DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
+# always pull image,
+# unless local
+PULL_IMAGE=Always
+
 if [ "$1" == "build" ]; then
   # build and push
   IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
-
-  # use the new image
-  PULL_IMAGE=Always
 
 elif [ "$1" == "local" ]; then
   # build locally
@@ -23,11 +24,6 @@ elif [ "$1" == "local" ]; then
 
   # use the new image
   PULL_IMAGE=Never
-
-else
-  # use the latest image
-  PULL_IMAGE=IfNotPresent
-
 fi
 
 # start redis
@@ -40,20 +36,17 @@ CPU=7
 
 # lsim configuration
 SIM_CONFIG_=(
-  # "gcounter 0"
-  # "gset 0"
-  # "awset 0"
-  # "gmap 100"
   "gset 0"
   "gmap 10"
   "gmap 50"
   "gmap 100"
 )
-NODE_EVENT_NUMBER=100
+NODE_EVENT_NUMBER=50
 # overlay nodes
 OVERLAY_CONFIG_=(
-   "chord 16"
-   "tree 14"
+   "fullmesh 2"
+   # "chord 16"
+   # "tree 14"
 )
 
 # ldb configuration
