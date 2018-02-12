@@ -34,6 +34,13 @@ fi
 
 CPU=7
 
+# overlay nodes
+OVERLAY_CONFIG_=(
+   "fullmesh 2"
+   # "chord 16"
+   # "tree 14"
+)
+
 # lsim configuration
 SIM_CONFIG_=(
   "gset 0"
@@ -42,12 +49,6 @@ SIM_CONFIG_=(
   "gmap 100"
 )
 NODE_EVENT_NUMBER=50
-# overlay nodes
-OVERLAY_CONFIG_=(
-   "fullmesh 2"
-   # "chord 16"
-   # "tree 14"
-)
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
