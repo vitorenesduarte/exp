@@ -24,7 +24,7 @@
 
 -export([get/2,
          numerical_id_and_neighbors/3,
-         break_links/2]).
+         break_links/3]).
 
 %% @doc The first argument can be:
 %%          - `hyparview'
