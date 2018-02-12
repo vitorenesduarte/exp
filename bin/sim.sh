@@ -46,7 +46,7 @@ SIM_CONFIG_=(
   # "gmap 100"
   "gset 0"
 )
-NODE_EVENT_NUMBER=200
+NODE_EVENT_NUMBER=50
 # overlay nodes
 OVERLAY_CONFIG_=(
    # "chord 16"
