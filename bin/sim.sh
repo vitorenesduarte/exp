@@ -6,8 +6,6 @@ DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
 DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
-#"${DIR}"/g-cluster.sh start
-
 if [ "$1" == "build" ]; then
   # build and push
   IMAGE=${IMAGE} \
@@ -38,36 +36,37 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
-CPU=30
+CPU=7
 
 # lsim configuration
 SIM_CONFIG_=(
   # "gcounter 0"
   # "gset 0"
-  "gmap 100"
-  "gmap 30"
+  # "awset 0"
+  # "gmap 100"
+  "gset 0"
   "gmap 10"
+  "gmap 50"
+  "gmap 100"
 )
-NODE_EVENT_NUMBER=200
+NODE_EVENT_NUMBER=100
 # overlay nodes
 OVERLAY_CONFIG_=(
    "chord 16"
    "tree 14"
-   # "fullmesh 2"
 )
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_link
 LDB_=(
-   # "delta_based digest_driven true      true      true"
-   # "delta_based state_driven  true      true      true"
-   # "delta_based none          true      true      true"
-   "delta_based none          true      true      false"
-   "delta_based none          true      false     false"
-   "delta_based none          false     true      false"
-   "delta_based none          false     false     false"
-   "state_based none          undefined undefined false"
+   "delta_based state_driven  true      true      true"
+   "delta_based none          true      true      true"
+   # "delta_based none          true      true      false"
+   # "delta_based none          true      false     false"
+   # "delta_based none          false     true      false"
+   # "delta_based none          false     false     false"
+   # "state_based none          undefined undefined false"
 )
 
 # shellcheck disable=SC2034
@@ -110,12 +109,10 @@ for REP in $(seq 1 $REPS); do
             BREAK_LINK=${BREAK_LINK} \
             CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
+          # fetch logs from redis
+          ${DIR}/start-redis-sync.sh
         fi
       done
     done
   done
 done
-
-#"${DIR}"/start-redis-sync.sh
-
-#"${DIR}"/g-cluster.sh stop

@@ -64,28 +64,14 @@ push_ldb_metrics() ->
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
     %% process transmission
-    PerMessageType = lists:foldl(
-        fun({Timestamp, transmission, {MessageType, Size}}, Acc0) ->
-            orddict:append(MessageType, {Timestamp, Size}, Acc0)
+    All0 = lists:foldl(
+        fun({Timestamp, transmission, {MSize, PSize}}, Acc0) ->
+            V = [{ts, Timestamp},
+                 {size, [MSize, PSize]}],
+            orddict:append(transmission, V, Acc0)
         end,
         orddict:new(),
         TransmissionTS
-    ),
-
-    All0 = orddict:fold(
-        fun(MessageType, Metrics, Acc0) ->
-            lists:foldl(
-                fun({Timestamp, {MSize, PSize}}, Acc1) ->
-                    V = [{ts, Timestamp},
-                         {size, [MSize, PSize]}],
-                    orddict:append(MessageType, V, Acc1)
-                end,
-                Acc0,
-                Metrics
-            )
-        end,
-        orddict:new(),
-        PerMessageType
     ),
 
     %% process memory
