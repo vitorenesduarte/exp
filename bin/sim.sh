@@ -54,6 +54,8 @@ LDB_STATE_SYNC_INTERVAL=1000
 LDB_=(
    "delta_based state_driven  true      true      one"
    "delta_based none          true      true      one"
+   "delta_based state_driven  true      true      half"
+   "delta_based none          true      true      half"
    # "delta_based none          true      true      none"
    # "delta_based none          true      false     none"
    # "delta_based none          false     true      none"

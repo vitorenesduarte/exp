@@ -10,7 +10,7 @@ TS="ts"
 SIZE="size"
 #RATIO=[1, 4, 16, 32, 64]
 RATIO=[1]
-COMPRESS=5 # every x
+COMPRESS=25 # every x
 
 def error(message):
     """
