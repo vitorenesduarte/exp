@@ -8,8 +8,9 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
-RATIO=[1, 4, 16, 32, 64]
-COMPRESS=25 # every x
+#RATIO=[1, 4, 16, 32, 64]
+RATIO=[1]
+COMPRESS=5 # every x
 
 def error(message):
     """
@@ -70,7 +71,7 @@ def key(config):
         "lsim_simulation",
         "lsim_overlay",
         "lsim_node_number",
-        "lsim_break_link",
+        "lsim_break_links",
         "ldb_mode",
         "ldb_driven_mode",
         "ldb_redundant_dgroups",
@@ -137,7 +138,7 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
@@ -152,7 +153,7 @@ def add(type, sizeA, sizeB):
     Sum two sizes
     """
 
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
@@ -168,7 +169,7 @@ def default(type, previous):
     - if transmission, 0
     - if memory, previous value
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
@@ -334,7 +335,7 @@ def aggregate(d):
         r[key]["latency_remote"] = []
 
         # fetch all lists that have these types
-        for type in ["state", "digest", "delta", "delta_ack"]:
+        for type in ["transmission"]:
             if type in d[key]:
                 Ms = [M for [M, P] in d[key][type]]
                 Ps = [P for [M, P] in d[key][type]]
