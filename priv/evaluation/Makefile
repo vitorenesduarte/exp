@@ -13,7 +13,7 @@ pre: preprocess.py
 	rm -rf processed processed_break_link
 	mkdir processed processed_break_link
 	python preprocess.py
-	-mv processed/*True~delta* processed_break_link/
+	-mv processed/*one~delta* processed/*log~delta* processed/*half~delta* processed_break_link/
 
 partition: partition.R
 	Rscript partition.R
