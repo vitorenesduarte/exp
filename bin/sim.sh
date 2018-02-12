@@ -58,7 +58,6 @@ OVERLAY_CONFIG_=(
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_link
 LDB_=(
-   "delta_based digest_driven true      true      true"
    "delta_based state_driven  true      true      true"
    "delta_based none          true      true      true"
    # "delta_based none          true      true      false"
@@ -109,7 +108,7 @@ for REP in $(seq 1 $REPS); do
             CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
           # fetch logs from redis
-          bin/start-redis-sync.erl
+          ${DIR}/start-redis-sync.sh
         fi
       done
     done
