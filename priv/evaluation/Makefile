@@ -11,9 +11,11 @@ all: pre default
 
 pre: preprocess.py
 	rm -rf processed processed_break_link
-	mkdir processed processed_break_link
+	mkdir processed 
 	python preprocess.py
-	-mv processed/*one~delta* processed/*log~delta* processed/*half~delta* processed_break_link/
+	mv processed processed_break_link
+	mkdir processed 
+	-mv processed/*none~delta* processed
 
 partition: partition.R
 	Rscript partition.R
