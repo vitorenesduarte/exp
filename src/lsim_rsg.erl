@@ -37,7 +37,7 @@
          code_change/3]).
 
 -record(state, {node_number :: non_neg_integer(),
-                break_link_spec :: node_spec() | undefined,
+                break_links_specs :: [node_spec()] | undefined,
                 partisan_manager :: atom()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
@@ -60,7 +60,7 @@ init([]) ->
 
     lager:info("lsim_rsg initialized"),
     {ok, #state{node_number=NodeNumber,
-                break_link_spec=undefined,
+                break_links_specs=undefined,
                 partisan_manager=Manager}}.
 
 handle_call(simulation_end, _From, State) ->
@@ -76,23 +76,28 @@ handle_cast(sim_go, State) ->
     lsim_simulation_runner:start_simulation(),
     {noreply, State};
 
-handle_cast({break_link_info, {Name, Ip, ?BARRIER_PORT}}, State) ->
-    Spec = {Name, Ip, ?PORT},
-    lager:info("Received BREAK LINK INFO. ~p", [Spec]),
+handle_cast({break_links_info, Infos}, State) ->
+    Specs = lists:map(
+        fun({Name, Ip, ?BARRIER_PORT}) -> {Name, Ip, ?PORT} end,
+        Infos
+    ),
+    {Names, _, _} = lists:unzip3(Specs),
+    lager:info("Received BREAK LINKS INFO. ~p", [Names]),
 
-    ldb_whisperer:update_metrics_membership([Name]),
-    {noreply, State#state{break_link_spec=Spec}};
+    ldb_whisperer:update_metrics_membership(Names),
+    {noreply, State#state{break_links_specs=Specs}};
 
-handle_cast(break_link, #state{break_link_spec={_, Ip, _},
-                               partisan_manager=Manager}=State) ->
-    lager:info("Received BREAK LINK."),
-    Manager:close_connections([Ip]),
+handle_cast(break_links, #state{break_links_specs=Specs,
+                                partisan_manager=Manager}=State) ->
+    lager:info("Received BREAK LINKS."),
+    {_, Ips, _} = lists:unzip3(Specs),
+    Manager:close_connections(Ips),
     {noreply, State};
 
-handle_cast(heal_link, #state{break_link_spec=Spec,
-                              partisan_manager=Manager}=State) ->
-    lager:info("Received HEAL LINK."),
-    connect([Spec], Manager),
+handle_cast(heal_links, #state{break_links_specs=Specs,
+                               partisan_manager=Manager}=State) ->
+    lager:info("Received HEAL LINKS."),
+    connect(Specs, Manager),
     {noreply, State};
 
 handle_cast(metrics_go, State) ->

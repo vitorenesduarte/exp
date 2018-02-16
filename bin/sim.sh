@@ -6,13 +6,14 @@ DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
 DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
+# always pull image,
+# unless local
+PULL_IMAGE=Always
+
 if [ "$1" == "build" ]; then
   # build and push
   IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
-
-  # use the new image
-  PULL_IMAGE=Always
 
 elif [ "$1" == "local" ]; then
   # build locally
@@ -23,11 +24,6 @@ elif [ "$1" == "local" ]; then
 
   # use the new image
   PULL_IMAGE=Never
-
-else
-  # use the latest image
-  PULL_IMAGE=IfNotPresent
-
 fi
 
 # start redis
@@ -38,35 +34,33 @@ fi
 
 CPU=7
 
-# lsim configuration
-SIM_CONFIG_=(
-  # "gcounter 0"
-  # "gset 0"
-  # "awset 0"
-  # "gmap 100"
-  "gset 0"
-  "gmap 10"
-  "gmap 50"
-  "gmap 100"
-)
-NODE_EVENT_NUMBER=100
 # overlay nodes
 OVERLAY_CONFIG_=(
    "chord 16"
    "tree 14"
 )
 
+# lsim configuration
+SIM_CONFIG_=(
+  "gset 0"
+  "gmap 10"
+  "gmap 30"
+)
+NODE_EVENT_NUMBER=100
+
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
-# mode driven_mode bp rr break_link
+# mode driven_mode bp rr break_links
 LDB_=(
-   "delta_based state_driven  true      true      true"
-   "delta_based none          true      true      true"
-   # "delta_based none          true      true      false"
-   # "delta_based none          true      false     false"
-   # "delta_based none          false     true      false"
-   # "delta_based none          false     false     false"
-   # "state_based none          undefined undefined false"
+   "delta_based state_driven  true      true      one"
+   "delta_based none          true      true      one"
+   "delta_based state_driven  true      true      half"
+   "delta_based none          true      true      half"
+   # "delta_based none          true      true      none"
+   # "delta_based none          true      false     none"
+   # "delta_based none          false     true      none"
+   # "delta_based none          false     false     none"
+   # "state_based none          undefined undefined none"
 )
 
 # shellcheck disable=SC2034
@@ -87,7 +81,7 @@ for REP in $(seq 1 $REPS); do
         LDB_DRIVEN_MODE=${LDB[1]}
         LDB_DGROUP_BACK_PROPAGATION=${LDB[2]}
         LDB_REDUNDANT_DGROUPS=${LDB[3]}
-        BREAK_LINK=${LDB[4]}
+        BREAK_LINKS=${LDB[4]}
 
         if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
           echo "Skipping..."
@@ -106,7 +100,7 @@ for REP in $(seq 1 $REPS); do
             GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-            BREAK_LINK=${BREAK_LINK} \
+            BREAK_LINKS=${BREAK_LINKS} \
             CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
           # fetch logs from redis

@@ -30,10 +30,15 @@
   - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
-- __BREAK_LINK__: boolean indicating if a special link should be broken.
-The partition is induced when the simulation
-reaches 50% of progress and healed at 75%.
 - __GMAP_SIMULATION_KEY_PERCENTAGE__: percentage of keys update at each event in the gmap simulation
+- __BREAK_LINKS__:
+Links are broken when the simulation
+reaches 50% of progress and healed at 75%. Possible values for break link:
+  - `none`: no link is broken
+  - `one`: a predefined link is broken
+  - `half`: 1/2 of the links are broken
+  - `quarter`: 1/4 of the links are broken
+  - `eighth`: 1/8 of the links are broken
 
 
 #### Kubernetes

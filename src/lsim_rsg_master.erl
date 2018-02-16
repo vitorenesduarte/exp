@@ -77,7 +77,7 @@ handle_cast({connect_done, NodeName},
         true ->
             lager:info("Everyone is CONNECT DONE. SIM GO!"),
 
-            MetricsNodes0 = configure_break_link_metrics(Nodes),
+            MetricsNodes0 = configure_break_links_metrics(Nodes),
 
             T0 = ldb_util:unix_timestamp(),
             tell(sim_go),
@@ -143,15 +143,15 @@ handle_info(create_barrier, State) ->
     end,
     {noreply, State#state{nodes=Nodes}};
 
-handle_info(break_link, #state{metrics_nodes=MetricsNodes}=State) ->
-    lager:info("BREAK LINK ~p", [MetricsNodes]),
-    tell(break_link, MetricsNodes),
-    schedule_heal_link(),
+handle_info(break_links, #state{metrics_nodes=MetricsNodes}=State) ->
+    lager:info("BREAK LINKS ~p", [MetricsNodes]),
+    tell(break_links, MetricsNodes),
+    schedule_heal_links(),
     {noreply, State};
 
-handle_info(heal_link, #state{metrics_nodes=MetricsNodes}=State) ->
-    lager:info("HEAL LINK"),
-    tell(heal_link, MetricsNodes),
+handle_info(heal_links, #state{metrics_nodes=MetricsNodes}=State) ->
+    lager:info("HEAL LINKS"),
+    tell(heal_links, MetricsNodes),
     {noreply, State};
 
 handle_info(Msg, State) ->
@@ -165,24 +165,29 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-configure_break_link_metrics(Nodes) ->
+configure_break_links_metrics(Nodes) ->
     %% list of nodes from which we want metrics
-    %% - in case of break link, only the involved nodes
+    %% - in case of break links, only the involved nodes
     %% - otherwise, all
-    case lsim_config:get(lsim_break_link) of
-        true ->
-            Overlay = lsim_config:get(lsim_overlay),
-            {{AName, _, _}=A, {BName, _, _}=B} = lsim_overlay:break_link(Nodes, Overlay),
+    BreakLinks = lsim_config:get(lsim_break_links),
+    Overlay = lsim_config:get(lsim_overlay),
+    {Names, Links} = lsim_overlay:break_links(BreakLinks, Nodes, Overlay),
 
-            tell({break_link_info, B}, [AName]),
-            tell({break_link_info, A}, [BName]),
+    %% inform all nodes involved in break links
+    lists:foreach(
+        fun({Name, Specs}) ->
+            tell({break_links_info, Specs}, [Name])
+        end,
+        Links
+    ),
 
-            schedule_break_link(),
+    %% schedule break links
+    case BreakLinks of
+        none -> ok;
+        _ -> schedule_break_links()
+    end,
 
-            [AName, BName];
-        false ->
-            rsgs()
-    end.
+    Names.
 
 %% @private
 node_number() ->
@@ -193,18 +198,18 @@ schedule_create_barrier() ->
     timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
-schedule_break_link() ->
+schedule_break_links() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~50% of simulation time before breaking link
+    %% wait ~50% of simulation time before breaking links
     Seconds = NodeEventNumber div 2,
-    timer:send_after(Seconds * 1000, break_link).
+    timer:send_after(Seconds * 1000, break_links).
 
 %% @private
-schedule_heal_link() ->
+schedule_heal_links() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
     %% wait ~25% of simulation time before healing
     Seconds = NodeEventNumber div 4,
-    timer:send_after(Seconds * 1000, heal_link).
+    timer:send_after(Seconds * 1000, heal_links).
 
 %% @private
 connect([]) ->

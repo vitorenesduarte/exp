@@ -24,7 +24,7 @@
 
 -export([get/2,
          numerical_id_and_neighbors/3,
-         break_link/2]).
+         break_links/3]).
 
 %% @doc The first argument can be:
 %%          - `hyparview'
@@ -106,21 +106,6 @@ numerical_id_and_neighbors(MyName, Nodes, Overlay) ->
 
     {NumericalId, [lists:nth(I + 1, Sorted) || I <- orddict:fetch(NumericalId, Topology)]}.
 
-%% @doc Given a list of node specs and a overlay,
-%%      return a tuple where the first component is a node name,
-%%      the second is the name of the node to block,
-%%      and the third its ip.
--spec break_link(list(node_spec()), atom()) -> {node_spec(), node_spec()}.
-break_link(Nodes, Overlay) ->
-    NodeNumber = length(Nodes),
-    {AId, BId} = get_link(Overlay, NodeNumber),
-
-    Sorted = lists:sort(Nodes),
-
-    A = lists:nth(AId + 1, Sorted),
-    B = lists:nth(BId + 1, Sorted),
-    {A, B}.
-
 %% @private Get numerical id, given the name a list of sorted specs by name.
 -spec numerical_id(ldb_node_id(), list(node_spec())) -> non_neg_integer().
 numerical_id(MyName, Sorted) ->
@@ -136,6 +121,79 @@ numerical_id(MyName, Sorted) ->
         end,
         0,
         Sorted
+    ).
+
+%% @doc Given break links configuration,
+%%      a list of node specs and a overlay,
+%%      returns a tuple:
+%%      {names of interesting (we want metrics from) nodes, map from name to links to break}
+-spec break_links(none | one | half | quarter | eighth,
+                  [node_spec()],
+                  atom()) ->
+    {[ldb_node_id()], [{ldb_node_id(), [node_spec()]}]}.
+break_links(none, Nodes, _Overlay) ->
+    %% all nodes are interesting
+    {Names, _, _} = lists:unzip3(Nodes),
+    %% and no links to break
+    LinkMap = [],
+    {Names, LinkMap};
+break_links(one, Nodes, Overlay) ->
+    NodeNumber = length(Nodes),
+    Link = get_predefined_link(Overlay, NodeNumber),
+    compute_names_and_link_map([Link], Nodes);
+break_links(BreakLinks, Nodes, Overlay) ->
+    NodeNumber = length(Nodes),
+    AllLinks = get_links(Overlay, NodeNumber),
+    LinkNumber = length(AllLinks),
+
+    N = case BreakLinks of
+        half -> LinkNumber div 2;
+        quarter -> LinkNumber div 4;
+        eighth -> LinkNumber div 8
+    end,
+
+    ShuffledLinks = lsim_util:shuffle_list(AllLinks),
+    %% take the first `N' links
+    Links = lists:sublist(ShuffledLinks, N),
+    compute_names_and_link_map(Links, Nodes).
+
+%% @private
+compute_names_and_link_map(Links, Nodes) ->
+    Sorted = lists:sort(Nodes),
+
+    LinkMap = lists:foldl(
+        fun({AId, BId}, Acc0) ->
+            {AName, _, _}=A = lists:nth(AId + 1, Sorted),
+            {BName, _, _}=B = lists:nth(BId + 1, Sorted),
+
+            Acc1 = orddict:append(AName, B, Acc0),
+            Acc2 = orddict:append(BName, A, Acc1),
+            Acc2
+        end,
+        orddict:new(),
+        Links
+    ),
+    Names = orddict:fetch_keys(LinkMap),
+    {Names, LinkMap}.
+
+%% @private
+get_links(Overlay, NodeNumber) ->
+    Graph = get(Overlay, NodeNumber),
+    lists:foldl(
+        fun({From, ToList}, Acc0) ->
+            lists:foldl(
+                fun(To, Acc1) ->
+                    %% sort link
+                    AId = min(From, To),
+                    BId = max(From, To),
+                    ordsets:add_element({AId, BId}, Acc1)
+                end,
+                Acc0,
+                ToList
+            )
+        end,
+        ordsets:new(),
+        Graph
     ).
 
 %% @private
@@ -160,10 +218,10 @@ next(I, N) ->
 
 %% @private
 %% automatically generated
-get_link(fullmesh, 2) ->
+get_predefined_link(fullmesh, 2) ->
     {0, 1};
-get_link(tree, 14) ->
+get_predefined_link(tree, 14) ->
     {11, 12};
-get_link(chord, 16) ->
+get_predefined_link(chord, 16) ->
     {10, 14}.
 
