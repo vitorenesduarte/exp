@@ -1,26 +1,26 @@
 source("util.R")
 
 x_axis_label <- function(text) {
-	mtext(
-		side=1, # bottom
-		text=text,
-		font=2, # bold
-		line=2.2, # closeness to plot
-		outer=FALSE, # outside of the plot if TRUE
-		cex=.7 # size
-	)
+  mtext(
+    side=1, # bottom
+    text=text,
+    font=2, # bold
+    line=2.2, # closeness to plot
+    outer=FALSE, # outside of the plot if TRUE
+    cex=.7 # size
+  )
 }
 
 y_axis_label <- function(text) {
-	mtext(
-		side=2, # left
-		las=0, # vertical text
-		text=text,
-		font=2, # bold
-		line=2.2, # closeness to plot
-		outer=FALSE, # outside of the plot if TRUE
-		cex=.7 # size
-	)
+  mtext(
+    side=2, # left
+    las=0, # vertical text
+    text=text,
+    font=2, # bold
+    line=2.2, # closeness to plot
+    outer=FALSE, # outside of the plot if TRUE
+    cex=.7 # size
+  )
 }
 
 plot_bars <- function(lines, y_min, colors, angles, densities) {
@@ -29,15 +29,15 @@ plot_bars <- function(lines, y_min, colors, angles, densities) {
   y_max = y_max + 0.1*y_max
 
   # configure and draw
-	p <- barplot(
+  p <- barplot(
     lines,
     ylim=c(y_min, y_max),
     xpd = FALSE,
-		col=colors,
-		horiz=FALSE,
-		angle=angles,
-		density=densities
-	)
+    col=colors,
+    horiz=FALSE,
+    angle=angles,
+    density=densities
+  )
 
   # round tops
   rounded <- map(lines, function(v) { round(v, digits=2) })
@@ -83,29 +83,29 @@ plot_cdf <- function(lines, colors) {
 }
 
 plot_lines <- function(lines_x, lines_y, colors) {
-	# find the x max and y max
-	x_max <- Reduce(max, lapply(lines_x, max))
-	y_max <- Reduce(max, lapply(lines_y, max))
+  # find the x max and y max
+  x_max <- Reduce(max, lapply(lines_x, max))
+  y_max <- Reduce(max, lapply(lines_y, max))
 
-	# configure plot
-	plot(
-		range(x_max),
-		range(y_max),
-		type="n",
-		xlim=c(0, x_max), # max x
-		ylim=c(0, y_max), # max y
-		xlab="",
-		ylab="",
-	)
+  # configure plot
+  plot(
+    range(x_max),
+    range(y_max),
+    type="n",
+    xlim=c(0, x_max), # max x
+    ylim=c(0, y_max), # max y
+    xlab="",
+    ylab="",
+  )
 
   # draw
-	for(i in 1:length(lines_y)) {
-		lines(
-			lines_x[[i]],
-			lines_y[[i]],
-			col=colors[[i]],
-			type="b",
-			pch=i
-		)
-	}
+  for(i in 1:length(lines_y)) {
+    lines(
+      lines_x[[i]],
+      lines_y[[i]],
+      col=colors[[i]],
+      type="b",
+      pch=i
+    )
+  }
 }
