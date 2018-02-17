@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot1.png"
+  output_file <- "plot3.png"
 
   clusters <- c(
     "ls -d processed/* | grep gcounter~tree",
@@ -47,6 +47,8 @@ main <- function() {
     "darkorange1",
     "red4"
   )
+  angles <- c(0, 45, 135, 45, 135)
+  densities <- c(0, 10, 20, 40, 60)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -55,19 +57,30 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_1_compressed_x"
-    key_y <- "transmission_1_compressed"
+    key_a <- "memory_crdt"
+    key_b <- "memory_algorithm"
 
-    # data
-    lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
-    lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+		# data
+		lines <- map(
+			files,
+			function(f) {
+				data <- json(c(f))
+				avg_a <- mean(data[[key_a]])
+				avg_b <- mean(data[[key_b]])
+				avg_a + avg_b
+			}
+		)
 
-    # plot lines
-    plot_lines(lines_x, lines_y, colors)
+		# min (state-based)
+		state_based = Reduce(min, lines)
+		lines <- map(lines, function(v) { v / state_based })
 
-    # axis labels
-    x_axis_label("Time (s)")
-    y_axis_label("Transmission")
+		# plot bars
+		y_min <- 0.5
+		plot_bars(lines, y_min, colors, angles, densities)
+
+		# axis labels
+		y_axis_label("Memory ratio wrto State-based")
 
     # title
     title <- titles[i]
@@ -85,8 +98,9 @@ main <- function() {
     -.7,  # y 
     cex=0.8,
     legend=labels,
-    pch=c(1:10),
-    col=colors,
+    angle=angles,
+    density=densities,
+    fill=colors,
     horiz=TRUE,
     box.col=NA # remove box
   )

@@ -3,20 +3,28 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot1.png"
+  output_file <- "plot2.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh",
-    "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh"
+    "ls -d processed/* | grep 10~gmap~tree",
+    "ls -d processed/* | grep 30~gmap~tree",
+    "ls -d processed/* | grep 30~gmap~tree",
+    "ls -d processed/* | grep 100~gmap~tree",
+    "ls -d processed/* | grep 10~gmap~partialmesh",
+    "ls -d processed/* | grep 30~gmap~partialmesh",
+    "ls -d processed/* | grep 30~gmap~partialmesh",
+    "ls -d processed/* | grep 100~gmap~partialmesh"
   )
   ## 0 transmission
   titles <- c(
-    "GCounter - Tree",
-    "GCounter - Mesh",
-    "GSet - Tree",
-    "GSet - Mesh"
+    "GMap (10%) - Tree",
+    "GMap (30%) - Tree",
+    "GMap (60%) - Tree",
+    "GMap (100%) - Tree",
+    "GMap (10%) - Mesh",
+    "GMap (30%) - Mesh",
+    "GMap (60%) - Mesh",
+    "GMap (100%) - Mesh"
   )
   labels <- c(
     "State-based",
@@ -30,12 +38,12 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=650, res=240)
+  png(filename=output_file, width=2600, height=1200, res=240)
 
   # change outer margins
   op <- par(
     oma=c(3,2,0,0),   # room for the legend
-    mfrow=c(1,4),      # 2x4 matrix
+    mfrow=c(2,4),      # 2x4 matrix
     mar=c(4,3,2,2) # spacing between plots
   )
 
@@ -82,7 +90,7 @@ main <- function() {
   # legend
   pos <- legend(
     .1, # x
-    -.7,  # y 
+    -.19,  # y 
     cex=0.8,
     legend=labels,
     pch=c(1:10),

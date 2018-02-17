@@ -40,7 +40,7 @@ plot_bars <- function(lines, y_min, colors, angles, densities) {
   )
 
   # round tops
-  rounded <- map(lines, function(v) { round(v, digits=2) })
+  rounded <- map(lines, function(v) { round(v, digits=1) })
   
   # add text at top of bars
   text(

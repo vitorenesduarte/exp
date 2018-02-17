@@ -15,6 +15,9 @@ pre: preprocess.py
 
 plots:
 	Rscript plot1.R
+	Rscript plot2.R
+	Rscript plot3.R
+	Rscript plot4.R
 
 show:
 	$(VIEWER) *.png
