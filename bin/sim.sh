@@ -36,15 +36,17 @@ CPU=7
 
 # overlay nodes
 OVERLAY_CONFIG_=(
-   "chord 16"
+   "partialmesh 16"
    "tree 14"
 )
 
 # lsim configuration
 SIM_CONFIG_=(
   "gset 0"
+  "gcounter 0"
   "gmap 10"
   "gmap 30"
+  "gmap 100"
 )
 NODE_EVENT_NUMBER=100
 
@@ -52,15 +54,13 @@ NODE_EVENT_NUMBER=100
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_links
 LDB_=(
-   "delta_based state_driven  true      true      one"
-   "delta_based none          true      true      one"
-   "delta_based state_driven  true      true      half"
-   "delta_based none          true      true      half"
-   # "delta_based none          true      true      none"
-   # "delta_based none          true      false     none"
-   # "delta_based none          false     true      none"
-   # "delta_based none          false     false     none"
-   # "state_based none          undefined undefined none"
+   #"delta_based state_driven  true      true      one"
+   #"delta_based none          true      true      one"
+   "delta_based none          true      true      none"
+   "delta_based none          true      false     none"
+   "delta_based none          false     true      none"
+   "delta_based none          false     false     none"
+   "state_based none          undefined undefined none"
 )
 
 # shellcheck disable=SC2034

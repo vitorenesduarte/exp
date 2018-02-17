@@ -5,36 +5,19 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-default: transmission
+default: plots show
 
 all: pre default
 
 pre: preprocess.py
-	rm -rf processed processed_break_link
-	mkdir processed 
+	rm -rf processed
 	python preprocess.py
-	mv processed processed_break_link
-	mkdir processed 
-	-mv processed/*none~delta* processed
 
-partition: partition.R
-	Rscript partition.R
-	make show
-
-transmission: transmission.R
-	Rscript transmission.R
-	make show
-
-memory: memory.R
-	Rscript memory.R
-	make show
-
-latency: latency.R
-	Rscript latency.R
-	make show
+plots:
+	Rscript plot1.R
 
 show:
-	$(VIEWER) *.png &
+	$(VIEWER) *.png
 
 clean:
 	rm -f *.png
