@@ -8,11 +8,11 @@ main <- function() {
   clusters <- c(
     "ls -d processed/* | grep 10~gmap~tree",
     "ls -d processed/* | grep 30~gmap~tree",
-    "ls -d processed/* | grep 30~gmap~tree",
+    "ls -d processed/* | grep 60~gmap~tree",
     "ls -d processed/* | grep 100~gmap~tree",
     "ls -d processed/* | grep 10~gmap~partialmesh",
     "ls -d processed/* | grep 30~gmap~partialmesh",
-    "ls -d processed/* | grep 30~gmap~partialmesh",
+    "ls -d processed/* | grep 60~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
   titles <- c(
