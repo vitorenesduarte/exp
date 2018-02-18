@@ -14,6 +14,7 @@ pre: preprocess.py
 	python preprocess.py
 
 plots:
+	Rscript plot0.R
 	Rscript plot1.R
 	Rscript plot2.R
 	Rscript plot3.R

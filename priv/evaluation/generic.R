@@ -26,7 +26,7 @@ y_axis_label <- function(text) {
 plot_bars <- function(title, lines, y_min, colors, angles, densities) {
   # find the y max
   y_max = Reduce(max, lines)
-  y_max = y_max + 0.1*y_max
+  y_max = y_max + 0.15*y_max
 
   # configure and draw
   p <- barplot(

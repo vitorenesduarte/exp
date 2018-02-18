@@ -11,6 +11,7 @@ SIZE="size"
 #RATIO=[1, 4, 16, 32, 64]
 RATIO=[1]
 COMPRESS=15 # every x
+#MAX_TIME=60
 
 def error(message):
     """
@@ -185,7 +186,7 @@ def ignore_pre_big_bang(run):
     """
     
     return [m for m in run if m[TS] >= 0]
-
+    #return [m for m in run if m[TS] >= 0 and m[TS] < MAX_TIME]
 
 def assume_unknown_values(d):
     """
@@ -202,6 +203,7 @@ def assume_unknown_values(d):
 
             # find the higher timestamp of all runs for this type
             higher_ts = get_higher_ts(d[key][type])
+            #higher_ts = MAX_TIME
 
             runs = []
 
