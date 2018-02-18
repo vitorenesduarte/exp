@@ -1,4 +1,4 @@
--define(APP, lsim).
+-define(APP, exp).
 -type error() :: {error, atom()}.
 
 %% peer service
