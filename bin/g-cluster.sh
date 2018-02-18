@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 NUM_NODES=11
-NAME=lsim
+NAME=exp
 MACHINE=n1-standard-1
 
 if [ "$1" = "start" ]; then

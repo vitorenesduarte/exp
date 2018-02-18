@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_orchestration).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_orchestration).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -export([get_task/3,
          get_tasks/3,
@@ -56,8 +56,8 @@ stop_tasks(Tags) ->
 
 %% @private
 do(Function, Args) ->
-    Orchestration = lsim_config:get(lsim_orchestration),
+    Orchestration = exp_config:get(exp_orchestration),
     case Orchestration of
         kubernetes ->
-            erlang:apply(lsim_kube_orchestration, Function, Args)
+            erlang:apply(exp_kube_orchestration, Function, Args)
     end.

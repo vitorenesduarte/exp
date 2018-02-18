@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_simulation_runner).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_simulation_runner).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_simulation_runner callbacks
+%% exp_simulation_runner callbacks
 -export([start_link/1,
          start_simulation/0]).
 
@@ -57,15 +57,15 @@ start_simulation() ->
 
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
-    lager:info("lsim_simulation_runner initialized"),
+    lager:info("exp_simulation_runner initialized"),
 
     %% start fun is called here,
     %% and start simulation schedules the first event
     StartFun(),
 
     %% get node number and node event number
-    NodeNumber = lsim_config:get(lsim_node_number),
-    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+    NodeNumber = exp_config:get(exp_node_number),
+    NodeEventNumber = exp_config:get(exp_node_event_number),
 
     {ok, #state{event_count=0,
                 event_fun=EventFun,
@@ -144,9 +144,9 @@ schedule_simulation_end() ->
 
 %% @private
 end_simulation() ->
-    case lsim_config:get(lsim_orchestration) of
+    case exp_config:get(exp_orchestration) of
         undefined ->
-            lsim_config:set(lsim_simulation_end, true);
+            exp_config:set(exp_simulation_end, true);
         _ ->
-            lsim_rsg:simulation_end()
+            exp_rsg:simulation_end()
     end.

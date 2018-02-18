@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_metrics_store).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_metrics_store).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -export([start_link/0,
          put/2]).
@@ -41,8 +41,8 @@ put(Key, Value) ->
 
 %% @private
 do(Function, Args) ->
-    Store = lsim_config:get(lsim_metrics_store),
+    Store = exp_config:get(exp_metrics_store),
     case Store of
         redis ->
-            erlang:apply(lsim_redis_metrics_store, Function, Args)
+            erlang:apply(exp_redis_metrics_store, Function, Args)
     end.

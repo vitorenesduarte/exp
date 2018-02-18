@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_overlay).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_overlay).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -export([get/2,
          numerical_id_and_neighbors/3,
@@ -153,7 +153,7 @@ break_links(BreakLinks, Nodes, Overlay) ->
         eighth -> LinkNumber div 8
     end,
 
-    ShuffledLinks = lsim_util:shuffle_list(AllLinks),
+    ShuffledLinks = exp_util:shuffle_list(AllLinks),
     %% take the first `N' links
     Links = lists:sublist(ShuffledLinks, N),
     compute_names_and_link_map(Links, Nodes).

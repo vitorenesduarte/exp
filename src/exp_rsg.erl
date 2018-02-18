@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_rsg).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_rsg).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_rsg callbacks
+%% exp_rsg callbacks
 -export([start_link/0,
          simulation_end/0]).
 
@@ -40,7 +40,7 @@
                 break_links_specs :: [node_spec()] | undefined,
                 partisan_manager :: atom()}).
 
--define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
+-define(BARRIER_PEER_SERVICE, exp_barrier_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -55,10 +55,10 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    NodeNumber = lsim_config:get(lsim_node_number),
+    NodeNumber = exp_config:get(exp_node_number),
     Manager = partisan_config:get(partisan_peer_service_manager),
 
-    lager:info("lsim_rsg initialized"),
+    lager:info("exp_rsg initialized"),
     {ok, #state{node_number=NodeNumber,
                 break_links_specs=undefined,
                 partisan_manager=Manager}}.
@@ -73,7 +73,7 @@ handle_call(Msg, _From, State) ->
 
 handle_cast(sim_go, State) ->
     lager:info("Received SIM GO. Starting simulation."),
-    lsim_simulation_runner:start_simulation(),
+    exp_simulation_runner:start_simulation(),
     {noreply, State};
 
 handle_cast({break_links_info, Infos}, State) ->
@@ -102,7 +102,7 @@ handle_cast(heal_links, #state{break_links_specs=Specs,
 
 handle_cast(metrics_go, State) ->
     lager:info("Received METRICS GO. Pushing metrics."),
-    lsim_simulations_support:push_ldb_metrics(),
+    exp_simulations_support:push_ldb_metrics(),
     tell({metrics_done, ldb_config:id()}),
     {noreply, State};
 
@@ -111,7 +111,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    case lsim_orchestration:get_task(rsg, ?BARRIER_PORT, true) of
+    case exp_orchestration:get_task(rsg, ?BARRIER_PORT, true) of
         {ok, RSG} ->
             ok = connect([RSG], ?BARRIER_PEER_SERVICE),
             schedule_join_peers();
@@ -124,17 +124,17 @@ handle_info(create_barrier, State) ->
 handle_info(join_peers, #state{node_number=NodeNumber,
                                partisan_manager=Manager}=State) ->
     MyName = ldb_config:id(),
-    Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
-    Overlay = lsim_config:get(lsim_overlay),
+    Nodes = exp_orchestration:get_tasks(exp, ?PORT, true),
+    Overlay = exp_config:get(exp_overlay),
 
     case length(Nodes) == NodeNumber of
         true ->
             %% if all nodes are connected
-            {NumericalId, ToConnect} = lsim_overlay:numerical_id_and_neighbors(MyName,
+            {NumericalId, ToConnect} = exp_overlay:numerical_id_and_neighbors(MyName,
                                                                                Nodes,
                                                                                Overlay),
             %% set numerical id
-            lsim_config:set(lsim_numerical_id, NumericalId),
+            exp_config:set(exp_numerical_id, NumericalId),
             %% and connect to neighbors
             ok = connect(ToConnect, Manager),
             tell({connect_done, ldb_config:id()});
@@ -182,7 +182,7 @@ tell(Msg) ->
         fun(Peer) ->
             ?BARRIER_PEER_SERVICE:forward_message(
                Peer,
-               lsim_rsg_master,
+               exp_rsg_master,
                Msg
             )
         end,

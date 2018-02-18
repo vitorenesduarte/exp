@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,12 +17,12 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_kube_orchestration).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_kube_orchestration).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
--behaviour(lsim_orchestration).
+-behaviour(exp_orchestration).
 
 -export([get_tasks/3,
          stop_tasks/1]).
@@ -104,16 +104,16 @@ run_http(Method, Request) ->
 
 %% @private
 headers() ->
-    Token = lsim_config:get(lsim_token),
+    Token = exp_config:get(exp_token),
     [{"Authorization", "Bearer " ++ Token}].
 
 %% @private
 server() ->
-    lsim_config:get(lsim_api_server).
+    exp_config:get(exp_api_server).
 
 %% @private
 timestamp() ->
-    integer_to_list(lsim_config:get(lsim_timestamp)).
+    integer_to_list(exp_config:get(exp_timestamp)).
 
 %% @private
 pods_path() ->
@@ -155,7 +155,7 @@ generate_nodes(Map, Port) ->
                     IP = binary_to_list(
                         maps:get(podIP, Status)
                     ),
-                    Node = lsim_util:generate_spec(IP, Port),
+                    Node = exp_util:generate_spec(IP, Port),
                     [Node | Nodes];
                 false ->
                     Nodes

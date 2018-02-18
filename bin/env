@@ -10,10 +10,10 @@ if [ -z "${PEER_PORT}" ]; then
   export PEER_PORT=6866
 fi
 
-export NODE_NAME=lsim-${PEER_PORT}@${IP}
+export NODE_NAME=exp-${PEER_PORT}@${IP}
 
 if [ -z "${COOKIE}" ]; then
-  export COOKIE=lsim
+  export COOKIE=exp
 fi
 
 export RELX_REPLACE_OS_VARS=true
@@ -22,5 +22,5 @@ echo "IP: ${IP}"
 echo "PEER_PORT: ${PEER_PORT}"
 echo "NODE_NAME: ${NODE_NAME}"
 
-RELNAME=$(dirname "$0")/lsim
+RELNAME=$(dirname "$0")/exp
 exec "${RELNAME}" foreground "$@"

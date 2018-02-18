@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,17 +17,15 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_redis_metrics_store).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_barrier_peer_service_server).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
--behaviour(lsim_metrics_store).
 
-%% lsim_metrics_store callbacks
--export([start_link/0,
-         put/2]).
+%% exp_barrier_peer_service_server callbacks
+-export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -37,30 +35,34 @@
          terminate/2,
          code_change/3]).
 
--record(state, {redis}).
+-record(state, {listener :: gen_tcp:socket()}).
 
--spec start_link() -> {ok, pid()} | ignore | {error, term()}.
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-
--spec put(key(), value()) -> ok.
-put(Key, Value) ->
-    gen_server:call(?MODULE, {put, Key, Value}, infinity).
+-spec start_link(node_port()) -> {ok, pid()} | ignore | {error, term()}.
+start_link(Port) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [Port], []).
 
 %% gen_server callbacks
-init([]) ->
-    {Host, Port} = get_redis_config(),
-    {ok, Redis} = eredis:start_link(Host, Port),
-    lager:info("lsim_redis_metrics_store initialized"),
-    {ok, #state{redis=Redis}}.
+init([Port]) ->
+    {ok, Listener} = gen_tcp:listen(Port, ?TCP_OPTIONS),
 
-handle_call({put, Key, Value}, _From, #state{redis=Redis}=State) ->
-    {ok, <<"OK">>} = eredis:q(Redis, ["SET", Key, Value]),
-    {reply, ok, State};
+    prepare_accept(),
+
+    lager:info("exp_barrier_peer_service_server initialized"),
+    {ok, #state{listener=Listener}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
+
+handle_cast(accept, #state{listener=Listener}=State) ->
+    {ok, Socket} = gen_tcp:accept(Listener),
+
+    {ok, Pid} = exp_barrier_peer_service_client:start_link(Socket),
+    gen_tcp:controlling_process(Socket, Pid),
+
+    prepare_accept(),
+
+    {noreply, State};
 
 handle_cast(Msg, State) ->
     lager:warning("Unhandled cast message: ~p", [Msg]),
@@ -77,13 +79,5 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-get_redis_config() ->
-    case lsim_orchestration:get_task(redis, ?REDIS_PORT, false) of
-        {ok, {_, IpAddress, Port}} ->
-            Ip = inet_parse:ntoa(IpAddress),
-            {Ip, Port};
-        {error, not_connected} ->
-            lager:info("Redis not connected. Trying again in 5 seconds."),
-            timer:sleep(5000),
-            get_redis_config()
-    end.
+prepare_accept() ->
+    gen_server:cast(?MODULE, accept).

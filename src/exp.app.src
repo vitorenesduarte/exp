@@ -1,4 +1,4 @@
-{application, lsim,
+{application, exp,
  [
   {description, "Running CRDT experiments"},
   {vsn, "0.0.1"},
@@ -16,6 +16,6 @@
                   eredis,
                   mochiweb
                  ]},
-  {mod, {lsim_app, []}},
+  {mod, {exp_app, []}},
   {modules, []}
  ]}.

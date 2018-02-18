@@ -3,8 +3,8 @@
 REPS=1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/lsim-copy
-DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
+IMAGE=${DOCKER_USER}/exp-copy
+DOCKERFILE=${DIR}/../Dockerfiles/exp-copy
 
 # always pull image,
 # unless local
@@ -40,7 +40,7 @@ OVERLAY_CONFIG_=(
    "tree 14"
 )
 
-# lsim configuration
+# exp configuration
 SIM_CONFIG_=(
   "gset 0"
   "gcounter 0"
@@ -101,7 +101,7 @@ for REP in $(seq 1 $REPS); do
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
-            CPU=${CPU} "${DIR}"/lsim-deploy.sh
+            CPU=${CPU} "${DIR}"/exp-deploy.sh
 
           # fetch logs from redis
           ${DIR}/start-redis-sync.sh

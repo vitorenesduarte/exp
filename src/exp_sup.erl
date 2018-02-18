@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_sup).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_sup).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(supervisor).
 
@@ -40,17 +40,17 @@ init([]) ->
     configure_peer_service(),
     {Simulation, Orchestration, RSG} = configure(),
 
-    Children = lsim_specs(Simulation, Orchestration, RSG),
+    Children = exp_specs(Simulation, Orchestration, RSG),
 
-    lager:info("lsim_sup initialized!"),
+    lager:info("exp_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, Children}}.
 
 %% @private
 configure_peer_service() ->
-    %% configure lsim overlay
+    %% configure exp overlay
     Overlay = configure_var("OVERLAY",
-                            lsim_overlay,
+                            exp_overlay,
                             ?DEFAULT_OVERLAY),
 
     PeerService = case Overlay of
@@ -73,87 +73,87 @@ configure_peer_service() ->
 
 %% @private
 configure() ->
-    %% configure lsim simulation
+    %% configure exp simulation
     Simulation = configure_var("SIMULATION",
-                               lsim_simulation,
+                               exp_simulation,
                                undefined),
 
     %% configure node number
     configure_int("NODE_NUMBER",
-                  lsim_node_number,
+                  exp_node_number,
                   1),
 
     %% configure node event number
     configure_int("NODE_EVENT_NUMBER",
-                  lsim_node_event_number,
+                  exp_node_event_number,
                   30),
 
     %% configure unique simulation timestamp
     configure_int("TIMESTAMP",
-                  lsim_timestamp,
+                  exp_timestamp,
                   0),
 
     %% configure api server
     configure_str("APISERVER",
-                  lsim_api_server,
+                  exp_api_server,
                   undefined),
 
     %% configure auth token
     configure_str("TOKEN",
-                  lsim_token,
+                  exp_token,
                   undefined),
 
     %% configure orchestration
     Orchestration = configure_var("ORCHESTRATION",
-                                  lsim_orchestration,
+                                  exp_orchestration,
                                   undefined),
 
     %% configure rsg master
     RSG = configure_var("RSG",
-                        lsim_rsg,
+                        exp_rsg,
                         false),
 
     %% configure metrics store
     configure_var("METRICS_STORE",
-                  lsim_metrics_store,
+                  exp_metrics_store,
                   undefined),
 
 
     %% configure break links
     configure_var("BREAK_LINKS",
-                  lsim_break_links,
+                  exp_break_links,
                   none),
 
     %% configure gmap simulation key percentage
     configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",
-                  lsim_gmap_simulation_key_percentage,
+                  exp_gmap_simulation_key_percentage,
                   100),
 
     {Simulation, Orchestration, RSG}.
 
 %% @private
-lsim_specs(Simulation, Orchestration, RSG) ->
-    SimulationSpecs = lsim_simulations:get_specs(Simulation),
+exp_specs(Simulation, Orchestration, RSG) ->
+    SimulationSpecs = exp_simulations:get_specs(Simulation),
 
     OrchestrationSpecs = case Orchestration of
         undefined ->
             [];
         _ ->
-            BarrierPeerServiceSpecs = [?CHILD(lsim_barrier_peer_service)],
-            Store = [?CHILD(lsim_metrics_store)],
+            BarrierPeerServiceSpecs = [?CHILD(exp_barrier_peer_service)],
+            Store = [?CHILD(exp_metrics_store)],
 
             RSGSpecs = case RSG of
                 true ->
-                    [?CHILD(lsim_rsg_master)];
+                    [?CHILD(exp_rsg_master)];
                 false ->
-                    [?CHILD(lsim_rsg)]
+                    [?CHILD(exp_rsg)]
             end,
 
             HTTPSpecs = case RSG of
                 true ->
                     [];
                 false ->
-                    [?CHILD(lsim_resource)]
+                    [?CHILD(exp_resource)]
             end,
 
             BarrierPeerServiceSpecs ++ Store ++ RSGSpecs ++ HTTPSpecs
@@ -180,9 +180,9 @@ configure_int(Env, Var, Default) ->
 
 %% @private
 configure(Env, Var, Default, To, From) ->
-    Current = lsim_config:get(Var, Default),
+    Current = exp_config:get(Var, Default),
     Val = From(
         os:getenv(Env, To(Current))
     ),
-    lsim_config:set(Var, Val),
+    exp_config:set(Var, Val),
     Val.

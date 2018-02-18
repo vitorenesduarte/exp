@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_barrier_peer_service_client).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_barrier_peer_service_client).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_barrier_peer_service_client callbacks
+%% exp_barrier_peer_service_client callbacks
 -export([start_link/1]).
 
 %% gen_server callbacks
@@ -43,7 +43,7 @@ start_link(Socket) ->
 
 %% gen_server callbacks
 init([Socket]) ->
-    lager:info("lsim_barrier_peer_service_client initialized! Node ~p listening to socket ~p",
+    lager:info("exp_barrier_peer_service_client initialized! Node ~p listening to socket ~p",
                [ldb_config:id(), Socket]),
     {ok, #state{socket=Socket}}.
 

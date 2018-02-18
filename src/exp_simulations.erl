@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,15 +17,15 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_simulations).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_simulations).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -define(KEY, "events").
 -define(GMAP_KEY_NUMBER, 1000).
 
-%% lsim_simulations callbacks
+%% exp_simulations callbacks
 -export([get_specs/1]).
 
 %% @doc
@@ -138,12 +138,12 @@ get_specs(Simulation) ->
                 ldb:create(?KEY, Type)
             end,
             EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
-                Percentage = lsim_config:get(lsim_gmap_simulation_key_percentage),
+                Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
                 KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
                 %% node with id i has keys in
                 %% [i * KeysPerNode, ((i + 1) * KeysPerNode) - 1]
-                NumericalId = lsim_config:get(lsim_numerical_id),
+                NumericalId = exp_config:get(exp_numerical_id),
                 Start = NumericalId * KeysPerNode + 1,
                 End0 = ((NumericalId + 1) * KeysPerNode),
                 %% since `End0' can be bigger than `?GMAP_KEY_NUMBER':
@@ -153,7 +153,7 @@ get_specs(Simulation) ->
                 MyKeys0 = lists:seq(Start, End),
 
                 %% shuffle keys
-                MyKeys = lsim_util:shuffle_list(MyKeys0),
+                MyKeys = exp_util:shuffle_list(MyKeys0),
 
                 %% take the first `KeysPerIteration'
                 KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
@@ -187,9 +187,9 @@ create_spec(Funs) ->
         [] ->
             [];
         _ ->
-            [{lsim_simulation_runner,
-              {lsim_simulation_runner, start_link, [Funs]},
-              permanent, 5000, worker, [lsim_simulation_runner]}]
+            [{exp_simulation_runner,
+              {exp_simulation_runner, start_link, [Funs]},
+              permanent, 5000, worker, [exp_simulation_runner]}]
     end.
 
 %% @private Create an unique element to be added to the set.

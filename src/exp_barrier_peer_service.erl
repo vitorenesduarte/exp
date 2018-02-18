@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_barrier_peer_service).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_barrier_peer_service).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
@@ -59,8 +59,8 @@ forward_message(LDBId, Handler, Message) ->
 
 %% gen_server callbacks
 init([]) ->
-    {ok, _} = lsim_barrier_peer_service_server:start_link(?BARRIER_PORT),
-    lager:info("lsim_barrier_peer_service initialized!"),
+    {ok, _} = exp_barrier_peer_service_server:start_link(?BARRIER_PORT),
+    lager:info("exp_barrier_peer_service initialized!"),
     {ok, #state{connected=orddict:new()}}.
 
 handle_call(members, _From, #state{connected=Connected}=State) ->
@@ -75,7 +75,7 @@ handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=NodeSpec}, _From,
         error ->
             case gen_tcp:connect(Ip, Port, ?TCP_OPTIONS) of
                 {ok, Socket} ->
-                    {ok, Pid} = lsim_barrier_peer_service_client:start_link(Socket),
+                    {ok, Pid} = exp_barrier_peer_service_client:start_link(Socket),
                     gen_tcp:controlling_process(Socket, Pid),
                     {ok, orddict:store(LDBId, Pid, Connected0)};
                 Error ->
