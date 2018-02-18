@@ -5,22 +5,24 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-all: transmission memory latency
+default: europar show
+
+all: pre default
 
 pre: preprocess.py
+	rm -rf processed
 	python preprocess.py
 
-transmission: transmission.R pre
-	Rscript transmission.R
-	$(VIEWER) *transmission*.png &
+europar:
+	Rscript europar18/plot0.R
+	Rscript europar18/plot1.R
+	Rscript europar18/plot2.R
+	Rscript europar18/plot3.R
+	Rscript europar18/plot4.R
+	Rscript europar18/plot5.R
 
-memory: memory.R pre
-	Rscript memory.R
-	$(VIEWER) *memory*.png &
-
-latency: latency.R pre
-	Rscript latency.R
-	$(VIEWER) *latency*.png &
+show:
+	$(VIEWER) *.png
 
 clean:
-	rm *.png
+	rm -f *.png

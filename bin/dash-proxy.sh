@@ -7,6 +7,6 @@ POD_NAME=$(kubectl get pods |
 
 POD_PORT=3000
 PORT=$RANDOM
-google-chrome "http://localhost:${PORT}"
+open "http://localhost:${PORT}"
 kubectl port-forward "${POD_NAME}" ${PORT}:${POD_PORT}
 

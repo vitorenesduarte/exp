@@ -47,7 +47,7 @@ init([Port]) ->
 
     prepare_accept(),
 
-    ?LOG("lsim_barrier_peer_service_server initialized"),
+    lager:info("lsim_barrier_peer_service_server initialized"),
     {ok, #state{listener=Listener}}.
 
 handle_call(Msg, _From, State) ->

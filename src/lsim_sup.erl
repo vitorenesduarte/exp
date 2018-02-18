@@ -42,7 +42,7 @@ init([]) ->
 
     Children = lsim_specs(Simulation, Orchestration, RSG),
 
-    ?LOG("lsim_sup initialized!"),
+    lager:info("lsim_sup initialized!"),
     RestartStrategy = {one_for_one, 10, 10},
     {ok, {RestartStrategy, Children}}.
 
@@ -66,7 +66,10 @@ configure_peer_service() ->
 
     %% configure partisan manager
     partisan_config:set(partisan_peer_service_manager,
-                        PeerService).
+                        PeerService),
+
+    partisan_config:set(min_active_size, 4),
+    partisan_config:set(max_active_size, 5).
 
 %% @private
 configure() ->
@@ -84,13 +87,6 @@ configure() ->
     configure_int("NODE_EVENT_NUMBER",
                   lsim_node_event_number,
                   30),
-
-    %% configure element/node ratio
-    %% if ratio is 5, the elements added to sets
-    %% are 5 times bigger than node ids
-    configure_int("ELEMENT_NODE_RATIO",
-                  lsim_element_node_ratio,
-                  1),
 
     %% configure unique simulation timestamp
     configure_int("TIMESTAMP",
@@ -123,10 +119,15 @@ configure() ->
                   undefined),
 
 
-    %% configure partition number
-    configure_int("PARTITION_NUMBER",
-                  lsim_partition_number,
-                  1),
+    %% configure break links
+    configure_var("BREAK_LINKS",
+                  lsim_break_links,
+                  none),
+
+    %% configure gmap simulation key percentage
+    configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",
+                  lsim_gmap_simulation_key_percentage,
+                  100),
 
     {Simulation, Orchestration, RSG}.
 

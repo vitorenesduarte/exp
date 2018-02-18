@@ -10,11 +10,11 @@ ENV_VARS=(
   LDB_DGROUP_BACK_PROPAGATION
   OVERLAY
   SIMULATION
+  GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
-  ELEMENT_NODE_RATIO
-  PARTITION_NUMBER
-  KEEP_ALIVE
+  BREAK_LINKS
+  CPU
 )
 
 for ENV_VAR in "${ENV_VARS[@]}"
@@ -35,23 +35,16 @@ echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
+echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
-echo "    ELEMENT_NODE_RATIO: ${ELEMENT_NODE_RATIO}"
-echo "    PARTITION_NUMBER: ${PARTITION_NUMBER}"
+echo "    BREAK_LINKS: ${BREAK_LINKS}"
+echo "    CPU: ${CPU}"
 
 # ENV SETUP:
 # Kubernetes server and auth token
-CONTEXT=$(kubectl config view |
-          grep current |
-          awk '{print $2}')
-APISERVER=$(kubectl config view |
-            grep -Eb1 "${CONTEXT}$" |
-            grep "server:" |
-            grep -Eo "https://[0-9\\.:]+")
-TOKEN=$(kubectl describe secret |
-        grep "token:" |
-        awk '{print $2}')
+APISERVER=$(bin/k8s_api_server.sh)
+TOKEN=$(bin/k8s_api_token.sh)
 
 ORCHESTRATION=kubernetes
 METRICS_STORE=redis
@@ -117,14 +110,14 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
-        - name: PARTITION_NUMBER
-          value: "${PARTITION_NUMBER}"
+        - name: BREAK_LINKS
+          value: "${BREAK_LINKS}"
         - name: RSG
           value: "true"
 ---
@@ -150,6 +143,9 @@ spec:
       - name: "${LSIM_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
+        resources:
+          requests:
+            cpu: "${CPU}"
         securityContext:
           privileged: true
         env:
@@ -185,24 +181,22 @@ spec:
           value: "${OVERLAY}"
         - name: SIMULATION
           value: "${SIMULATION}"
+        - name: GMAP_SIMULATION_KEY_PERCENTAGE
+          value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: ELEMENT_NODE_RATIO
-          value: "${ELEMENT_NODE_RATIO}"
-        - name: PARTITION_NUMBER
-          value: "${PARTITION_NUMBER}"
-        - name: KEEP_ALIVE
-          value: "${KEEP_ALIVE}"
+        - name: BREAK_LINKS
+          value: "${BREAK_LINKS}"
         - name: RSG
           value: "false"
 EOF
 
 kubectl create -f "${FILE}"
 
-while [ $(kubectl get pods -l timestamp=$TIMESTAMP 2>/dev/null | grep lsim | wc -l) -gt 0 ]; do
+while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2> /dev/null | wc -l) -gt 0 ]; do
     sleep 1
 done
 
-echo "Test done."
+echo "[$(date +%T)] Done!"

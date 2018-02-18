@@ -60,7 +60,7 @@ forward_message(LDBId, Handler, Message) ->
 %% gen_server callbacks
 init([]) ->
     {ok, _} = lsim_barrier_peer_service_server:start_link(?BARRIER_PORT),
-    ?LOG("lsim_barrier_peer_service initialized!"),
+    lager:info("lsim_barrier_peer_service initialized!"),
     {ok, #state{connected=orddict:new()}}.
 
 handle_call(members, _From, #state{connected=Connected}=State) ->
@@ -79,7 +79,8 @@ handle_call({join, {LDBId, {_, _, _, _}=Ip, Port}=NodeSpec}, _From,
                     gen_tcp:controlling_process(Socket, Pid),
                     {ok, orddict:store(LDBId, Pid, Connected0)};
                 Error ->
-                    ?LOG("Error handling join call on node ~p to node ~p. Reason ~p", [ldb_config:id(), NodeSpec, Error]),
+                    lager:info("Error handling join call on node ~p to node ~p. Reason ~p",
+                               [ldb_config:id(), NodeSpec, Error]),
                     {Error, Connected0}
             end
     end,

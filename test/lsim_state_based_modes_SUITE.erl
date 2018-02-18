@@ -69,6 +69,7 @@ all() ->
     [
      state_based_line_test,
      state_based_ring_test,
+     state_based_fullmesh_test,
      state_based_hyparview_test,
      delta_based_line_test,
      delta_based_revisited_line_test
@@ -83,6 +84,9 @@ state_based_line_test(_Config) ->
 
 state_based_ring_test(_Config) ->
     run(state_based, ring).
+
+state_based_fullmesh_test(_Config) ->
+    run(state_based, fullmesh).
 
 state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).

@@ -20,6 +20,7 @@
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __OVERLAY__:
   - `hyparview`
+  - `fullmesh`
   - `line`
   - `ring`
 - __NODE_NUMBER__: number of nodes
@@ -29,14 +30,15 @@
   - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
-- __ELEMENT_NODE_RATIO__: if ratio is 5, the elements added to
-sets (if defined in the simulation configured)  are 5 times
-bigger than the node ids
-- __PARTITION_NUMBER__: number of connected components to be formed
-during the simulation. The partition is induced when the simulation
-reaches 25% of progress and healed at 75%. With static memberships
-it's easy to have control on the number of connected components
-created; but it's not the case if using HyParView.
+- __GMAP_SIMULATION_KEY_PERCENTAGE__: percentage of keys update at each event in the gmap simulation
+- __BREAK_LINKS__:
+Links are broken when the simulation
+reaches 50% of progress and healed at 75%. Possible values for break link:
+  - `none`: no link is broken
+  - `one`: a predefined link is broken
+  - `half`: 1/2 of the links are broken
+  - `quarter`: 1/4 of the links are broken
+  - `eighth`: 1/8 of the links are broken
 
 
 #### Kubernetes

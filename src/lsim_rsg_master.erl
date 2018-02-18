@@ -35,11 +35,12 @@
          terminate/2,
          code_change/3]).
 
--record(state, {nodes :: list(node_spec()),
+-record(state, {nodes :: undefined | list(node_spec()),
                 connect_done:: ordsets:ordset(ldb_node_id()),
                 sim_done :: ordsets:ordset(ldb_node_id()),
                 metrics_done :: ordsets:ordset(ldb_node_id()),
-                start_time :: timestamp()}).
+                metrics_nodes :: undefined | list(ldb_node_id()),
+                start_time :: undefined | timestamp()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -51,49 +52,56 @@ start_link() ->
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
-    ?LOG("lsim_rsg_master initialized"),
-    {ok, #state{nodes=[],
+    lager:info("lsim_rsg_master initialized"),
+
+    {ok, #state{nodes=undefined,
                 connect_done=ordsets:new(),
                 sim_done=ordsets:new(),
                 metrics_done=ordsets:new(),
-                start_time=0}}.
+                metrics_nodes=undefined,
+                start_time=undefined}}.
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
     {noreply, State}.
 
 handle_cast({connect_done, NodeName},
-            #state{connect_done=ConnectDone0,
-                   start_time=T0}=State) ->
+            #state{nodes=Nodes,
+                   connect_done=ConnectDone0}=State) ->
 
-    ?LOG("Received CONNECT DONE from ~p", [NodeName]),
+    lager:info("Received CONNECT DONE from ~p", [NodeName]),
 
     ConnectDone1 = ordsets:add_element(NodeName, ConnectDone0),
 
-    T1 = case ordsets:size(ConnectDone1) == node_number() of
+    {T1, MetricsNodes1} = case ordsets:size(ConnectDone1) == node_number() of
         true ->
-            ?LOG("Everyone is CONNECT DONE. SIM GO!"),
+            lager:info("Everyone is CONNECT DONE. SIM GO!"),
+
+            MetricsNodes0 = configure_break_links_metrics(Nodes),
+
+            T0 = ldb_util:unix_timestamp(),
             tell(sim_go),
-            schedule_create_partitions(),
-            ldb_util:unix_timestamp();
+            {T0, MetricsNodes0};
         false ->
-            T0
+            {undefined, undefined}
     end,
 
     {noreply, State#state{connect_done=ConnectDone1,
+                          metrics_nodes=MetricsNodes1,
                           start_time=T1}};
 
 handle_cast({sim_done, NodeName},
-            #state{sim_done=SimDone0}=State) ->
+            #state{sim_done=SimDone0,
+                   metrics_nodes=MetricsNodes}=State) ->
 
-    ?LOG("Received SIM DONE from ~p", [NodeName]),
+    lager:info("Received SIM DONE from ~p", [NodeName]),
 
     SimDone1 = ordsets:add_element(NodeName, SimDone0),
 
     case ordsets:size(SimDone1) == node_number() of
         true ->
-            ?LOG("Everyone is SIM DONE. METRICS GO!"),
-            tell(metrics_go);
+            lager:info("Everyone is SIM DONE. METRICS GO to ~p!", [MetricsNodes]),
+            tell(metrics_go, MetricsNodes);
         false ->
             ok
     end,
@@ -102,15 +110,16 @@ handle_cast({sim_done, NodeName},
 
 handle_cast({metrics_done, NodeName},
             #state{metrics_done=MetricsDone0,
+                   metrics_nodes=MetricsNodes,
                    start_time=StartTime}=State) ->
 
-    ?LOG("Received METRICS DONE from ~p", [NodeName]),
+    lager:info("Received METRICS DONE from ~p", [NodeName]),
 
     MetricsDone1 = ordsets:add_element(NodeName, MetricsDone0),
 
-    case ordsets:size(MetricsDone1) == node_number() of
+    case ordsets:size(MetricsDone1) == length(MetricsNodes) of
         true ->
-            ?LOG("Everyone is METRICS DONE. STOP!!!"),
+            lager:info("Everyone is METRICS DONE. STOP!!!"),
             lsim_simulations_support:push_lsim_metrics(StartTime),
             lsim_orchestration:stop_tasks([lsim, rsg]);
         false ->
@@ -134,51 +143,15 @@ handle_info(create_barrier, State) ->
     end,
     {noreply, State#state{nodes=Nodes}};
 
-handle_info(create_partitions, #state{nodes=Nodes}=State) ->
-    PartitionNumber = lsim_config:get(lsim_partition_number),
-
-    case PartitionNumber > 1 of
-        true ->
-            {PartitionToIPs, IPToPartition} = lsim_overlay:partitions(Nodes, PartitionNumber),
-            lager:info("PARTITIONS ~p\n~p\n\n", [PartitionToIPs, IPToPartition]),
-
-            lists:foreach(
-                fun({Name, IP, _}) ->
-                    Partition = orddict:fetch(IP, IPToPartition),
-
-                    %% calculate the list of ips to reject
-                    IPs = lists:foldl(
-                        fun({P, I}, Acc) ->
-                            %% each partition blocks
-                            %% the partitions with higher ids
-                            case P > Partition of
-                                true ->
-                                    lists:append(Acc, I);
-                                _ ->
-                                    Acc
-                            end
-                        end,
-                        [],
-                        PartitionToIPs
-                    ),
-
-                    lager:info("NODE ~p REJECTS IPS ~p\n", [Name, IPs]),
-
-                    %% tell this node to reject these ips
-                    tell({reject_ips, IPs}, [Name])
-                end,
-                Nodes
-            ),
-
-            schedule_heal_partitions();
-        false ->
-            ok
-    end,
-
+handle_info(break_links, #state{metrics_nodes=MetricsNodes}=State) ->
+    lager:info("BREAK LINKS ~p", [MetricsNodes]),
+    tell(break_links, MetricsNodes),
+    schedule_heal_links(),
     {noreply, State};
 
-handle_info(heal_partitions, State) ->
-    tell(heal_partitions),
+handle_info(heal_links, #state{metrics_nodes=MetricsNodes}=State) ->
+    lager:info("HEAL LINKS"),
+    tell(heal_links, MetricsNodes),
     {noreply, State};
 
 handle_info(Msg, State) ->
@@ -192,6 +165,31 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
+configure_break_links_metrics(Nodes) ->
+    %% list of nodes from which we want metrics
+    %% - in case of break links, only the involved nodes
+    %% - otherwise, all
+    BreakLinks = lsim_config:get(lsim_break_links),
+    Overlay = lsim_config:get(lsim_overlay),
+    {Names, Links} = lsim_overlay:break_links(BreakLinks, Nodes, Overlay),
+
+    %% inform all nodes involved in break links
+    lists:foreach(
+        fun({Name, Specs}) ->
+            tell({break_links_info, Specs}, [Name])
+        end,
+        Links
+    ),
+
+    %% schedule break links
+    case BreakLinks of
+        none -> ok;
+        _ -> schedule_break_links()
+    end,
+
+    Names.
+
+%% @private
 node_number() ->
     lsim_config:get(lsim_node_number).
 
@@ -200,18 +198,18 @@ schedule_create_barrier() ->
     timer:send_after(?INTERVAL, create_barrier).
 
 %% @private
-schedule_create_partitions() ->
+schedule_break_links() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~50% of simulation time before creating partitions
+    %% wait ~50% of simulation time before breaking links
     Seconds = NodeEventNumber div 2,
-    timer:send_after(Seconds * 1000, create_partitions).
+    timer:send_after(Seconds * 1000, break_links).
 
 %% @private
-schedule_heal_partitions() ->
+schedule_heal_links() ->
     NodeEventNumber = lsim_config:get(lsim_node_event_number),
-    %% wait ~25% of simulation time before healing partitions
+    %% wait ~25% of simulation time before healing
     Seconds = NodeEventNumber div 4,
-    timer:send_after(Seconds * 1000, heal_partitions).
+    timer:send_after(Seconds * 1000, heal_links).
 
 %% @private
 connect([]) ->
@@ -221,16 +219,15 @@ connect([Node|Rest]=All) ->
         ok ->
             connect(Rest);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
-                 [Node, Error, ?INTERVAL]),
+            lager:info("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                       [Node, Error, ?INTERVAL]),
             timer:sleep(?INTERVAL),
             connect(All)
     end.
 
 %% @private send to all
 tell(Msg) ->
-    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
-    tell(Msg, without_me(Members)).
+    tell(Msg, rsgs()).
 
 %% @private send to some
 tell(Msg, Peers) ->
@@ -244,6 +241,11 @@ tell(Msg, Peers) ->
         end,
         Peers
      ).
+
+%% @private
+rsgs() ->
+    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    without_me(Members).
 
 %% @private
 without_me(Members) ->

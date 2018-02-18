@@ -4,37 +4,26 @@ REPS=1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/lsim-copy
+DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
 
-#"${DIR}"/g-cluster.sh start
+# always pull image,
+# unless local
+PULL_IMAGE=Always
 
 if [ "$1" == "build" ]; then
   # build and push
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
-
   IMAGE=${IMAGE} \
     DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
 
-  # use the new image
-  PULL_IMAGE=Always
-
 elif [ "$1" == "local" ]; then
   # build locally
-  IMAGE=${DOCKER_USER}/lsim-copy
-  DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
-
   eval $(minikube docker-env)
-
   docker build \
          --no-cache \
          -t "${IMAGE}" -f "${DOCKERFILE}" .
 
   # use the new image
   PULL_IMAGE=Never
-
-else
-  # use the latest image
-  PULL_IMAGE=IfNotPresent
-
 fi
 
 # start redis
@@ -43,116 +32,81 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
+CPU=7
+
+# overlay nodes
+OVERLAY_CONFIG_=(
+   "partialmesh 16"
+   "tree 14"
+)
+
 # lsim configuration
-OVERLAY_=(ring)
-SIMULATION_=(awset)
-NODE_NUMBER_=(3)
-NODE_EVENT_NUMBER_=(20)
-PARTITION_NUMBER_=(1)
-ELEMENT_NODE_RATIO=1
-KEEP_ALIVE=false
+SIM_CONFIG_=(
+  "gset 0"
+  "gcounter 0"
+  "gmap 10"
+  "gmap 30"
+  "gmap 100"
+)
+NODE_EVENT_NUMBER=100
 
 # ldb configuration
-MODE_=(state_based delta_based)
-DRIVEN_MODE_=(none)
-STATE_SYNC_INTERVAL_=(1000)
-REDUNDANT_DGROUPS_=(true)
-DGROUP_BACK_PROPAGATION_=(true)
+LDB_STATE_SYNC_INTERVAL=1000
+# mode driven_mode bp rr break_links
+LDB_=(
+   #"delta_based state_driven  true      true      one"
+   #"delta_based none          true      true      one"
+   "delta_based none          true      true      none"
+   "delta_based none          true      false     none"
+   "delta_based none          false     true      none"
+   "delta_based none          false     false     none"
+   "state_based none          undefined undefined none"
+)
 
 # shellcheck disable=SC2034
-for REP in $(seq 1 $REPS)
-do
-  for OVERLAY in "${OVERLAY_[@]}"
-  do
-    for SIMULATION in "${SIMULATION_[@]}"
-    do
-      for NODE_NUMBER in "${NODE_NUMBER_[@]}"
-      do
-        for NODE_EVENT_NUMBER in "${NODE_EVENT_NUMBER_[@]}"
-        do
-          for LDB_MODE in "${MODE_[@]}"
-          do
-            for LDB_STATE_SYNC_INTERVAL in "${STATE_SYNC_INTERVAL_[@]}"
-            do
-              if [ "$LDB_MODE" = state_based ]; then
+for REP in $(seq 1 $REPS); do
+  for OVERLAY_CONFIG in "${OVERLAY_CONFIG_[@]}"; do
+    OVERLAY_CONFIG=($(echo ${OVERLAY_CONFIG} | tr ' ' '\n'))
+    OVERLAY=${OVERLAY_CONFIG[0]}
+    NODE_NUMBER=${OVERLAY_CONFIG[1]}
 
-                for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
-                do
+    for SIM_CONFIG in "${SIM_CONFIG_[@]}"; do
+      SIM_CONFIG=($(echo ${SIM_CONFIG} | tr ' ' '\n'))
+      SIMULATION=${SIM_CONFIG[0]}
+      GMAP_SIMULATION_KEY_PERCENTAGE=${SIM_CONFIG[1]}
 
-                  IMAGE=${IMAGE} \
-                    PULL_IMAGE=${PULL_IMAGE} \
-                    LDB_MODE=${LDB_MODE} \
-                    LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                    LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                    LDB_REDUNDANT_DGROUPS=undefined \
-                    LDB_DGROUP_BACK_PROPAGATION=undefined \
-                    OVERLAY=${OVERLAY} \
-                    SIMULATION=${SIMULATION} \
-                    NODE_NUMBER=${NODE_NUMBER} \
-                    NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                    ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
-                    PARTITION_NUMBER=1 \
-                    KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
-                done
+      for LDB in "${LDB_[@]}"; do
+        LDB=($(echo ${LDB} | tr ' ' '\n'))
+        LDB_MODE=${LDB[0]}
+        LDB_DRIVEN_MODE=${LDB[1]}
+        LDB_DGROUP_BACK_PROPAGATION=${LDB[2]}
+        LDB_REDUNDANT_DGROUPS=${LDB[3]}
+        BREAK_LINKS=${LDB[4]}
 
-              elif [ "$LDB_MODE" = delta_based ]; then
-                for LDB_REDUNDANT_DGROUPS in "${REDUNDANT_DGROUPS_[@]}"
-                do
-                  for LDB_DGROUP_BACK_PROPAGATION in "${DGROUP_BACK_PROPAGATION_[@]}"
-                  do
-                    for PARTITION_NUMBER in "${PARTITION_NUMBER_[@]}"
-                    do
+        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
+          echo "Skipping..."
+        else
 
-                      if [ "$PARTITION_NUMBER" -gt "1" ]; then
+          BRANCH=${BRANCH} \
+            IMAGE=${IMAGE} \
+            PULL_IMAGE=${PULL_IMAGE} \
+            LDB_MODE=${LDB_MODE} \
+            LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
+            LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
+            LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
+            LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
+            OVERLAY=${OVERLAY} \
+            SIMULATION=${SIMULATION} \
+            GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
+            NODE_NUMBER=${NODE_NUMBER} \
+            NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+            BREAK_LINKS=${BREAK_LINKS} \
+            CPU=${CPU} "${DIR}"/lsim-deploy.sh
 
-                        for LDB_DRIVEN_MODE in "${DRIVEN_MODE_[@]}"
-                        do
-                          IMAGE=${IMAGE} \
-                            PULL_IMAGE=${PULL_IMAGE} \
-                            LDB_MODE=${LDB_MODE} \
-                            LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
-                            LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                            LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-                            LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-                            OVERLAY=${OVERLAY} \
-                            SIMULATION=${SIMULATION} \
-                            NODE_NUMBER=${NODE_NUMBER} \
-                            NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                            ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
-                            PARTITION_NUMBER=${PARTITION_NUMBER} \
-                            KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
-
-                        done
-                      else
-
-                        IMAGE=${IMAGE} \
-                          PULL_IMAGE=${PULL_IMAGE} \
-                          LDB_MODE=${LDB_MODE} \
-                          LDB_DRIVEN_MODE=none \
-                          LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
-                          LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
-                          LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
-                          OVERLAY=${OVERLAY} \
-                          SIMULATION=${SIMULATION} \
-                          NODE_NUMBER=${NODE_NUMBER} \
-                          NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-                          ELEMENT_NODE_RATIO=${ELEMENT_NODE_RATIO} \
-                          PARTITION_NUMBER=${PARTITION_NUMBER} \
-                          KEEP_ALIVE=${KEEP_ALIVE} "${DIR}"/lsim-deploy.sh
-
-                      fi
-                    done
-                  done
-                done
-              fi
-            done
-          done
-        done
+          # fetch logs from redis
+          ${DIR}/start-redis-sync.sh
+        fi
       done
     done
   done
 done
-
-#"${DIR}"/start-redis-sync.sh
-
-#"${DIR}"/g-cluster.sh stop

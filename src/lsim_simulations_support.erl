@@ -42,8 +42,8 @@ push_lsim_metrics(StartTime) ->
                 lsim_node_number,
                 lsim_simulation,
                 lsim_node_event_number,
-                lsim_element_node_ratio,
-                lsim_partition_number],
+                lsim_break_links,
+                lsim_gmap_simulation_key_percentage],
     LSimConfigs = get_configs(lsim, LSimVars),
 
     All = [{start_time, StartTime}]
@@ -64,35 +64,21 @@ push_ldb_metrics() ->
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
     %% process transmission
-    PerMessageType = lists:foldl(
-        fun({Timestamp, transmission, {MessageType, Size}}, Acc0) ->
-            orddict:append(MessageType, {Timestamp, Size}, Acc0)
+    All0 = lists:foldl(
+        fun({Timestamp, transmission, {MSize, PSize}}, Acc0) ->
+            V = [{ts, Timestamp},
+                 {size, [MSize, PSize]}],
+            orddict:append(transmission, V, Acc0)
         end,
         orddict:new(),
         TransmissionTS
     ),
 
-    All0 = orddict:fold(
-        fun(MessageType, Metrics, Acc0) ->
-            lists:foldl(
-                fun({Timestamp, Size}, Acc1) ->
-                    V = [{ts, Timestamp},
-                         {size, [Size]}],
-                    orddict:append(MessageType, V, Acc1)
-                end,
-                Acc0,
-                Metrics
-            )
-        end,
-        orddict:new(),
-        PerMessageType
-    ),
-
     %% process memory
     All1 = lists:foldl(
-        fun({Timestamp, memory, {CRDTSize, RestSize}}, Acc0) ->
+        fun({Timestamp, memory, {{MCRDTSize, PCRDTSize}, {MRestSize, PRestSize}}}, Acc0) ->
             V = [{ts, Timestamp},
-                 {size, [CRDTSize, RestSize]}],
+                 {size, [MCRDTSize, PCRDTSize, MRestSize, PRestSize]}],
             orddict:append(memory, V, Acc0)
         end,
         All0,

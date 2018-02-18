@@ -22,15 +22,29 @@
 
 -include("lsim.hrl").
 
--export([generate_spec/2]).
+-export([generate_spec/2,
+         shuffle_list/1]).
 
 %% @doc Given an IP string and port string
 %%      genenerate the node spec.
 -spec generate_spec(list(), node_port()) -> node_spec().
 generate_spec(IpStr, Port) ->
-    NameStr = "lsim-" ++ integer_to_list(Port) ++ "@" ++ IpStr,
+    NameStr = "lsim-" ++ integer_to_list(?PORT) ++ "@" ++ IpStr,
 
     ParsedName = list_to_atom(NameStr),
     {ok, ParsedIp} = inet_parse:address(IpStr),
 
     {ParsedName, ParsedIp, Port}.
+
+%% @doc Shuffle a list.
+-spec shuffle_list(list()) -> list().
+shuffle_list(L) ->
+    rand:seed(exsplus, erlang:timestamp()),
+    lists:map(
+        fun({_, E}) -> E end,
+        lists:sort(
+            lists:map(
+                fun(E) -> {rand:uniform(), E} end, L
+            )
+        )
+    ).

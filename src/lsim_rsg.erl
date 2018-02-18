@@ -36,10 +36,11 @@
          terminate/2,
          code_change/3]).
 
--record(state, {number_of_rules :: non_neg_integer()}).
+-record(state, {node_number :: non_neg_integer(),
+                break_links_specs :: [node_spec()] | undefined,
+                partisan_manager :: atom()}).
 
 -define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
--define(PEER_SERVICE, ldb_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -54,8 +55,13 @@ simulation_end() ->
 init([]) ->
     schedule_create_barrier(),
 
-    ?LOG("lsim_rsg initialized"),
-    {ok, #state{number_of_rules=0}}.
+    NodeNumber = lsim_config:get(lsim_node_number),
+    Manager = partisan_config:get(partisan_peer_service_manager),
+
+    lager:info("lsim_rsg initialized"),
+    {ok, #state{node_number=NodeNumber,
+                break_links_specs=undefined,
+                partisan_manager=Manager}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -66,22 +72,36 @@ handle_call(Msg, _From, State) ->
     {noreply, State}.
 
 handle_cast(sim_go, State) ->
-    ?LOG("Received SIM GO. Starting simulation."),
-    lsim_simulation_runner:start(),
+    lager:info("Received SIM GO. Starting simulation."),
+    lsim_simulation_runner:start_simulation(),
     {noreply, State};
 
-handle_cast({reject_ips, IPs}, State) ->
-    ?LOG("Received REJECT IPS. ~p", [IPs]),
-    LastRule = lsim_iptables:reject_ips(IPs),
-    {noreply, State#state{number_of_rules=LastRule}};
+handle_cast({break_links_info, Infos}, State) ->
+    Specs = lists:map(
+        fun({Name, Ip, ?BARRIER_PORT}) -> {Name, Ip, ?PORT} end,
+        Infos
+    ),
+    {Names, _, _} = lists:unzip3(Specs),
+    lager:info("Received BREAK LINKS INFO. ~p", [Names]),
 
-handle_cast(heal_partitions, #state{number_of_rules=LastRule}=State) ->
-    ?LOG("Received HEAL PARTITIONS"),
-    lsim_iptables:delete_rules(LastRule),
-    {noreply, State#state{number_of_rules=0}};
+    ldb_whisperer:update_metrics_members(Names),
+    {noreply, State#state{break_links_specs=Specs}};
+
+handle_cast(break_links, #state{break_links_specs=Specs,
+                                partisan_manager=Manager}=State) ->
+    lager:info("Received BREAK LINKS."),
+    {_, Ips, _} = lists:unzip3(Specs),
+    Manager:close_connections(Ips),
+    {noreply, State};
+
+handle_cast(heal_links, #state{break_links_specs=Specs,
+                               partisan_manager=Manager}=State) ->
+    lager:info("Received HEAL LINKS."),
+    connect(Specs, Manager),
+    {noreply, State};
 
 handle_cast(metrics_go, State) ->
-    ?LOG("Received METRICS GO. Pushing metrics."),
+    lager:info("Received METRICS GO. Pushing metrics."),
     lsim_simulations_support:push_ldb_metrics(),
     tell({metrics_done, ldb_config:id()}),
     {noreply, State};
@@ -101,18 +121,22 @@ handle_info(create_barrier, State) ->
 
     {noreply, State};
 
-handle_info(join_peers, State) ->
+handle_info(join_peers, #state{node_number=NodeNumber,
+                               partisan_manager=Manager}=State) ->
     MyName = ldb_config:id(),
     Nodes = lsim_orchestration:get_tasks(lsim, ?PORT, true),
     Overlay = lsim_config:get(lsim_overlay),
 
-    case length(Nodes) == node_number() of
+    case length(Nodes) == NodeNumber of
         true ->
             %% if all nodes are connected
-            ToConnect = lsim_overlay:to_connect(MyName,
-                                                Nodes,
-                                                Overlay),
-            ok = connect(ToConnect, ?PEER_SERVICE),
+            {NumericalId, ToConnect} = lsim_overlay:numerical_id_and_neighbors(MyName,
+                                                                               Nodes,
+                                                                               Overlay),
+            %% set numerical id
+            lsim_config:set(lsim_numerical_id, NumericalId),
+            %% and connect to neighbors
+            ok = connect(ToConnect, Manager),
             tell({connect_done, ldb_config:id()});
         _ ->
             schedule_join_peers()
@@ -130,10 +154,6 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-node_number() ->
-    lsim_config:get(lsim_node_number).
-
-%% @private
 schedule_create_barrier() ->
     timer:send_after(?INTERVAL, create_barrier).
 
@@ -149,8 +169,8 @@ connect([Node|Rest]=All, PeerService) ->
         ok ->
             connect(Rest, PeerService);
         Error ->
-            ?LOG("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
-                 [Node, Error, ?INTERVAL]),
+            lager:info("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
+                       [Node, Error, ?INTERVAL]),
             timer:sleep(?INTERVAL),
             connect(All, PeerService)
     end.

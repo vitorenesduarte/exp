@@ -8,6 +8,18 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
+#RATIO=[1, 4, 16, 32, 64]
+RATIO=[1]
+COMPRESS=15 # every x
+#MAX_TIME=60
+
+def error(message):
+    """
+    Display error message and exit.
+    """
+    print(message)
+    print("Exiting...")
+    exit()
 
 def ls(dir):
     """
@@ -20,7 +32,7 @@ def ls_grep(dir, filter):
     List a directory, returning full path.
     Only files that match the filter are returned.
     """
-    return [os.path.join(dir, f) for f in os.listdir(dir) if filter(f)]
+    return [os.path.join(dir, f) for f in os.listdir(dir) if filter(f) and f[0] != '.']
 
 def get_metric_files():
     """
@@ -56,15 +68,13 @@ def key(config):
     start_time = config["start_time"]
 
     keys = [
+        "lsim_gmap_simulation_key_percentage",
         "lsim_simulation",
         "lsim_overlay",
         "lsim_node_number",
-        "lsim_node_event_number",
-        "lsim_element_node_ratio",
-        "lsim_partition_number",
+        "lsim_break_links",
         "ldb_mode",
         "ldb_driven_mode",
-        "ldb_state_sync_interval",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -129,32 +139,30 @@ def bottom_size(type):
     """
     Return bottom size depending on the type passed as input.
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
-        return [0]
-    if type in two:
         return [0, 0]
+    if type in two:
+        return [0, 0, 0, 0]
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found.")
 
 def add(type, sizeA, sizeB):
     """
     Sum two sizes
     """
 
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
-        return [sizeA[0] + sizeB[0]]
-    if type in two:
         return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
+    if type in two:
+        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1], sizeA[2] + sizeB[2], sizeA[3] + sizeB[3]]
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found")
 
 def default(type, previous):
     """
@@ -162,16 +170,15 @@ def default(type, previous):
     - if transmission, 0
     - if memory, previous value
     """
-    one = ["state", "digest", "delta", "delta_ack"]
+    one = ["transmission"]
     two = ["memory"]
 
     if type in one:
-        return [0]
+        return [0, 0]
     if type in two:
         return previous
 
-    print("type not found. Exiting.")
-    exit()
+    error("type not found")
 
 def ignore_pre_big_bang(run):
     """
@@ -179,7 +186,7 @@ def ignore_pre_big_bang(run):
     """
     
     return [m for m in run if m[TS] >= 0]
-
+    #return [m for m in run if m[TS] >= 0 and m[TS] < MAX_TIME]
 
 def assume_unknown_values(d):
     """
@@ -196,6 +203,7 @@ def assume_unknown_values(d):
 
             # find the higher timestamp of all runs for this type
             higher_ts = get_higher_ts(d[key][type])
+            #higher_ts = MAX_TIME
 
             runs = []
 
@@ -246,11 +254,11 @@ def sum_lists(ls):
     """
     return [sum(x) for x in zip(*ls)]
 
-def divide_list_by(ls, n):
+def divide_lists(ls, by):
     """
-    Divide all elements of list by n.
+    Divide lists by 'by'.
     """
-    return [e / n for e in ls]
+    return [x / float(by) for x in ls]
 
 def average(d):
     """
@@ -285,7 +293,7 @@ def average(d):
                     sum[i] = sum_lists(ls)
 
             # avg of sum
-            avg = [divide_list_by(ls, runs_number) for ls in sum]
+            avg = [divide_lists(ls, runs_number) for ls in sum]
 
             # store avg
             d[key][type] = avg
@@ -303,31 +311,100 @@ def aggregate(d):
     Aggregate types of the same run.
     """
 
+    def ratio_key(ratio):
+        return "transmission_" + str(ratio)
+
     r = {}
 
     for key in d:
         # create key in dictionary
         r[key] = {}
 
-        # sum all lists that have these types
-        to_sum = []
-        for type in d[key]:
-            if type in ["state", "digest", "delta", "delta_ack"]:
-                # make list of lists into list
-                ls = [e for l in d[key][type] for e in l]
-                to_sum.append(ls)
-
-        r[key]["transmission"] = sum_lists(to_sum)
+        # store transmission for different ratios
+        # between metadata and payload
+        for ratio in RATIO:
+            r[key][ratio_key(ratio)] = []
+        r[key]["transmission_metadata"] = []
+        r[key]["transmission_payload"] = []
         r[key]["memory_crdt"] = []
+        r[key]["memory_crdt_metadata"] = []
+        r[key]["memory_crdt_payload"] = []
         r[key]["memory_algorithm"] = []
+        r[key]["memory_algorithm_metadata"] = []
+        r[key]["memory_algorithm_payload"] = []
+        r[key]["latency"] = []
         r[key]["latency_local"] = []
         r[key]["latency_remote"] = []
 
-        # aggregate memory values
-        for [C, R] in d[key]["memory"]:
-            r[key]["memory_crdt"].append(C)
-            r[key]["memory_algorithm"].append(R)
+        # fetch all lists that have these types
+        for type in ["transmission"]:
+            if type in d[key]:
+                Ms = [M for [M, P] in d[key][type]]
+                Ps = [P for [M, P] in d[key][type]]
+                r[key]["transmission_metadata"].append(Ms)
+                r[key]["transmission_payload"].append(Ps)
 
+                for ratio in RATIO:
+                    MPs = [M + P*ratio for [M, P] in d[key][type]]
+                    r[key][ratio_key(ratio)].append(MPs)
+
+        # sum the fetched lists
+        for ratio in RATIO:
+            r[key][ratio_key(ratio)] = sum_lists(r[key][ratio_key(ratio)])
+        r[key]["transmission_metadata"] = sum_lists(r[key]["transmission_metadata"])
+        r[key]["transmission_payload"] = sum_lists(r[key]["transmission_payload"])
+
+        def get_compress_index(key):
+            m = {
+                1110: 1,
+                2120: 3,
+                2130: 0,
+                2140: 2,
+                2150: 4
+            }
+
+            score = get_score(key)
+            if score in m:
+                return (COMPRESS * m[score]) / 5
+            else:
+                return 0
+
+        # compress transmissions
+        # e.g. sum every 10 values
+        # and average them
+        max_len = 0
+        for ratio in RATIO:
+            xs = []
+            ys = []
+            current_sum = 0
+            run_len = len(r[key][ratio_key(ratio)])
+            max_len = max(max_len, run_len)
+            index = get_compress_index(key)
+
+            for i in range(run_len):
+                # update sum
+                current_sum += r[key][ratio_key(ratio)][i]
+
+                if(i % COMPRESS == index):
+                    ys.append(current_sum)
+                    # reset sum
+                    current_sum = 0
+
+            for i in range(len(ys)):
+                xs.append((i * COMPRESS) + index)
+
+            ys = divide_lists(ys, COMPRESS)
+            r[key][ratio_key(ratio) + "_compressed"] = ys
+            r[key][ratio_key(ratio) + "_compressed_x"] = xs
+
+        # aggregate memory values
+        for [MC, PC, MR, PR] in d[key]["memory"]:
+            r[key]["memory_crdt"].append(MC + PC)
+            r[key]["memory_crdt_metadata"].append(MC)
+            r[key]["memory_crdt_payload"].append(PC)
+            r[key]["memory_algorithm"].append(MR + PR)
+            r[key]["memory_algorithm_metadata"].append(MR)
+            r[key]["memory_algorithm_payload"].append(PR)
         
         # aggregate latency values
         for lord in d[key]["latency"]: # local or remote dict
@@ -336,22 +413,7 @@ def aggregate(d):
                 latency_values = map(to_ms, lord[lort])
                 r[key][k].extend(latency_values)
 
-    return r
-
-def group_by_simulation(d):
-    """
-    Group metrics by simulation (gset, awset, ...).
-    """
-
-    r = {}
-
-    for type in d:
-        simulation = type.split("~")[0]
-
-        if not simulation in r:
-            r[simulation] = {}
-
-        r[simulation][type] = d[type]
+        r[key]["latency"] = r[key]["latency_local"] + r[key]["latency_remote"]
 
     return r
 
@@ -370,6 +432,48 @@ def save_file(path, content):
     with open(path, "w") as fd:
         fd.write(content)
 
+def get_score(type):
+    """
+    Returns the order of this type when drawing.
+    """
+    score = 0
+
+    parts = type.split("~")
+    mode = parts[5]
+    driven_mode = parts[6]
+    delta_mode = "_".join(parts[7:])
+
+    if mode == "state_based":
+        score += 1000
+    elif mode == "delta_based":
+        score += 2000
+    else:
+        error("Mode not found")
+
+    if driven_mode == "none":
+        score += 100
+    elif driven_mode == "state_driven":
+        score += 200
+    elif driven_mode == "digest_driven":
+        score += 300
+    else:
+        error("Driven mode not found")
+        
+    if delta_mode == "undefined_undefined":
+        score += 10
+    elif delta_mode == "False_False":
+        score += 20
+    elif delta_mode == "False_True":
+        score += 30
+    elif delta_mode == "True_False":
+        score += 40
+    elif delta_mode == "True_True":
+        score += 50
+    else:
+        error("Delta mode not found")
+        
+    return score
+
 def dump(d):
     """
     Save average to files.
@@ -378,11 +482,11 @@ def dump(d):
     # clear folder
     shutil.rmtree(PROCESSED_DIR, ignore_errors=True)
 
-    for simulation in d:
-        for type in d[simulation]:
-            path = os.path.join(*[PROCESSED_DIR, simulation, type])
-            content = json.dumps(d[simulation][type])
-            save_file(path, content)
+    for type in d:
+        score = get_score(type)
+        path = os.path.join(*[PROCESSED_DIR, str(score) + "~" + type])
+        content = json.dumps(d[type])
+        save_file(path, content)
 
 def main():
     """
@@ -393,7 +497,6 @@ def main():
     d = assume_unknown_values(d)
     d = average(d)
     d = aggregate(d)
-    d = group_by_simulation(d)
     dump(d)
 
 main()

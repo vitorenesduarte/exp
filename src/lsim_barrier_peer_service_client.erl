@@ -43,7 +43,8 @@ start_link(Socket) ->
 
 %% gen_server callbacks
 init([Socket]) ->
-    ?LOG("lsim_barrier_peer_service_client initialized! Node ~p listening to socket ~p", [ldb_config:id(), Socket]),
+    lager:info("lsim_barrier_peer_service_client initialized! Node ~p listening to socket ~p",
+               [ldb_config:id(), Socket]),
     {ok, #state{socket=Socket}}.
 
 handle_call(Msg, _From, State) ->
@@ -60,7 +61,7 @@ handle_info({forward_message, _Handler, _Message}=M,
         ok ->
             ok;
         Error ->
-            ?LOG("Failed to send message: ~p", [Error])
+            lager:info("Failed to send message: ~p", [Error])
     end,
 
     {noreply, State};
@@ -70,7 +71,7 @@ handle_info({tcp, _Socket, Data}, State) ->
     {noreply, State};
 
 handle_info({tcp_closed, Socket}, State) ->
-    ?LOG("TCP closed ~p", [Socket]),
+    lager:info("TCP closed ~p", [Socket]),
     {stop, normal, State};
 
 handle_info(Msg, State) ->
