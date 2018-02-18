@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_op_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_state_based_modes_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,13 +33,14 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(EVENT_NUMBER, 10).
+-define(NODE_NUMBER, 3).
+-define(EVENT_NUMBER, 5).
 -define(SIMULATION, gset).
 
 %% ===================================================================
@@ -66,47 +66,57 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     line_three_test,
-     ring_three_test,
-     hyparview_three_test,
-     line_seven_test,
-     ring_seven_test,
-     hyparview_seven_test
+     state_based_line_test,
+     state_based_ring_test,
+     state_based_fullmesh_test,
+     state_based_hyparview_test,
+     delta_based_line_test,
+     delta_based_revisited_line_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-line_three_test(_Config) ->
-    run(line, 3).
+state_based_line_test(_Config) ->
+    run(state_based, line).
 
-ring_three_test(_Config) ->
-    run(ring, 3).
+state_based_ring_test(_Config) ->
+    run(state_based, ring).
 
-hyparview_three_test(_Config) ->
-    run(hyparview, 3).
+state_based_fullmesh_test(_Config) ->
+    run(state_based, fullmesh).
 
-line_seven_test(_Config) ->
-    run(line, 7).
+state_based_hyparview_test(_Config) ->
+    run(state_based, hyparview).
 
-ring_seven_test(_Config) ->
-    run(ring, 7).
+delta_based_line_test(_Config) ->
+    run(delta_based, line).
 
-hyparview_seven_test(_Config) ->
-    run(hyparview, 7).
+delta_based_revisited_line_test(_Config) ->
+    run(delta_based_revisited, line).
 
 %% @private
-run(Overlay, NodeNumber) ->
-    Mode = pure_op_based,
+run(Evaluation, Overlay) ->
+    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
 
-    Options = [{node_number, NodeNumber},
-               {lsim_settings,
-                [{lsim_overlay, Overlay},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, NodeNumber},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+    Options = [{node_number, ?NODE_NUMBER},
+               {exp_settings,
+                [{exp_overlay, Overlay},
+                 {exp_simulation, ?SIMULATION},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode}]}],
+                [{ldb_mode, Mode},
+                 {ldb_redundant_dgroups, Redundant},
+                 {ldb_dgroup_back_propagation, BackPropagation}]}],
 
-    lsim_local_simulations_support:run(Options).
+    exp_local_simulations_support:run(Options).
+
+%% @private
+get_config(state_based) ->
+    {state_based, false, false};
+get_config(delta_based) ->
+    {delta_based, false, false};
+get_config(delta_based_revisited) ->
+    {delta_based, true, true}.

@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_driven_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_driven_based_modes_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,7 +33,7 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -103,18 +102,18 @@ run(Evaluation) ->
     {Mode, Redundant, BackPropagation, DrivenMode} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
-               {lsim_settings,
-                [{lsim_overlay, ?OVERLAY},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+               {exp_settings,
+                [{exp_overlay, ?OVERLAY},
+                 {exp_simulation, ?SIMULATION},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_driven_mode, DrivenMode},
                  {ldb_redundant_dgroups, Redundant},
                  {ldb_dgroup_back_propagation, BackPropagation}]}],
 
-    lsim_local_simulations_support:run(Options).
+    exp_local_simulations_support:run(Options).
 
 %% @private
 get_config(state_based_state_driven) ->

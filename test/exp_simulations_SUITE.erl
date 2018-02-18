@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_state_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_simulations_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,7 +33,7 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -42,7 +41,6 @@
 
 -define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 5).
--define(SIMULATION, gset).
 
 %% ===================================================================
 %% common_test callbacks
@@ -67,57 +65,36 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_line_test,
-     state_based_ring_test,
-     state_based_fullmesh_test,
-     state_based_hyparview_test,
-     delta_based_line_test,
-     delta_based_revisited_line_test
+     gset_test,
+     gcounter_test,
+     gmap_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_line_test(_Config) ->
-    run(state_based, line).
+gset_test(_Config) ->
+    run(gset).
 
-state_based_ring_test(_Config) ->
-    run(state_based, ring).
+gcounter_test(_Config) ->
+    run(gcounter).
 
-state_based_fullmesh_test(_Config) ->
-    run(state_based, fullmesh).
-
-state_based_hyparview_test(_Config) ->
-    run(state_based, hyparview).
-
-delta_based_line_test(_Config) ->
-    run(delta_based, line).
-
-delta_based_revisited_line_test(_Config) ->
-    run(delta_based_revisited, line).
+gmap_test(_Config) ->
+    run(gmap).
 
 %% @private
-run(Evaluation, Overlay) ->
-    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
+run(Simulation) ->
+    Overlay = hyparview,
+    Mode = state_based,
 
     Options = [{node_number, ?NODE_NUMBER},
-               {lsim_settings,
-                [{lsim_overlay, Overlay},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+               {exp_settings,
+                [{exp_overlay, Overlay},
+                 {exp_simulation, Simulation},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode},
-                 {ldb_redundant_dgroups, Redundant},
-                 {ldb_dgroup_back_propagation, BackPropagation}]}],
+                [{ldb_mode, Mode}]}],
 
-    lsim_local_simulations_support:run(Options).
-
-%% @private
-get_config(state_based) ->
-    {state_based, false, false};
-get_config(delta_based) ->
-    {delta_based, false, false};
-get_config(delta_based_revisited) ->
-    {delta_based, true, true}.
+    exp_local_simulations_support:run(Options).

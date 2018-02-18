@@ -87,8 +87,7 @@ for REP in $(seq 1 $REPS); do
           echo "Skipping..."
         else
 
-          BRANCH=${BRANCH} \
-            IMAGE=${IMAGE} \
+          IMAGE=${IMAGE} \
             PULL_IMAGE=${PULL_IMAGE} \
             LDB_MODE=${LDB_MODE} \
             LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
