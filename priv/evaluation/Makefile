@@ -19,6 +19,7 @@ plots:
 	Rscript plot2.R
 	Rscript plot3.R
 	Rscript plot4.R
+	Rscript plot5.R
 
 show:
 	$(VIEWER) *.png

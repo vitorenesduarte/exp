@@ -17,14 +17,14 @@ main <- function() {
   )
   ## 0 transmission
   titles <- c(
-    "GMap (10%) - Tree",
-    "GMap (30%) - Tree",
-    "GMap (60%) - Tree",
-    "GMap (100%) - Tree",
-    "GMap (10%) - Mesh",
-    "GMap (30%) - Mesh",
-    "GMap (60%) - Mesh",
-    "GMap (100%) - Mesh"
+    "GMap 10% - Tree",
+    "GMap 30% - Tree",
+    "GMap 60% - Tree",
+    "GMap 100% - Tree",
+    "GMap 10% - Mesh",
+    "GMap 30% - Mesh",
+    "GMap 60% - Mesh",
+    "GMap 100% - Mesh"
   )
   labels <- c(
     "State-based",

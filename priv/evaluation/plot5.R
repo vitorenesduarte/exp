@@ -10,8 +10,8 @@ main <- function() {
     "ls -d processed/* | grep -v False~True | grep -v True~False | grep 100~gmap~partialmesh"
   )
   titles <- c(
-    "GMap (10%)",
-    "GMap (100%)"
+    "GMap 10%",
+    "GMap 100%"
   )
   labels <- c(
     "State-based",
@@ -39,7 +39,7 @@ main <- function() {
     "red4"
   )
   angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 20, 20, 50, 50)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

@@ -6,17 +6,17 @@ main <- function() {
   output_file <- "plot0.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh",
     "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh"
+    "ls -d processed/* | grep gset~partialmesh",
+    "ls -d processed/* | grep gcounter~tree",
+    "ls -d processed/* | grep gcounter~partialmesh"
   )
   ## 0 transmission
   titles <- c(
-    "GCounter - Tree",
-    "GCounter - Mesh",
     "GSet - Tree",
-    "GSet - Mesh"
+    "GSet - Mesh",
+    "GCounter - Tree",
+    "GCounter - Mesh"
   )
   labels <- c(
     "State-based",
@@ -48,7 +48,7 @@ main <- function() {
     "red4"
   )
   angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 20, 20, 50, 50)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

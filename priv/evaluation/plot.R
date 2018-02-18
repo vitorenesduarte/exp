@@ -57,7 +57,7 @@ main <- function() {
     "red4"
   )
   angles <- c(0, 135, 45, 135, 45)
-  densities <- c(0, 10, 20, 40, 60)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

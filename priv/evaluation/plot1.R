@@ -6,17 +6,17 @@ main <- function() {
   output_file <- "plot1.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh",
     "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh"
+    "ls -d processed/* | grep gset~partialmesh",
+    "ls -d processed/* | grep gcounter~tree",
+    "ls -d processed/* | grep gcounter~partialmesh"
   )
   ## 0 transmission
   titles <- c(
-    "GCounter - Tree",
-    "GCounter - Mesh",
     "GSet - Tree",
-    "GSet - Mesh"
+    "GSet - Mesh",
+    "GCounter - Tree",
+    "GCounter - Mesh"
   )
   labels <- c(
     "State-based",

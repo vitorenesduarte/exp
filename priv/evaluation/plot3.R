@@ -6,24 +6,24 @@ main <- function() {
   output_file <- "plot3.png"
 
   clusters <- c(
-    "ls -d processed/* | grep 0~gcounter~tree",
     "ls -d processed/* | grep 0~gset~tree",
+    "ls -d processed/* | grep 0~gcounter~tree",
     "ls -d processed/* | grep 10~gmap~tree",
     "ls -d processed/* | grep 100~gmap~tree",
-    "ls -d processed/* | grep 0~gcounter~partialmesh",
     "ls -d processed/* | grep 0~gset~partialmesh",
+    "ls -d processed/* | grep 0~gcounter~partialmesh",
     "ls -d processed/* | grep 10~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
   titles <- c(
-    "GCounter - Tree",
     "GSet - Tree",
-    "GMap (10%) - Tree",
-    "GMap (100%) - Tree",
-    "GCounter - Mesh",
+    "GCounter - Tree",
+    "GMap 10% - Tree",
+    "GMap 100% - Tree",
     "GSet - Mesh",
-    "GMap (10%) - Mesh",
-    "GMap (100%) - Mesh"
+    "GCounter - Mesh",
+    "GMap 10% - Mesh",
+    "GMap 100% - Mesh"
   )
   labels <- c(
     "State-based",
@@ -55,7 +55,7 @@ main <- function() {
     "red4"
   )
   angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 20, 20, 50, 50)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
