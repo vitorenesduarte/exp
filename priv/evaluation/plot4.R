@@ -73,7 +73,7 @@ main <- function() {
   # legend
   legend(
     "bottom",
-    inset=-1.2,
+    inset=-1.25,
     # 0, # x
     # -1,  # y 
     cex=1.1,
