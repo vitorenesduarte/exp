@@ -68,11 +68,11 @@ def key(config):
     start_time = config["start_time"]
 
     keys = [
-        "lsim_gmap_simulation_key_percentage",
-        "lsim_simulation",
-        "lsim_overlay",
-        "lsim_node_number",
-        "lsim_break_links",
+        "exp_gmap_simulation_key_percentage",
+        "exp_simulation",
+        "exp_overlay",
+        "exp_node_number",
+        "exp_break_links",
         "ldb_mode",
         "ldb_driven_mode",
         "ldb_redundant_dgroups",

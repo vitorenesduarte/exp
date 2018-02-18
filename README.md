@@ -71,7 +71,7 @@ $ kubectl logs -f exp-1488549530072065763-3946360666-0b6d8
 ```
 
 
-##### lsim dashboard
+##### dashboard
 
 - To start the dashboard:
 ```bash
