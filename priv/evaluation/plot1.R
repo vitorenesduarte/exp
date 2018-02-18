@@ -34,9 +34,9 @@ main <- function() {
 
   # change outer margins
   op <- par(
-    oma=c(3,2,0,0),   # room for the legend
+    oma=c(5,3,0,0),   # room for the legend
     mfrow=c(1,4),      # 2x4 matrix
-    mar=c(4,3,2,2) # spacing between plots
+    mar=c(2,2,3,1) # spacing between plots
   )
 
   # style stuff
@@ -59,31 +59,27 @@ main <- function() {
     key_y <- "transmission_1_compressed"
 
     # data
+    title <- titles[i]
     lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
     # plot lines
-    plot_lines(lines_x, lines_y, colors)
-
-    # axis labels
-    x_axis_label("Time (s)")
-    y_axis_label("Transmission")
-
-    # title
-    title <- titles[i]
-    title(title, line=0.5)
+    plot_lines(title, lines_x, lines_y, colors)
   }
 
-  par(op) # Leave the last plot
+  # axis labels
+  x_axis_label("Time (s)")
+  y_axis_label("Transmission")
 
+  par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
             xpd=NA)         # Allow plotting outside the plot region
 
   # legend
-  pos <- legend(
-    .1, # x
-    -.7,  # y 
-    cex=0.8,
+  legend(
+    -.03, # x
+    -.75,  # y 
+    cex=1.1,
     legend=labels,
     pch=c(1:10),
     col=colors,

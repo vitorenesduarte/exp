@@ -6,17 +6,24 @@ main <- function() {
   output_file <- "plot3.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh",
-    "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh"
+    "ls -d processed/* | grep 0~gcounter~tree",
+    "ls -d processed/* | grep 0~gset~tree",
+    "ls -d processed/* | grep 10~gmap~tree",
+    "ls -d processed/* | grep 100~gmap~tree",
+    "ls -d processed/* | grep 0~gcounter~partialmesh",
+    "ls -d processed/* | grep 0~gset~partialmesh",
+    "ls -d processed/* | grep 10~gmap~partialmesh",
+    "ls -d processed/* | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
   titles <- c(
     "GCounter - Tree",
-    "GCounter - Mesh",
     "GSet - Tree",
-    "GSet - Mesh"
+    "GMap (10%) - Tree",
+    "GMap (100%) - Tree",
+    "GCounter - Mesh",
+    "GSet - Mesh",
+    "GMap (10%) - Mesh",
+    "GMap (100%) - Mesh"
   )
   labels <- c(
     "State-based",
@@ -30,13 +37,13 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=650, res=240)
+  png(filename=output_file, width=2600, height=1200, res=240)
 
   # change outer margins
   op <- par(
-    oma=c(3,2,0,0),   # room for the legend
-    mfrow=c(1,4),      # 2x4 matrix
-    mar=c(4,3,2,2) # spacing between plots
+    oma=c(3,3,0,0),   # room for the legend
+    mfrow=c(2,4),      # 2x4 matrix
+    mar=c(1,2,3,1) # spacing between plots
   )
 
   # style stuff
@@ -48,7 +55,7 @@ main <- function() {
     "red4"
   )
   angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 10, 20, 40, 60)
+  densities <- c(0, 20, 20, 50, 50)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -60,43 +67,39 @@ main <- function() {
     key_a <- "memory_crdt"
     key_b <- "memory_algorithm"
 
-		# data
-		lines <- map(
-			files,
-			function(f) {
-				data <- json(c(f))
-				avg_a <- mean(data[[key_a]])
-				avg_b <- mean(data[[key_b]])
-				avg_a + avg_b
-			}
-		)
-
-		# min (state-based)
-		state_based = Reduce(min, lines)
-		lines <- map(lines, function(v) { v / state_based })
-
-		# plot bars
-		y_min <- 0.5
-		plot_bars(lines, y_min, colors, angles, densities)
-
-		# axis labels
-		y_axis_label("Memory ratio wrto State-based")
-
-    # title
+    # data
     title <- titles[i]
-    title(title, line=0.5)
+    lines <- map(
+      files,
+      function(f) {
+        data <- json(c(f))
+        avg_a <- mean(data[[key_a]])
+        avg_b <- mean(data[[key_b]])
+        avg_a + avg_b
+      }
+    )
+
+    # min (state-based)
+    state_based = Reduce(min, lines)
+    lines <- map(lines, function(v) { v / state_based })
+
+    # plot bars
+    y_min <- 0.5
+    plot_bars(title, lines, y_min, colors, angles, densities)
   }
 
-  par(op) # Leave the last plot
+  # axis labels
+  y_axis_label("Memory ratio wrto State-based")
 
+  par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
             xpd=NA)         # Allow plotting outside the plot region
 
   # legend
-  pos <- legend(
-    .1, # x
-    -.7,  # y 
-    cex=0.8,
+  legend(
+    -.08, # x
+    -.2,  # y 
+    cex=1.1,
     legend=labels,
     angle=angles,
     density=densities,

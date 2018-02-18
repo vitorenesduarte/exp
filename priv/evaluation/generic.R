@@ -5,9 +5,9 @@ x_axis_label <- function(text) {
     side=1, # bottom
     text=text,
     font=2, # bold
-    line=2.2, # closeness to plot
-    outer=FALSE, # outside of the plot if TRUE
-    cex=.7 # size
+    line=.8, # closeness to plot
+    outer=TRUE, # outside of the plot if TRUE
+    cex=1 # size
   )
 }
 
@@ -17,13 +17,13 @@ y_axis_label <- function(text) {
     las=0, # vertical text
     text=text,
     font=2, # bold
-    line=2.2, # closeness to plot
-    outer=FALSE, # outside of the plot if TRUE
-    cex=.7 # size
+    line=.8, # closeness to plot
+    outer=TRUE, # outside of the plot if TRUE
+    cex=1 # size
   )
 }
 
-plot_bars <- function(lines, y_min, colors, angles, densities) {
+plot_bars <- function(title, lines, y_min, colors, angles, densities) {
   # find the y max
   y_max = Reduce(max, lines)
   y_max = y_max + 0.1*y_max
@@ -40,7 +40,13 @@ plot_bars <- function(lines, y_min, colors, angles, densities) {
   )
 
   # round tops
-  rounded <- map(lines, function(v) { round(v, digits=1) })
+  rounded <- map(
+    lines,
+    function(v) {
+      x <- round(v, digits=1)
+      if(x == 1) round(v, digits=2) else x
+    }
+  )
   
   # add text at top of bars
   text(
@@ -48,12 +54,15 @@ plot_bars <- function(lines, y_min, colors, angles, densities) {
     y=lines,
     label=rounded,
     pos=3,
-    cex=0.8,
+    cex=1,
     font=2
   )
+
+  # title
+  title(title, cex.main=1.5, line=0.7)
 }
 
-plot_cdf <- function(lines, colors) {
+plot_cdf <- function(title, lines, colors) {
   load_dependencies(c("Hmisc"))
 
   # find x min and max
@@ -80,9 +89,12 @@ plot_cdf <- function(lines, colors) {
       add=TRUE
     )
   }
+
+  # title
+  title(title, cex.main=1.5, line=0.7)
 }
 
-plot_lines <- function(lines_x, lines_y, colors) {
+plot_lines <- function(title, lines_x, lines_y, colors) {
   # find the x max and y max
   x_max <- Reduce(max, lapply(lines_x, max))
   y_max <- Reduce(max, lapply(lines_y, max))
@@ -108,4 +120,7 @@ plot_lines <- function(lines_x, lines_y, colors) {
       pch=i
     )
   }
+
+  # title
+  title(title, cex.main=1.5, line=0.7)
 }
