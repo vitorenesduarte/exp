@@ -100,7 +100,7 @@ for REP in $(seq 1 $REPS); do
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
-            CPU=${CPU} "${DIR}"/exp-deploy.sh
+            CPU=${CPU} "${DIR}"/deploy-exp.sh
 
           # fetch logs from redis
           ${DIR}/start-redis-sync.sh
