@@ -76,7 +76,7 @@ plot_cdf <- function(title, lines, colors) {
     xlim=c(x_min, x_max),
     xlab="",
     ylab="",
-    log="x"
+    log="x",
   )
 
   # draw
@@ -85,7 +85,7 @@ plot_cdf <- function(title, lines, colors) {
       lines[[i]],
       col=colors[[i]],
       lty=i,
-      lwd=2,
+      lwd=i,
       add=TRUE
     )
   }

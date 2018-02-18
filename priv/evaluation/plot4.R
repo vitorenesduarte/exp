@@ -72,12 +72,15 @@ main <- function() {
 
   # legend
   legend(
-    0, # x
-    .5,  # y 
+    "bottom",
+    inset=-1.2,
+    # 0, # x
+    # -1,  # y 
     cex=1.1,
     legend=labels,
-    pch=c(1:10),
     col=colors,
+    lty=c(1:3),
+    lwd=c(1:3),
     horiz=TRUE,
     box.col=NA # remove box
   )
