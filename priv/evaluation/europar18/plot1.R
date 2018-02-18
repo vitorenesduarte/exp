@@ -1,9 +1,9 @@
-source("util.R")
-source("generic.R")
+source("lib/util.R")
+source("lib/generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot0.png"
+  output_file <- "plot1.png"
 
   clusters <- c(
     "ls -d processed/* | grep gset~tree",
@@ -34,7 +34,7 @@ main <- function() {
 
   # change outer margins
   op <- par(
-    oma=c(4,3,3,0),   # room for the legend
+    oma=c(5,3,0,0),   # room for the legend
     mfrow=c(1,4),      # 2x4 matrix
     mar=c(2,2,3,1) # spacing between plots
   )
@@ -47,8 +47,6 @@ main <- function() {
     "darkorange1",
     "red4"
   )
-  angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -57,23 +55,21 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key <- "transmission_1"
+    key_x <- "transmission_1_compressed_x"
+    key_y <- "transmission_1_compressed"
 
     # data
     title <- titles[i]
-    lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
-
-    # min (rr)
-    rr <- Reduce(min, lines)
-    lines <- map(lines, function(v) { v / rr })
+    lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
+    lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
     # plot lines
-    y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities)
+    plot_lines(title, lines_x, lines_y, colors)
   }
 
   # axis labels
-  y_axis_label("Transmission ratio wrto BP+RR")
+  x_axis_label("Time (s)")
+  y_axis_label("Transmission")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -81,13 +77,12 @@ main <- function() {
 
   # legend
   legend(
-    -.05, # x
-    -.5,  # y 
-    cex=1.05,
+    -.03, # x
+    -.75,  # y 
+    cex=1.1,
     legend=labels,
-    angle=angles,
-    density=densities,
-    fill=colors,
+    pch=c(1:10),
+    col=colors,
     horiz=TRUE,
     box.col=NA # remove box
   )

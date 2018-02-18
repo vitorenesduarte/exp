@@ -1,5 +1,3 @@
-source("util.R")
-
 x_axis_label <- function(text) {
   mtext(
     side=1, # bottom

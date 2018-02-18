@@ -1,28 +1,21 @@
-source("util.R")
-source("generic.R")
+source("lib/util.R")
+source("lib/generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot1.png"
+  output_file <- "plot5.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh",
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh"
+    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
+    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
   titles <- c(
-    "GSet - Tree",
-    "GSet - Mesh",
-    "GCounter - Tree",
-    "GCounter - Mesh"
+    "GMap 10%",
+    "GMap 100%"
   )
   labels <- c(
     "State-based",
     "Delta-based",
-    "Delta-based BP",
-    "Delta-based RR",
     "Delta-based BP+RR"
   )
 
@@ -43,10 +36,10 @@ main <- function() {
   colors <- c(
     "snow4",
     "steelblue4",
-    "springgreen4",
-    "darkorange1",
     "red4"
   )
+  angles <- c(0, 45, 135, 45, 135)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -55,21 +48,23 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_1_compressed_x"
-    key_y <- "transmission_1_compressed"
+    key_a <- "latency_local"
+    key_b <- "latency_remote"
 
-    # data
-    title <- titles[i]
-    lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
-    lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+		# data
+    title_a <- paste(titles[i], "Sender", sep=" - ")
+    title_b <- paste(titles[i], "Receiver", sep=" - ")
+    lines_a <- lapply(files, function(f) { json(c(f))[[key_a]] })
+    lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
 
-    # plot lines
-    plot_lines(title, lines_x, lines_y, colors)
+		# plot cdf
+		plot_box(title_a, lines_a, colors)
+		plot_box(title_b, lines_b, colors)
   }
 
   # axis labels
-  x_axis_label("Time (s)")
-  y_axis_label("Transmission")
+  x_axis_label("Processing (ms)")
+	y_axis_label("CDF")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -77,12 +72,15 @@ main <- function() {
 
   # legend
   legend(
-    -.03, # x
-    -.75,  # y 
+    "bottom",
+    inset=-1.25,
+    # 0, # x
+    # -1,  # y 
     cex=1.1,
     legend=labels,
-    pch=c(1:10),
     col=colors,
+    lty=c(1:3),
+    lwd=c(1:3),
     horiz=TRUE,
     box.col=NA # remove box
   )

@@ -1,21 +1,28 @@
-source("util.R")
-source("generic.R")
+source("lib/util.R")
+source("lib/generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot5.png"
+  output_file <- "plot0.png"
 
   clusters <- c(
-    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 100~gmap~partialmesh"
+    "ls -d processed/* | grep gset~tree",
+    "ls -d processed/* | grep gset~partialmesh",
+    "ls -d processed/* | grep gcounter~tree",
+    "ls -d processed/* | grep gcounter~partialmesh"
   )
+  ## 0 transmission
   titles <- c(
-    "GMap 10%",
-    "GMap 100%"
+    "GSet - Tree",
+    "GSet - Mesh",
+    "GCounter - Tree",
+    "GCounter - Mesh"
   )
   labels <- c(
     "State-based",
     "Delta-based",
+    "Delta-based BP",
+    "Delta-based RR",
     "Delta-based BP+RR"
   )
 
@@ -27,7 +34,7 @@ main <- function() {
 
   # change outer margins
   op <- par(
-    oma=c(5,3,0,0),   # room for the legend
+    oma=c(4,3,3,0),   # room for the legend
     mfrow=c(1,4),      # 2x4 matrix
     mar=c(2,2,3,1) # spacing between plots
   )
@@ -36,6 +43,8 @@ main <- function() {
   colors <- c(
     "snow4",
     "steelblue4",
+    "springgreen4",
+    "darkorange1",
     "red4"
   )
   angles <- c(0, 45, 135, 45, 135)
@@ -48,23 +57,23 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_a <- "latency_local"
-    key_b <- "latency_remote"
+    key <- "transmission_1"
 
-		# data
-    title_a <- paste(titles[i], "Sender", sep=" - ")
-    title_b <- paste(titles[i], "Receiver", sep=" - ")
-    lines_a <- lapply(files, function(f) { json(c(f))[[key_a]] })
-    lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
+    # data
+    title <- titles[i]
+    lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
 
-		# plot cdf
-		plot_box(title_a, lines_a, colors)
-		plot_box(title_b, lines_b, colors)
+    # min (rr)
+    rr <- Reduce(min, lines)
+    lines <- map(lines, function(v) { v / rr })
+
+    # plot lines
+    y_min <- 0
+    plot_bars(title, lines, y_min, colors, angles, densities)
   }
 
   # axis labels
-  x_axis_label("Processing (ms)")
-	y_axis_label("CDF")
+  y_axis_label("Transmission ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -72,15 +81,13 @@ main <- function() {
 
   # legend
   legend(
-    "bottom",
-    inset=-1.25,
-    # 0, # x
-    # -1,  # y 
-    cex=1.1,
+    -.05, # x
+    -.5,  # y 
+    cex=1.05,
     legend=labels,
-    col=colors,
-    lty=c(1:3),
-    lwd=c(1:3),
+    angle=angles,
+    density=densities,
+    fill=colors,
     horiz=TRUE,
     box.col=NA # remove box
   )

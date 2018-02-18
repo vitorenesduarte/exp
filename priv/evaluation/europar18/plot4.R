@@ -1,5 +1,5 @@
-source("util.R")
-source("generic.R")
+source("lib/util.R")
+source("lib/generic.R")
 
 # draw!
 main <- function() {
