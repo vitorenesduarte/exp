@@ -68,11 +68,7 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_state_driven_test,
-     state_based_digest_driven_test,
-     delta_based_state_driven_test,
-     delta_based_digest_driven_test,
-     delta_based_revisited_state_driven_test,
-     delta_based_revisited_digest_driven_test
+     state_based_digest_driven_test
     ].
 
 %% ===================================================================
@@ -84,18 +80,6 @@ state_based_state_driven_test(_Config) ->
 
 state_based_digest_driven_test(_Config) ->
     run(state_based_digest_driven).
-
-delta_based_state_driven_test(_Config) ->
-    run(delta_based_state_driven).
-
-delta_based_digest_driven_test(_Config) ->
-    run(delta_based_digest_driven).
-
-delta_based_revisited_state_driven_test(_Config) ->
-    run(delta_based_revisited_state_driven).
-
-delta_based_revisited_digest_driven_test(_Config) ->
-    run(delta_based_revisited_digest_driven).
 
 %% @private
 run(Evaluation) ->
@@ -119,12 +103,4 @@ run(Evaluation) ->
 get_config(state_based_state_driven) ->
     {state_based, false, false, state_driven};
 get_config(state_based_digest_driven) ->
-    {state_based, false, false, digest_driven};
-get_config(delta_based_state_driven) ->
-    {delta_based, false, false, state_driven};
-get_config(delta_based_digest_driven) ->
-    {delta_based, false, false, digest_driven};
-get_config(delta_based_revisited_state_driven) ->
-    {delta_based, true, true, state_driven};
-get_config(delta_based_revisited_digest_driven) ->
-    {delta_based, true, true, digest_driven}.
+    {state_based, false, false, digest_driven}.
