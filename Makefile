@@ -1,4 +1,4 @@
-PACKAGE         ?= lsim
+PACKAGE         ?= exp
 VERSION         ?= $(shell git describe --tags)
 BASE_DIR         = $(shell pwd)
 ERLANG_BIN       = $(shell dirname $(shell which erl))
@@ -42,16 +42,13 @@ eunit:
 ct: state-based driven-based simulations
 
 state-based:
-	${REBAR} ct --suite=test/lsim_state_based_modes_SUITE
+	${REBAR} ct --suite=test/exp_state_based_modes_SUITE
 
 driven-based:
-	${REBAR} ct --suite=test/lsim_driven_based_modes_SUITE
-
-op-based:
-	${REBAR} ct --suite=test/lsim_op_based_modes_SUITE
+	${REBAR} ct --suite=test/exp_driven_based_modes_SUITE
 
 simulations:
-	${REBAR} ct --suite=test/lsim_simulations_SUITE
+	${REBAR} ct --suite=test/exp_simulations_SUITE
 
 xref:
 	${REBAR} xref skip_deps=true
