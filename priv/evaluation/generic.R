@@ -124,3 +124,14 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
   # title
   title(title, cex.main=1.5, line=0.7)
 }
+
+plot_box <- function(title, lines, colors) {
+  boxplot(
+    lines,
+    notch=TRUE,
+    log="y"
+  )
+
+  # title
+  title(title, cex.main=1.5, line=0.7)
+}
