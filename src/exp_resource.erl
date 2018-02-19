@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_resource).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_resource).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_resource callbacks
+%% exp_resource callbacks
 -export([start_link/0]).
 
 %% gen_server callbacks
@@ -46,7 +46,7 @@ start_link() ->
 
 %% gen_server callbacks
 init([]) ->
-    lager:info("lsim_resource initialized"),
+    lager:info("exp_resource initialized"),
 
     Loop = fun(Req) ->
         ?MODULE:loop(Req)

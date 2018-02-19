@@ -1,8 +1,8 @@
-FROM vitorenesduarte/lsim-base
+FROM vitorenesduarte/exp-base
 
 MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
-ENV NAME=/lsim
+ENV NAME=/exp
 
 COPY bin $NAME/bin/
 COPY config $NAME/config/

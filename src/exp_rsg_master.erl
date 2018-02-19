@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,14 +17,14 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_rsg_master).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_rsg_master).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -behaviour(gen_server).
 
-%% lsim_rsg_master callbacks
+%% exp_rsg_master callbacks
 -export([start_link/0]).
 
 %% gen_server callbacks
@@ -42,7 +42,7 @@
                 metrics_nodes :: undefined | list(ldb_node_id()),
                 start_time :: undefined | timestamp()}).
 
--define(BARRIER_PEER_SERVICE, lsim_barrier_peer_service).
+-define(BARRIER_PEER_SERVICE, exp_barrier_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -52,7 +52,7 @@ start_link() ->
 %% gen_server callbacks
 init([]) ->
     schedule_create_barrier(),
-    lager:info("lsim_rsg_master initialized"),
+    lager:info("exp_rsg_master initialized"),
 
     {ok, #state{nodes=undefined,
                 connect_done=ordsets:new(),
@@ -120,8 +120,8 @@ handle_cast({metrics_done, NodeName},
     case ordsets:size(MetricsDone1) == length(MetricsNodes) of
         true ->
             lager:info("Everyone is METRICS DONE. STOP!!!"),
-            lsim_simulations_support:push_lsim_metrics(StartTime),
-            lsim_orchestration:stop_tasks([lsim, rsg]);
+            exp_simulations_support:push_exp_metrics(StartTime),
+            exp_orchestration:stop_tasks([exp, rsg]);
         false ->
             ok
     end,
@@ -133,7 +133,7 @@ handle_cast(Msg, State) ->
     {noreply, State}.
 
 handle_info(create_barrier, State) ->
-    Nodes = lsim_orchestration:get_tasks(lsim, ?BARRIER_PORT, true),
+    Nodes = exp_orchestration:get_tasks(exp, ?BARRIER_PORT, true),
 
     case length(Nodes) == node_number() of
         true ->
@@ -169,9 +169,9 @@ configure_break_links_metrics(Nodes) ->
     %% list of nodes from which we want metrics
     %% - in case of break links, only the involved nodes
     %% - otherwise, all
-    BreakLinks = lsim_config:get(lsim_break_links),
-    Overlay = lsim_config:get(lsim_overlay),
-    {Names, Links} = lsim_overlay:break_links(BreakLinks, Nodes, Overlay),
+    BreakLinks = exp_config:get(exp_break_links),
+    Overlay = exp_config:get(exp_overlay),
+    {Names, Links} = exp_overlay:break_links(BreakLinks, Nodes, Overlay),
 
     %% inform all nodes involved in break links
     lists:foreach(
@@ -191,7 +191,7 @@ configure_break_links_metrics(Nodes) ->
 
 %% @private
 node_number() ->
-    lsim_config:get(lsim_node_number).
+    exp_config:get(exp_node_number).
 
 %% @private
 schedule_create_barrier() ->
@@ -199,14 +199,14 @@ schedule_create_barrier() ->
 
 %% @private
 schedule_break_links() ->
-    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+    NodeEventNumber = exp_config:get(exp_node_event_number),
     %% wait ~50% of simulation time before breaking links
     Seconds = NodeEventNumber div 2,
     timer:send_after(Seconds * 1000, break_links).
 
 %% @private
 schedule_heal_links() ->
-    NodeEventNumber = lsim_config:get(lsim_node_event_number),
+    NodeEventNumber = exp_config:get(exp_node_event_number),
     %% wait ~25% of simulation time before healing
     Seconds = NodeEventNumber div 4,
     timer:send_after(Seconds * 1000, heal_links).
@@ -235,7 +235,7 @@ tell(Msg, Peers) ->
         fun(Peer) ->
             ?BARRIER_PEER_SERVICE:forward_message(
                Peer,
-               lsim_rsg,
+               exp_rsg,
                Msg
             )
         end,

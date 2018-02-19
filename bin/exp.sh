@@ -3,8 +3,8 @@
 REPS=1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/lsim-copy
-DOCKERFILE=${DIR}/../Dockerfiles/lsim-copy
+IMAGE=${DOCKER_USER}/exp-copy
+DOCKERFILE=${DIR}/../Dockerfiles/exp-copy
 
 # always pull image,
 # unless local
@@ -40,12 +40,13 @@ OVERLAY_CONFIG_=(
    "tree 14"
 )
 
-# lsim configuration
+# exp configuration
 SIM_CONFIG_=(
   "gset 0"
   "gcounter 0"
   "gmap 10"
   "gmap 30"
+  "gmap 60"
   "gmap 100"
 )
 NODE_EVENT_NUMBER=100
@@ -83,12 +84,11 @@ for REP in $(seq 1 $REPS); do
         LDB_REDUNDANT_DGROUPS=${LDB[3]}
         BREAK_LINKS=${LDB[4]}
 
-        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
-          echo "Skipping..."
+        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" -ne awset ]]; then
+          echo "Skipping ${SIMULATION}..."
         else
 
-          BRANCH=${BRANCH} \
-            IMAGE=${IMAGE} \
+          IMAGE=${IMAGE} \
             PULL_IMAGE=${PULL_IMAGE} \
             LDB_MODE=${LDB_MODE} \
             LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
@@ -101,7 +101,7 @@ for REP in $(seq 1 $REPS); do
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
-            CPU=${CPU} "${DIR}"/lsim-deploy.sh
+            CPU=${CPU} "${DIR}"/deploy-exp.sh
 
           # fetch logs from redis
           ${DIR}/start-redis-sync.sh

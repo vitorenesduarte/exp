@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,8 +17,8 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_app).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_app).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
 -behaviour(application).
 
@@ -27,7 +27,7 @@
 
 %% @doc Initialize the application.
 start(_StartType, _StartArgs) ->
-    case lsim_sup:start_link() of
+    case exp_sup:start_link() of
         {ok, Pid} ->
             {ok, Pid};
         Other ->

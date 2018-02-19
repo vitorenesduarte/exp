@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_driven_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_driven_based_modes_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,7 +33,7 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -69,11 +68,7 @@ end_per_testcase(Case, Config) ->
 all() ->
     [
      state_based_state_driven_test,
-     state_based_digest_driven_test,
-     delta_based_state_driven_test,
-     delta_based_digest_driven_test,
-     delta_based_revisited_state_driven_test,
-     delta_based_revisited_digest_driven_test
+     state_based_digest_driven_test
     ].
 
 %% ===================================================================
@@ -86,46 +81,26 @@ state_based_state_driven_test(_Config) ->
 state_based_digest_driven_test(_Config) ->
     run(state_based_digest_driven).
 
-delta_based_state_driven_test(_Config) ->
-    run(delta_based_state_driven).
-
-delta_based_digest_driven_test(_Config) ->
-    run(delta_based_digest_driven).
-
-delta_based_revisited_state_driven_test(_Config) ->
-    run(delta_based_revisited_state_driven).
-
-delta_based_revisited_digest_driven_test(_Config) ->
-    run(delta_based_revisited_digest_driven).
-
 %% @private
 run(Evaluation) ->
     {Mode, Redundant, BackPropagation, DrivenMode} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
-               {lsim_settings,
-                [{lsim_overlay, ?OVERLAY},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+               {exp_settings,
+                [{exp_overlay, ?OVERLAY},
+                 {exp_simulation, ?SIMULATION},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_driven_mode, DrivenMode},
                  {ldb_redundant_dgroups, Redundant},
                  {ldb_dgroup_back_propagation, BackPropagation}]}],
 
-    lsim_local_simulations_support:run(Options).
+    exp_local_simulations_support:run(Options).
 
 %% @private
 get_config(state_based_state_driven) ->
     {state_based, false, false, state_driven};
 get_config(state_based_digest_driven) ->
-    {state_based, false, false, digest_driven};
-get_config(delta_based_state_driven) ->
-    {delta_based, false, false, state_driven};
-get_config(delta_based_digest_driven) ->
-    {delta_based, false, false, digest_driven};
-get_config(delta_based_revisited_state_driven) ->
-    {delta_based, true, true, state_driven};
-get_config(delta_based_revisited_digest_driven) ->
-    {delta_based, true, true, digest_driven}.
+    {state_based, false, false, digest_driven}.

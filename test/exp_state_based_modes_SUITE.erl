@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_state_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_state_based_modes_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,7 +33,7 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -67,52 +66,44 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     state_based_line_test,
      state_based_ring_test,
-     state_based_fullmesh_test,
      state_based_hyparview_test,
-     delta_based_line_test,
-     delta_based_revisited_line_test
+     delta_based_ring_test,
+     delta_based_revisited_ring_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-state_based_line_test(_Config) ->
-    run(state_based, line).
-
 state_based_ring_test(_Config) ->
     run(state_based, ring).
-
-state_based_fullmesh_test(_Config) ->
-    run(state_based, fullmesh).
 
 state_based_hyparview_test(_Config) ->
     run(state_based, hyparview).
 
-delta_based_line_test(_Config) ->
-    run(delta_based, line).
+delta_based_ring_test(_Config) ->
+    run(delta_based, ring).
 
-delta_based_revisited_line_test(_Config) ->
-    run(delta_based_revisited, line).
+delta_based_revisited_ring_test(_Config) ->
+    run(delta_based_revisited, ring).
 
 %% @private
 run(Evaluation, Overlay) ->
     {Mode, Redundant, BackPropagation} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
-               {lsim_settings,
-                [{lsim_overlay, Overlay},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, ?NODE_NUMBER},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+               {exp_settings,
+                [{exp_overlay, Overlay},
+                 {exp_simulation, ?SIMULATION},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_redundant_dgroups, Redundant},
                  {ldb_dgroup_back_propagation, BackPropagation}]}],
 
-    lsim_local_simulations_support:run(Options).
+    exp_local_simulations_support:run(Options).
 
 %% @private
 get_config(state_based) ->

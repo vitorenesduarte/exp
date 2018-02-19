@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,10 +17,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_util).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_util).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -export([generate_spec/2,
          shuffle_list/1]).
@@ -29,7 +29,7 @@
 %%      genenerate the node spec.
 -spec generate_spec(list(), node_port()) -> node_spec().
 generate_spec(IpStr, Port) ->
-    NameStr = "lsim-" ++ integer_to_list(?PORT) ++ "@" ++ IpStr,
+    NameStr = "exp-" ++ integer_to_list(?PORT) ++ "@" ++ IpStr,
 
     ParsedName = list_to_atom(NameStr),
     {ok, ParsedIp} = inet_parse:address(IpStr),

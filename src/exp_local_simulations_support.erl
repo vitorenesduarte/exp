@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -18,10 +18,10 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_local_simulations_support).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_local_simulations_support).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -export([run/1]).
 
@@ -38,7 +38,7 @@ start_experiment(IdToNode) ->
     timer:sleep(5000),
     lists:foreach(
         fun({_Id, Node}) ->
-            ok = rpc:call(Node, lsim_simulation_runner, start_simulation, [])
+            ok = rpc:call(Node, exp_simulation_runner, start_simulation, [])
         end,
         IdToNode
     ).
@@ -72,7 +72,7 @@ start(Options) ->
         %% Load ldb
         ok = rpc:call(Node, application, load, [ldb]),
 
-        %% Load lsim
+        %% Load exp
         ok = rpc:call(Node, application, load, [?APP]),
 
         %% Set lager log dir
@@ -86,16 +86,16 @@ start(Options) ->
     lists:foreach(LoaderFun, IdToNode),
 
     ConfigureFun = fun({Id, Node}) ->
-        %% Configure lsim
-        LSimSettings0 = proplists:get_value(lsim_settings, Options),
+        %% Configure exp
+        LSimSettings0 = proplists:get_value(exp_settings, Options),
         LSimSettings1 = LSimSettings0
-                     ++ [{lsim_timestamp, timestamp()},
-                         {lsim_numerical_id, Id}],
+                     ++ [{exp_timestamp, timestamp()},
+                         {exp_numerical_id, Id}],
 
         lists:foreach(
             fun({Property, Value}) ->
                 ok = rpc:call(Node,
-                              lsim_config,
+                              exp_config,
                               set,
                               [Property, Value])
             end,
@@ -129,13 +129,13 @@ start(Options) ->
 %% @private Connect each node to its peers.
 %%          If `Overlay' is hyparview, it's enough all peers
 %%          connected to the same node.
-%%          Otherwise use `lsim_overlay' to decide to which
+%%          Otherwise use `exp_overlay' to decide to which
 %%          nodes a node should connect.
 construct_overlay(Options, IdToNode) ->
     Overlay = proplists:get_value(
-        lsim_overlay,
+        exp_overlay,
         proplists:get_value(
-            lsim_settings,
+            exp_settings,
             Options
         )
     ),
@@ -149,7 +149,7 @@ construct_overlay(Options, IdToNode) ->
     ),
 
     NodeNumber = orddict:size(IdToNode),
-    Graph = lsim_overlay:get(Overlay, NodeNumber),
+    Graph = exp_overlay:get(Overlay, NodeNumber),
 
     lists:foreach(
         fun({I, Peers}) ->
@@ -181,9 +181,9 @@ wait_for_completion(IdToNode) ->
             Ended = lists:foldl(
                 fun({_Id, Node}, Acc) ->
                     SimulationEnd = rpc:call(Node,
-                                             lsim_config,
+                                             exp_config,
                                              get,
-                                             [lsim_simulation_end,
+                                             [exp_simulation_end,
                                               false]),
 
                     case SimulationEnd of

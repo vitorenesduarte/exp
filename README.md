@@ -1,12 +1,11 @@
-# lsim
+# exp 
 
-[![Build Status](https://img.shields.io/travis/vitorenesduarte/lsim/master.svg)](https://travis-ci.org/vitorenesduarte/lsim)
-[![Coverage Status](https://img.shields.io/coveralls/github/vitorenesduarte/lsim/master.svg?maxAge=60)](https://coveralls.io/github/vitorenesduarte/lsim?branch=master)
+[![Build Status](https://img.shields.io/travis/vitorenesduarte/exp/master.svg)](https://travis-ci.org/vitorenesduarte/exp)
+[![Coverage Status](https://img.shields.io/coveralls/github/vitorenesduarte/exp/master.svg?maxAge=60)](https://coveralls.io/github/vitorenesduarte/exp?branch=master)
 
 
 #### Experiments
 
-- __BRANCH__: which lsim branch should instances run
 - __LDB_MODE__:
   - `state_based`
   - `delta_based`
@@ -66,13 +65,13 @@ $ bin/g-cluster.sh stop
 ```bash
 $ kubectl get pods
               READY     STATUS    RESTARTS   AGE
-lsim-1488549530072065763-3946360666-0b6d8   0/1       Pending   0
+exp-1488549530072065763-3946360666-0b6d8   0/1       Pending   0
 ...
-$ kubectl logs -f lsim-1488549530072065763-3946360666-0b6d8
+$ kubectl logs -f exp-1488549530072065763-3946360666-0b6d8
 ```
 
 
-##### lsim dashboard
+##### dashboard
 
 - To start the dashboard:
 ```bash
@@ -86,12 +85,3 @@ $ bin/dash-proxy.sh
 ```
 
 This will open a new chrome tab with the dashboard.
-
-
-#### Docker
-To build and push an image:
-
-```bash
-$ IMAGE=vitorenesduarte/lsim \
-  DOCKERFILE=Dockerfiles/lsim bin/image.sh
-```

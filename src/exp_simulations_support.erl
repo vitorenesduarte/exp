@@ -1,5 +1,5 @@
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -17,20 +17,20 @@
 %%
 %% -------------------------------------------------------------------
 
--module(lsim_simulations_support).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com").
+-module(exp_simulations_support).
+-author("Vitor Enes <vitorenesduarte@gmail.com").
 
--include("lsim.hrl").
+-include("exp.hrl").
 
--export([push_lsim_metrics/1,
+-export([push_exp_metrics/1,
          push_ldb_metrics/0]).
 
 -define(LDB_METRICS, ldb_metrics).
--define(STORE, lsim_metrics_store).
+-define(STORE, exp_metrics_store).
 -define(SEP, ",").
 
--spec push_lsim_metrics(timestamp()) -> ok.
-push_lsim_metrics(StartTime) ->
+-spec push_exp_metrics(timestamp()) -> ok.
+push_exp_metrics(StartTime) ->
     LDBVars = [ldb_mode,
                ldb_driven_mode,
                ldb_state_sync_interval,
@@ -38,13 +38,13 @@ push_lsim_metrics(StartTime) ->
                ldb_dgroup_back_propagation],
     LDBConfigs = get_configs(ldb, LDBVars),
 
-    LSimVars = [lsim_overlay,
-                lsim_node_number,
-                lsim_simulation,
-                lsim_node_event_number,
-                lsim_break_links,
-                lsim_gmap_simulation_key_percentage],
-    LSimConfigs = get_configs(lsim, LSimVars),
+    LSimVars = [exp_overlay,
+                exp_node_number,
+                exp_simulation,
+                exp_node_event_number,
+                exp_break_links,
+                exp_gmap_simulation_key_percentage],
+    LSimConfigs = get_configs(exp, LSimVars),
 
     All = [{start_time, StartTime}]
        ++ LDBConfigs
@@ -105,7 +105,7 @@ filter_by_ts_class(Class, TS) ->
 
 %% @private
 file_path(Name) ->
-    Timestamp = lsim_config:get(lsim_timestamp),
+    Timestamp = exp_config:get(exp_timestamp),
     Filename = str(Timestamp) ++ "/"
             ++ str(Name) ++ ".json",
     Filename.
@@ -117,8 +117,8 @@ get_configs(App, Vars) ->
             Mod = case App of
                 ldb ->
                     ldb_config;
-                lsim ->
-                    lsim_config
+                exp ->
+                    exp_config
             end,
             {Var, Mod:get(Var)}
         end,

@@ -1,7 +1,7 @@
 sudo: false
 language: erlang
 otp_release:
-  - 20.1
+  - 20.0
 addons:
   apt:
     sources:
@@ -20,8 +20,6 @@ script:
   - make dialyzer
   - make lint
   - rebar3 coveralls send
-matrix:
-  fast_finish: true
 notifications:
   slack: haslab:jhAnACJzswFtYwKXpbZzjbFq
   email: false

@@ -84,7 +84,7 @@ main <- function() {
     lines <- map(lines, function(v) { v / state_based })
 
     # plot bars
-    y_min <- 0.5
+    y_min <- 0
     plot_bars(title, lines, y_min, colors, angles, densities)
   }
 

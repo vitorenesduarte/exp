@@ -1,6 +1,5 @@
-%% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2016 SyncFree Consortium.  All Rights Reserved.
+%% Copyright (c) 2018 Vitor Enes.  All Rights Reserved.
 %% Copyright (c) 2016 Christopher Meiklejohn.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
@@ -20,8 +19,8 @@
 %% -------------------------------------------------------------------
 %%
 
--module(lsim_op_based_modes_SUITE).
--author("Vitor Enes Duarte <vitorenesduarte@gmail.com>").
+-module(exp_simulations_SUITE).
+-author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
 -export([%% suite/0,
@@ -34,14 +33,14 @@
 %% tests
 -compile([export_all, nowarn_export_all]).
 
--include("lsim.hrl").
+-include("exp.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("kernel/include/inet.hrl").
 
--define(EVENT_NUMBER, 10).
--define(SIMULATION, gset).
+-define(NODE_NUMBER, 3).
+-define(EVENT_NUMBER, 5).
 
 %% ===================================================================
 %% common_test callbacks
@@ -66,47 +65,36 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     line_three_test,
-     ring_three_test,
-     hyparview_three_test,
-     line_seven_test,
-     ring_seven_test,
-     hyparview_seven_test
+     gset_test,
+     gcounter_test,
+     gmap_test
     ].
 
 %% ===================================================================
 %% tests
 %% ===================================================================
 
-line_three_test(_Config) ->
-    run(line, 3).
+gset_test(_Config) ->
+    run(gset).
 
-ring_three_test(_Config) ->
-    run(ring, 3).
+gcounter_test(_Config) ->
+    run(gcounter).
 
-hyparview_three_test(_Config) ->
-    run(hyparview, 3).
-
-line_seven_test(_Config) ->
-    run(line, 7).
-
-ring_seven_test(_Config) ->
-    run(ring, 7).
-
-hyparview_seven_test(_Config) ->
-    run(hyparview, 7).
+gmap_test(_Config) ->
+    run(gmap).
 
 %% @private
-run(Overlay, NodeNumber) ->
-    Mode = pure_op_based,
+run(Simulation) ->
+    Overlay = hyparview,
+    Mode = state_based,
 
-    Options = [{node_number, NodeNumber},
-               {lsim_settings,
-                [{lsim_overlay, Overlay},
-                 {lsim_simulation, ?SIMULATION},
-                 {lsim_node_number, NodeNumber},
-                 {lsim_node_event_number, ?EVENT_NUMBER}]},
+    Options = [{node_number, ?NODE_NUMBER},
+               {exp_settings,
+                [{exp_overlay, Overlay},
+                 {exp_simulation, Simulation},
+                 {exp_node_number, ?NODE_NUMBER},
+                 {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
                 [{ldb_mode, Mode}]}],
 
-    lsim_local_simulations_support:run(Options).
+    exp_local_simulations_support:run(Options).
