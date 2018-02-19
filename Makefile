@@ -27,16 +27,8 @@ docker-lint:
 eunit:
 	${REBAR} eunit
 
-ct: state-based driven-based simulations
-
-state-based:
-	${REBAR} ct --suite=test/exp_state_based_modes_SUITE
-
-driven-based:
-	${REBAR} ct --suite=test/exp_driven_based_modes_SUITE
-
-simulations:
-	${REBAR} ct --suite=test/exp_simulations_SUITE
+ct:
+	${REBAR} ct --readable=false --verbose
 
 xref:
 	${REBAR} xref skip_deps=true
