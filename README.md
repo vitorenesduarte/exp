@@ -17,15 +17,18 @@
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
+- __NODE_NUMBER__: number of nodes
 - __OVERLAY__:
   - `hyparview`
   - `fullmesh`
   - `line`
   - `ring`
-- __NODE_NUMBER__: number of nodes
+  - `partialmesh` with __NODE_NUMBER__ ` = 16`
+  - `tree` with __NODE_NUMBER__ ` = 14`
 - __SIMULATION__:
   - `gcounter`
   - `gset`
+  - `gmap`
   - `awset`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
 the simulation. The event interval is 1 second
