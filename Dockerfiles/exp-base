@@ -3,4 +3,4 @@ FROM erlang:20.2.2-slim
 MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
 
-RUN apt-get update && apt-get -y install make
+RUN apt-get update && apt-get install -y make git
