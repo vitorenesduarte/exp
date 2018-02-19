@@ -46,12 +46,13 @@ reaches 50% of progress and healed at 75%. Possible values for break link:
 #### Kubernetes
 
 ```bash
-$ bin/sim.sh build
-$ bin/sim.sh
+$ bin/europar18-exp.sh
 ```
 
+<!--
 - `build` will build a new image, push it, and the run the experiments with that image
 - if no argument, the experiments will be run using the last pushed image
+-->
 
 
 #### Google Cloud Platform
