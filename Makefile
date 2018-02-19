@@ -1,24 +1,12 @@
 PACKAGE         ?= exp
-VERSION         ?= $(shell git describe --tags)
-BASE_DIR         = $(shell pwd)
-ERLANG_BIN       = $(shell dirname $(shell which erl))
 REBAR            = $(shell pwd)/rebar3
-MAKE						 = make
 
 .PHONY: test
 
 all: compile
 
-##
-## Compilation targets
-##
-
 compile:
 	$(REBAR) compile
-
-##
-## Test targets
-##
 
 check: test xref dialyzer lint
 
@@ -62,21 +50,11 @@ cover: test
 shell:
 	${REBAR} shell --apps ${PACKAGE}
 
-##
-## Release targets
-##
-
 stage:
 	${REBAR} release -d
-
-##
-## Simulation targets
-##
 
 logs:
 	  tail -F priv/lager/*/log/*.log
 
 run:
 	  _build/default/rel/${PACKAGE}/bin/env
-
-DIALYZER_APPS = kernel stdlib erts sasl eunit syntax_tools compiler crypto
