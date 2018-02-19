@@ -1,9 +1,9 @@
-source("util.R")
-source("generic.R")
+source("lib/util.R")
+source("lib/generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot1.png"
+  output_file <- "plot.png"
 
   clusters <- c(
     "ls -d processed/* | grep gcounter~tree",
@@ -78,7 +78,7 @@ main <- function() {
       lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
       # plot lines
-      plot_lines(lines_x, lines_y, colors)
+      plot_lines(title, lines_x, lines_y, colors)
 
       # axis labels
       x_axis_label("Time (s)")
@@ -107,7 +107,7 @@ main <- function() {
 
       # plot bars
       y_min <- 0.5
-      plot_bars(lines, y_min, colors, angles, densities)
+      plot_bars(title, lines, y_min, colors, angles, densities)
 
       # axis labels
       y_axis_label("Memory ratio wrto State-based")
@@ -121,15 +121,12 @@ main <- function() {
       lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
       # plot cdf
-      plot_cdf(lines, colors[c(2, 5)])
+      plot_cdf(title, lines, colors[c(2, 5)])
 
       # axis labels
       x_axis_label("Processing (ms)")
       y_axis_label("CDF")
     }
-
-    # title
-    title(title, line=0.5)
   }
 
   par(op) # Leave the last plot

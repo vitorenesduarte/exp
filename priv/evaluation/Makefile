@@ -19,7 +19,7 @@ europar:
 	Rscript europar18/plot2.R
 	Rscript europar18/plot3.R
 	Rscript europar18/plot4.R
-	Rscript europar18/plot5.R
+	#Rscript europar18/plot5.R
 
 show:
 	$(VIEWER) *.png
