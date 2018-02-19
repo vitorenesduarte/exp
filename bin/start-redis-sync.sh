@@ -6,7 +6,7 @@ POD_NAME=$(kubectl get pods |
 
 PORT=6379
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-METRICS_DIR=${DIR}/../priv/evaluation/metrics
+METRICS_DIR=${DIR}/../evaluation/metrics
 
 kubectl port-forward "${POD_NAME}" ${PORT}:${PORT} & TUNNEL_PID=$!
 
