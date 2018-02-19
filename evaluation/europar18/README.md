@@ -7,6 +7,8 @@
 - [Erlang](https://github.com/erlang/otp)
 - [R](https://www.r-project.org/)
 
+#### Instructions
+
 From the root of the repository:
 
 ```bash
@@ -17,6 +19,10 @@ When it ends:
 ```bash
 $ cd evaluation/
 $ make europar
+```
+
+The plots:
+```bash
 $ ls *.png
 plot0.png  plot1.png  plot2.png  plot3.png  plot4.png
 ```
