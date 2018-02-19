@@ -21,6 +21,10 @@ y_axis_label <- function(text) {
   )
 }
 
+add_title <- function(text) {
+  title(text, cex.main=1.5, line=0.7)
+}
+
 plot_bars <- function(title, lines, y_min, colors, angles, densities) {
   # find the y max
   y_max = Reduce(max, lines)
@@ -57,39 +61,43 @@ plot_bars <- function(title, lines, y_min, colors, angles, densities) {
   )
 
   # title
-  title(title, cex.main=1.5, line=0.7)
+  add_title(title)
 }
 
-plot_cdf <- function(title, lines, colors) {
-  load_dependencies(c("Hmisc"))
+plot_cdf <- function(title, lines, colors, y_max, y_step) {
+  lines_y <- seq(0, y_max, by=y_step)
+  lines_x <- lapply(
+    lines,
+    function(l) { quantile(l, probs=lines_y, names=FALSE) }
+  )
 
   # find x min and max
-  x_min <- Reduce(min, lapply(lines, min))
-  x_min <- if(x_min == 0) 0.001 else x_min
-  x_max <- Reduce(max, lapply(lines, max))
+  x_min <- Reduce(min, lapply(lines_x, min))
+  x_max <- Reduce(max, lapply(lines_x, max))
 
   # configure plot
-  Ecdf(
-    range(1000),
+  plot(
+    range(x_max),
+    range(1),
     xlim=c(x_min, x_max),
+    ylim=c(0, y_max),
     xlab="",
     ylab="",
-    log="x",
   )
 
   # draw
-  for(i in 1:length(lines)) {
-    Ecdf(
-      lines[[i]],
+  for(i in 1:length(lines_x)) {
+    lines(
+      lines_x[[i]],
+      lines_y,
       col=colors[[i]],
       lty=i,
       lwd=i,
-      add=TRUE
     )
   }
 
   # title
-  title(title, cex.main=1.5, line=0.7)
+  add_title(title)
 }
 
 plot_lines <- function(title, lines_x, lines_y, colors) {
@@ -120,7 +128,7 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
   }
 
   # title
-  title(title, cex.main=1.5, line=0.7)
+  add_title(title)
 }
 
 plot_box <- function(title, lines, colors) {

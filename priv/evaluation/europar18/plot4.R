@@ -7,11 +7,11 @@ main <- function() {
 
   clusters <- c(
     "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 100~gmap~partialmesh"
+    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 30~gmap~partialmesh"
   )
   titles <- c(
     "GMap 10%",
-    "GMap 100%"
+    "GMap 30%"
   )
   labels <- c(
     "State-based",
@@ -51,20 +51,22 @@ main <- function() {
     key_a <- "latency_local"
     key_b <- "latency_remote"
 
-		# data
+    # data
     title_a <- paste(titles[i], "Sender", sep=" - ")
     title_b <- paste(titles[i], "Receiver", sep=" - ")
     lines_a <- lapply(files, function(f) { json(c(f))[[key_a]] })
     lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
 
-		# plot cdf
-		plot_cdf(title_a, lines_a, colors)
-		plot_cdf(title_b, lines_b, colors)
+    # plot cdf
+    y_max <- 0.95
+    y_step <- 0.01
+    plot_cdf(title_a, lines_a, colors, y_max, y_step)
+    plot_cdf(title_b, lines_b, colors, y_max, y_step)
   }
 
   # axis labels
   x_axis_label("Processing (ms)")
-	y_axis_label("CDF")
+  y_axis_label("CDF")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
