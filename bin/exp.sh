@@ -46,6 +46,7 @@ SIM_CONFIG_=(
   "gcounter 0"
   "gmap 10"
   "gmap 30"
+  "gmap 60"
   "gmap 100"
 )
 NODE_EVENT_NUMBER=100
@@ -83,8 +84,8 @@ for REP in $(seq 1 $REPS); do
         LDB_REDUNDANT_DGROUPS=${LDB[3]}
         BREAK_LINKS=${LDB[4]}
 
-        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" = gset || "$SIMULATION" = gcounter ]]; then
-          echo "Skipping..."
+        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" -ne awset ]]; then
+          echo "Skipping ${SIMULATION}..."
         else
 
           IMAGE=${IMAGE} \
