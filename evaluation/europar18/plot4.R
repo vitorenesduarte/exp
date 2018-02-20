@@ -7,11 +7,11 @@ main <- function() {
 
   clusters <- c(
     "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 30~gmap~partialmesh"
+    "ls -d processed/* | grep -v False~True | grep -v True~False | grep 100~gmap~partialmesh"
   )
   titles <- c(
     "GMap 10%",
-    "GMap 30%"
+    "GMap 100%"
   )
   labels <- c(
     "State-based",
