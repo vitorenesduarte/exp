@@ -32,6 +32,8 @@ fi
 # start dashboard
 #"${DIR}"/lsim-dash-deploy.sh
 
+# ensures each node only
+# has one pod running (if nodes have 8 CPU)
 CPU=7
 
 # overlay nodes
