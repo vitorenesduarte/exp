@@ -134,7 +134,7 @@ get_specs(Simulation) ->
 
         gmap ->
             StartFun = fun() ->
-                Type = {gmap, [gcounter]},
+                Type = {gmap, [max_int]},
                 ldb:create(?KEY, Type)
             end,
             EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
@@ -160,7 +160,9 @@ get_specs(Simulation) ->
                 Keys = lists:sublist(MyKeys, KeysPerIteration),
 
                 Ops = lists:map(fun(Key) -> {Key, increment} end, Keys),
-                ldb:update(?KEY, {apply_all, [{gmap_events, increment} | Ops]})
+                %% TODO support rewriting of ops in ldb
+                EventOp = {gmap_events, state_gcounter, increment},
+                ldb:update(?KEY, {apply_all, [EventOp | Ops]})
             end,
             TotalEventsFun = fun() ->
                 {ok, Query} = ldb:query(?KEY),

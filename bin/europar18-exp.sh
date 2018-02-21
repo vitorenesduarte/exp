@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 REPS=1
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
 IMAGE=${DOCKER_USER}/exp-copy
 DOCKERFILE=${DIR}/../Dockerfiles/exp-copy
@@ -57,13 +57,13 @@ NODE_EVENT_NUMBER=100
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_links
 LDB_=(
-   #"delta_based state_driven  true      true      one"
-   #"delta_based none          true      true      one"
-   "delta_based none          true      true      none"
-   "delta_based none          true      false     none"
-   "delta_based none          false     true      none"
-   "delta_based none          false     false     none"
    "state_based none          undefined undefined none"
+   "delta_based none          false     false     none"
+   "delta_based none          false     true      none"
+   "delta_based none          true      false     none"
+   "delta_based none          true      true      none"
+   "delta_based none          true      true      one"
+   "delta_based state_driven  true      true      one"
 )
 
 # shellcheck disable=SC2034
@@ -104,9 +104,6 @@ for REP in $(seq 1 $REPS); do
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
             CPU=${CPU} "${DIR}"/deploy-exp.sh
-
-          # fetch logs from redis
-          ${DIR}/start-redis-sync.sh
         fi
       done
     done
