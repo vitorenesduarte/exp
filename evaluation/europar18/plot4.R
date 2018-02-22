@@ -1,5 +1,5 @@
-source("lib/util.R")
-source("lib/generic.R")
+source("util.R")
+source("generic.R")
 
 # draw!
 main <- function() {
@@ -58,7 +58,7 @@ main <- function() {
     lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
 
     # plot cdf
-    y_max <- 0.95
+    y_max <- .94
     y_step <- 0.01
     plot_cdf(title_a, lines_a, colors, y_max, y_step)
     plot_cdf(title_b, lines_b, colors, y_max, y_step)
