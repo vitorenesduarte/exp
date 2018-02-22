@@ -12,6 +12,7 @@
 From the root of the repository:
 
 ```bash
+$ make
 $ bin/europar18-exp.sh
 ```
 
