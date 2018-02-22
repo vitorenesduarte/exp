@@ -1,9 +1,9 @@
-source("lib/util.R")
-source("lib/generic.R")
+source("util.R")
+source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot4.png"
+  output_file <- "plot5.png"
 
   clusters <- c(
     "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
@@ -51,20 +51,20 @@ main <- function() {
     key_a <- "latency_local"
     key_b <- "latency_remote"
 
-		# data
+    # data
     title_a <- paste(titles[i], "Sender", sep=" - ")
     title_b <- paste(titles[i], "Receiver", sep=" - ")
     lines_a <- lapply(files, function(f) { json(c(f))[[key_a]] })
     lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
 
-		# plot cdf
-		plot_cdf(title_a, lines_a, colors)
-		plot_cdf(title_b, lines_b, colors)
+    # plot cdf
+    plot_box(title_a, lines_a, colors)
+    plot_box(title_b, lines_b, colors)
   }
 
   # axis labels
   x_axis_label("Processing (ms)")
-	y_axis_label("CDF")
+  y_axis_label("CDF")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

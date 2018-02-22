@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+DIR=$(dirname "$0")
+
 ENV_VARS=(
   IMAGE
   PULL_IMAGE
@@ -189,8 +191,12 @@ EOF
 
 kubectl create -f "${FILE}"
 
+# wait until the end of the experiment
 while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2> /dev/null | wc -l) -gt 0 ]; do
-    sleep 1
+  sleep 3
 done
+
+# fetch logs from redis
+${DIR}/start-redis-sync.sh
 
 echo "[$(date +%T)] Done!"

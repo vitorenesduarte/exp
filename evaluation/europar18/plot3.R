@@ -1,29 +1,28 @@
-source("lib/util.R")
-source("lib/generic.R")
+source("util.R")
+source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot2.png"
+  output_file <- "plot3.png"
 
   clusters <- c(
+    "ls -d processed/* | grep 0~gset~tree",
+    "ls -d processed/* | grep 0~gcounter~tree",
     "ls -d processed/* | grep 10~gmap~tree",
-    "ls -d processed/* | grep 30~gmap~tree",
-    "ls -d processed/* | grep 60~gmap~tree",
     "ls -d processed/* | grep 100~gmap~tree",
+    "ls -d processed/* | grep 0~gset~partialmesh",
+    "ls -d processed/* | grep 0~gcounter~partialmesh",
     "ls -d processed/* | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep 30~gmap~partialmesh",
-    "ls -d processed/* | grep 60~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
   titles <- c(
+    "GSet - Tree",
+    "GCounter - Tree",
     "GMap 10% - Tree",
-    "GMap 30% - Tree",
-    "GMap 60% - Tree",
     "GMap 100% - Tree",
+    "GSet - Mesh",
+    "GCounter - Mesh",
     "GMap 10% - Mesh",
-    "GMap 30% - Mesh",
-    "GMap 60% - Mesh",
     "GMap 100% - Mesh"
   )
   labels <- c(
@@ -42,9 +41,9 @@ main <- function() {
 
   # change outer margins
   op <- par(
-    oma=c(5,3,0,0),   # room for the legend
+    oma=c(3,3,0,0),   # room for the legend
     mfrow=c(2,4),      # 2x4 matrix
-    mar=c(2,2,3,1) # spacing between plots
+    mar=c(1,2,3,1) # spacing between plots
   )
 
   # style stuff
@@ -55,6 +54,8 @@ main <- function() {
     "darkorange1",
     "red4"
   )
+  angles <- c(0, 45, 135, 45, 135)
+  densities <- c(0, 15, 15, 30, 30)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -63,21 +64,32 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_1_compressed_x"
-    key_y <- "transmission_1_compressed"
+    key_a <- "memory_crdt"
+    key_b <- "memory_algorithm"
 
     # data
     title <- titles[i]
-    lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
-    lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+    lines <- map(
+      files,
+      function(f) {
+        data <- json(c(f))
+        avg_a <- mean(data[[key_a]])
+        avg_b <- mean(data[[key_b]])
+        avg_a + avg_b
+      }
+    )
 
-    # plot lines
-    plot_lines(title, lines_x, lines_y, colors)
+    # min (state-based)
+    state_based <- Reduce(min, lines)
+    lines <- map(lines, function(v) { v / state_based })
+
+    # plot bars
+    y_min <- 0
+    plot_bars(title, lines, y_min, colors, angles, densities)
   }
 
   # axis labels
-  x_axis_label("Time (s)")
-  y_axis_label("Transmission")
+  y_axis_label("Avg. Memory ratio wrto State-based")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -85,12 +97,13 @@ main <- function() {
 
   # legend
   legend(
-    -.03, # x
+    -.08, # x
     -.2,  # y 
     cex=1.1,
     legend=labels,
-    pch=c(1:10),
-    col=colors,
+    angle=angles,
+    density=densities,
+    fill=colors,
     horiz=TRUE,
     box.col=NA # remove box
   )

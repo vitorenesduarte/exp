@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+NTYPES=$(awk '{ print $2 }' nodesTable | sort -u | wc -l | xargs echo)
+
+if [ ${NTYPES} -ne 1 ]; then
+  echo "Found more than one machine type. Quiting..."
+  exit -1
+fi
+
 USER=$(grep user emulab.config  | cut -d= -f2)
 RED='\033[0;31m'
 NC='\033[0m' # No Color

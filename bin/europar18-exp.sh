@@ -3,34 +3,11 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy
-DOCKERFILE=${DIR}/../Dockerfiles/exp-copy
-
-# always pull image,
-# unless local
+IMAGE=${DOCKER_USER}/exp-copy:europar18
 PULL_IMAGE=Always
-
-if [ "$1" == "build" ]; then
-  # build and push
-  IMAGE=${IMAGE} \
-    DOCKERFILE=${DOCKERFILE} "${DIR}"/image.sh
-
-elif [ "$1" == "local" ]; then
-  # build locally
-  eval $(minikube docker-env)
-  docker build \
-         --no-cache \
-         -t "${IMAGE}" -f "${DOCKERFILE}" .
-
-  # use the new image
-  PULL_IMAGE=Never
-fi
 
 # start redis
 "${DIR}"/redis-deploy.sh
-
-# start dashboard
-#"${DIR}"/lsim-dash-deploy.sh
 
 # ensures each node only
 # has one pod running (if nodes have 8 CPU)
@@ -39,17 +16,17 @@ CPU=7
 # overlay nodes
 OVERLAY_CONFIG_=(
    "partialmesh 16"
-   "tree 14"
+   "tree        14"
 )
 
 # exp configuration
 SIM_CONFIG_=(
-  "gset 0"
+  "gset     0"
   "gcounter 0"
-  "gmap 10"
-  "gmap 30"
-  "gmap 60"
-  "gmap 100"
+  "gmap     10"
+  "gmap     30"
+  "gmap     60"
+  "gmap     100"
 )
 NODE_EVENT_NUMBER=100
 
@@ -57,13 +34,11 @@ NODE_EVENT_NUMBER=100
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_links
 LDB_=(
-   "state_based none          undefined undefined none"
-   "delta_based none          false     false     none"
-   "delta_based none          true      false     none"
-   "delta_based none          false     true      none"
-   "delta_based none          true      true      none"
-   "delta_based none          true      true      one"
-   "delta_based state_driven  true      true      one"
+   "state_based none undefined undefined none"
+   "delta_based none false     false     none"
+   "delta_based none true      false     none"
+   "delta_based none false     true      none"
+   "delta_based none true      true      none"
 )
 
 # shellcheck disable=SC2034
