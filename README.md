@@ -9,7 +9,7 @@
 - __LDB_MODE__:
   - `state_based`
   - `delta_based`
-  - `pure_op_based`
+  - `scuttlebutt`
 - __LDB_DRIVEN_MODE__:
   - `none`
   - `state_driven`
