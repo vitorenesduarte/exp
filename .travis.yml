@@ -1,7 +1,7 @@
 sudo: false
 language: erlang
 otp_release:
-  - 21.1
+  - 21.0
 addons:
   apt:
     sources:
