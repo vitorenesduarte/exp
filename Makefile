@@ -13,7 +13,7 @@ check: test xref dialyzer lint
 test: ct eunit
 	${REBAR} cover -v
 
-lint: erl-lint #shell-lint docker-lint
+lint: erl-lint
 
 erl-lint:
 	${REBAR} as lint lint

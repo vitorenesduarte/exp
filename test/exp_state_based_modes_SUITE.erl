@@ -69,7 +69,9 @@ all() ->
      state_based_ring_test,
      state_based_hyparview_test,
      delta_based_ring_test,
-     delta_based_revisited_ring_test
+     delta_based_revisited_ring_test,
+     scuttlebutt_ring_test,
+     scuttlebutt_hyparview_test
     ].
 
 %% ===================================================================
@@ -87,6 +89,12 @@ delta_based_ring_test(_Config) ->
 
 delta_based_revisited_ring_test(_Config) ->
     run(delta_based_revisited, ring).
+
+scuttlebutt_ring_test(_Config) ->
+    run(scuttlebutt, ring).
+
+scuttlebutt_hyparview_test(_Config) ->
+    run(scuttlebutt, hyparview).
 
 %% @private
 run(Evaluation, Overlay) ->
@@ -111,4 +119,6 @@ get_config(state_based) ->
 get_config(delta_based) ->
     {delta_based, false, false};
 get_config(delta_based_revisited) ->
-    {delta_based, true, true}.
+    {delta_based, true, true};
+get_config(scuttlebutt) ->
+    {scuttlebutt, false, false}.
