@@ -5,7 +5,7 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-default: disc show
+default: ipdps show
 
 all: pre default
 
@@ -13,12 +13,12 @@ pre: preprocess.py
 	rm -rf processed
 	python preprocess.py
 
-disc: pre
-	Rscript disc18/plot0.R
-	Rscript disc18/plot1.R
-	Rscript disc18/plot2.R
-	Rscript disc18/plot3.R
-	Rscript disc18/plot4.R
+ipdps: pre
+	Rscript ipdps19/plot0.R
+	Rscript ipdps19/plot1.R
+	Rscript ipdps19/plot2.R
+	Rscript ipdps19/plot3.R
+	Rscript ipdps19/plot4.R
 
 show:
 	$(VIEWER) *.png

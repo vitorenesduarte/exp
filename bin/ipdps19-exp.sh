@@ -34,6 +34,7 @@ NODE_EVENT_NUMBER=100
 LDB_STATE_SYNC_INTERVAL=1000
 # mode driven_mode bp rr break_links
 LDB_=(
+   "scuttlebutt none undefined undefined none"
    "state_based none undefined undefined none"
    "delta_based none false     false     none"
    "delta_based none true      false     none"
