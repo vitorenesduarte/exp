@@ -48,7 +48,7 @@ echo -e "sudo kubectl create clusterrolebinding add-on-cluster-admin --clusterro
 for NODE in ${NODES[@]};
 do
   echo "$arg1 $NODE $USER" &&
-    ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE".emulab.net 'bash -s' < $INIT_NODE &&
+    ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE" 'bash -s' < $INIT_NODE &&
     echo -e "ssh... ${GREEN}successfull${NC}"
 done 
 echo -e "${GREEN}init-master.sh DONE${NC}"
