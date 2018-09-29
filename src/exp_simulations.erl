@@ -114,8 +114,7 @@ get_specs(Simulation) ->
 
         gset ->
             StartFun = fun() ->
-                ldb:create(?KEY, gset),
-                ldb_metrics:update_ignore_keys(sets:from_list(["gmap_events"]))
+                ldb:create(?KEY, gset)
             end,
             EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber) ->
                 Element = create_element(EventNumber),
@@ -136,7 +135,8 @@ get_specs(Simulation) ->
         gmap ->
             StartFun = fun() ->
                 ldb:create(?KEY, lwwmap),
-                ldb:create("gmap_events", gcounter)
+                ldb:create("gmap_events", gcounter),
+                ldb_metrics:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
             EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
                 Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
