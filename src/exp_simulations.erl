@@ -114,7 +114,8 @@ get_specs(Simulation) ->
 
         gset ->
             StartFun = fun() ->
-                ldb:create(?KEY, gset)
+                ldb:create(?KEY, gset),
+                ldb_metrics:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
             EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber) ->
                 Element = create_element(EventNumber),
