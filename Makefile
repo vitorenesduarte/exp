@@ -1,7 +1,7 @@
 PACKAGE         ?= exp
 REBAR            = $(shell pwd)/rebar3
 
-.PHONY: test
+.PHONY: test rel
 
 all: compile
 
@@ -42,8 +42,15 @@ cover: test
 shell:
 	${REBAR} shell --apps ${PACKAGE}
 
-stage:
-	${REBAR} release -d
+rel:
+	rm -rf _build/default/rel/
+	${REBAR} release
+
+modes:
+	pkill -9 beam.smp ; rm -rf priv/lager ; ${REBAR} ct --readable=false --verbose --suite exp_modes_SUITE
+
+simulations:
+	pkill -9 beam.smp ; rm -rf priv/lager ; ${REBAR} ct --readable=false --verbose --suite exp_simulations_SUITE
 
 logs:
 	  tail -F priv/lager/*/log/*.log

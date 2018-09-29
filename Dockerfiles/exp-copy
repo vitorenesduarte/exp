@@ -1,16 +1,13 @@
-FROM vitorenesduarte/exp-base
+FROM erlang:20.2.2-slim
 
 MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
+ARG profile=default
+
 ENV NAME=/exp
 
-COPY bin $NAME/bin/
-COPY config $NAME/config/
-COPY include $NAME/include/
-COPY src $NAME/src/
-COPY rebar3 rebar.config rebar.lock Makefile $NAME/
+COPY _build/${profile}/rel/$NAME $NAME
 
 WORKDIR $NAME
-RUN make stage
 
-CMD make run
+CMD ["bin/env"]
