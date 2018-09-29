@@ -66,10 +66,10 @@ end_per_testcase(Case, Config) ->
 
 all() ->
     [
-     % state_based_ring_test,
-     % state_based_hyparview_test,
-     % delta_based_ring_test,
-     % delta_based_revisited_ring_test,
+     state_based_ring_test,
+     state_based_hyparview_test,
+     delta_based_ring_test,
+     delta_based_revisited_ring_test,
      scuttlebutt_ring_test,
      scuttlebutt_hyparview_test
     ].
