@@ -445,8 +445,10 @@ def get_score(type):
 
     if mode == "state_based":
         score += 1000
-    elif mode == "delta_based":
+    elif mode == "scuttlebutt":
         score += 2000
+    elif mode == "delta_based":
+        score += 3000
     else:
         error("Mode not found")
 

@@ -20,6 +20,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Scuttlebutt",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -45,10 +46,11 @@ main <- function() {
     "steelblue4",
     "springgreen4",
     "darkorange1",
-    "red4"
+    "red4",
+    "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30)
+  angles <- c(0, 45, 135, 45, 135, 45)
+  densities <- c(0, 15, 15, 30, 30, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -83,7 +85,7 @@ main <- function() {
   legend(
     -.05, # x
     -.5,  # y 
-    cex=1.05,
+    cex=0.9,
     legend=labels,
     angle=angles,
     density=densities,

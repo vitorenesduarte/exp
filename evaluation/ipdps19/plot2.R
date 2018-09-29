@@ -28,6 +28,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Scuttlebutt",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -53,7 +54,8 @@ main <- function() {
     "steelblue4",
     "springgreen4",
     "darkorange1",
-    "red4"
+    "red4",
+    "gray22"
   )
 
   for(i in 1:length(clusters)) {
@@ -87,7 +89,7 @@ main <- function() {
   legend(
     -.03, # x
     -.2,  # y 
-    cex=1.1,
+    cex=0.92,
     legend=labels,
     pch=c(1:10),
     col=colors,
