@@ -6,7 +6,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"a65a8156020e10db115477dd6324e830e3767dda"}},
+       {ref,"b8847b9bbe1f07a9af3a9bb2af717dae5882269d"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
@@ -17,7 +17,7 @@
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
  {<<"types">>,
   {git,"https://github.com/vitorenesduarte/types",
-       {ref,"5c3f30795f6126ffd42af1c8a01717be2c638fbb"}},
+       {ref,"16ad6082f002a152899fbdd3d79ebb30d6ccb845"}},
   0}]}.
 [
 {pkg_hash,[
