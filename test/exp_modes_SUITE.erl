@@ -41,7 +41,7 @@
 
 -define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 5).
--define(SIMULATION, gset).
+-define(SIMULATION, gcounter).
 
 %% ===================================================================
 %% common_test callbacks
