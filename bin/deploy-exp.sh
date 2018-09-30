@@ -6,7 +6,6 @@ ENV_VARS=(
   IMAGE
   PULL_IMAGE
   LDB_MODE
-  LDB_DRIVEN_MODE
   LDB_STATE_SYNC_INTERVAL
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
@@ -31,7 +30,6 @@ echo "[$(date +%T)] Configuration: "
 echo "    IMAGE: ${IMAGE}"
 echo "    PULL_IMAGE: ${PULL_IMAGE}"
 echo "    LDB_MODE: ${LDB_MODE}"
-echo "    LDB_DRIVEN_MODE: ${LDB_DRIVEN_MODE}"
 echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
@@ -100,8 +98,6 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS
@@ -163,8 +159,6 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS

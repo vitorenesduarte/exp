@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:europar18
+IMAGE=${DOCKER_USER}/exp-copy:ipdps19
 PULL_IMAGE=Always
 
 # start redis
@@ -32,14 +32,14 @@ NODE_EVENT_NUMBER=100
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
-# mode driven_mode bp rr break_links
+# mode bp rr break_links
 LDB_=(
-   "scuttlebutt none undefined undefined none"
-   "state_based none undefined undefined none"
-   "delta_based none false     false     none"
-   "delta_based none true      false     none"
-   "delta_based none false     true      none"
-   "delta_based none true      true      none"
+   "state_based undefined undefined none"
+   "scuttlebutt undefined undefined none"
+   "delta_based false     false     none"
+   "delta_based true      false     none"
+   "delta_based false     true      none"
+   "delta_based true      true      none"
 )
 
 # shellcheck disable=SC2034
@@ -57,19 +57,13 @@ for REP in $(seq 1 $REPS); do
       for LDB in "${LDB_[@]}"; do
         LDB=($(echo ${LDB} | tr ' ' '\n'))
         LDB_MODE=${LDB[0]}
-        LDB_DRIVEN_MODE=${LDB[1]}
-        LDB_DGROUP_BACK_PROPAGATION=${LDB[2]}
-        LDB_REDUNDANT_DGROUPS=${LDB[3]}
-        BREAK_LINKS=${LDB[4]}
+        LDB_DGROUP_BACK_PROPAGATION=${LDB[1]}
+        LDB_REDUNDANT_DGROUPS=${LDB[2]}
+        BREAK_LINKS=${LDB[3]}
 
-        if [[ "$LDB_DRIVEN_MODE" = digest_driven ]] && [[ "$SIMULATION" -ne awset ]]; then
-          echo "Skipping ${SIMULATION}..."
-        else
-
-          IMAGE=${IMAGE} \
+        IMAGE=${IMAGE} \
             PULL_IMAGE=${PULL_IMAGE} \
             LDB_MODE=${LDB_MODE} \
-            LDB_DRIVEN_MODE=${LDB_DRIVEN_MODE} \
             LDB_STATE_SYNC_INTERVAL=${LDB_STATE_SYNC_INTERVAL} \
             LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
             LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
@@ -80,7 +74,6 @@ for REP in $(seq 1 $REPS); do
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
             CPU=${CPU} "${DIR}"/deploy-exp.sh
-        fi
       done
     done
   done
