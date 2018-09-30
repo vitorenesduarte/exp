@@ -74,7 +74,6 @@ def key(config):
         "exp_node_number",
         "exp_break_links",
         "ldb_mode",
-        "ldb_driven_mode",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -356,16 +355,17 @@ def aggregate(d):
 
         def get_compress_index(key):
             m = {
-                1110: 1,
-                2120: 3,
-                2130: 0,
-                2140: 2,
-                2150: 4
+                110: 1,
+                210: 5,
+                320: 3,
+                330: 0,
+                340: 2,
+                350: 4
             }
 
             score = get_score(key)
             if score in m:
-                return (COMPRESS * m[score]) / 5
+                return (COMPRESS * m[score]) / len(m)
             else:
                 return 0
 
@@ -440,27 +440,17 @@ def get_score(type):
 
     parts = type.split("~")
     mode = parts[5]
-    driven_mode = parts[6]
-    delta_mode = "_".join(parts[7:])
+    delta_mode = "_".join(parts[6:])
 
     if mode == "state_based":
-        score += 1000
+        score += 100
     elif mode == "scuttlebutt":
-        score += 2000
+        score += 200
     elif mode == "delta_based":
-        score += 3000
+        score += 300
     else:
         error("Mode not found")
 
-    if driven_mode == "none":
-        score += 100
-    elif driven_mode == "state_driven":
-        score += 200
-    elif driven_mode == "digest_driven":
-        score += 300
-    else:
-        error("Driven mode not found")
-        
     if delta_mode == "undefined_undefined":
         score += 10
     elif delta_mode == "False_False":

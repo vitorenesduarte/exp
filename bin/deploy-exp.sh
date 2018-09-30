@@ -59,7 +59,7 @@ PEER_PORT=6866
 # DEPLOYMENT:
 # Deployment names
 RSG_NAME=rsg-${TIMESTAMP}
-LSIM_NAME=exp-${TIMESTAMP}
+EXP_NAME=exp-${TIMESTAMP}
 
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
@@ -122,7 +122,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "${LSIM_NAME}"
+  name: "${EXP_NAME}"
 spec:
   replicas: ${NODE_NUMBER}
   template:
@@ -132,7 +132,7 @@ spec:
         tag: exp
     spec:
       containers:
-      - name: "${LSIM_NAME}"
+      - name: "${EXP_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
         resources:
