@@ -356,11 +356,11 @@ def aggregate(d):
         def get_compress_index(key):
             m = {
                 110: 1,
-                210: 5,
-                320: 3,
+                210: 2,
+                320: 4,
                 330: 0,
-                340: 2,
-                350: 4
+                340: 3,
+                350: 5
             }
 
             score = get_score(key)

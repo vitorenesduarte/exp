@@ -19,6 +19,7 @@ ipdps: pre
 	Rscript ipdps19/plot2.R
 	Rscript ipdps19/plot3.R
 	Rscript ipdps19/plot4.R
+	Rscript ipdps19/plot6.R
 
 show:
 	$(VIEWER) *.png
