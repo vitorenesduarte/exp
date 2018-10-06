@@ -14,6 +14,7 @@ pre: preprocess.py
 	python preprocess.py
 
 ipdps: pre
+	Rscript ipdps19/first.R
 	Rscript ipdps19/plot0.R
 	Rscript ipdps19/plot1.R
 	Rscript ipdps19/plot2.R

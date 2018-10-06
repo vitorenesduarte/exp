@@ -10,7 +10,7 @@ TS="ts"
 SIZE="size"
 #RATIO=[1, 4, 16, 32, 64]
 RATIO=[1]
-COMPRESS=15 # every x
+COMPRESS=12 # every x
 #MAX_TIME=60
 
 def error(message):
@@ -358,9 +358,9 @@ def aggregate(d):
                 110: 1,
                 210: 2,
                 320: 4,
-                330: 0,
+                330: 5,
                 340: 3,
-                350: 5
+                350: 0
             }
 
             score = get_score(key)
