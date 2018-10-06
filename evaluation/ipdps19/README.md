@@ -13,13 +13,13 @@ From the root of the repository:
 
 ```bash
 $ make
-$ bin/disc18-exp.sh
+$ bin/ipdps19-exp.sh
 ```
 
 When it ends:
 ```bash
 $ cd evaluation/
-$ make disc
+$ make all
 ```
 
 The plots:

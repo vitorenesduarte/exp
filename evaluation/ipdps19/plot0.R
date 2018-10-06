@@ -31,13 +31,13 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=650, res=240)
+  png(filename=output_file, width=800, height=650, res=130)
 
   # change outer margins
   op <- par(
-    oma=c(4,3,3,0),   # room for the legend
-    mfrow=c(1,4),      # 2x4 matrix
-    mar=c(2,2,3,1) # spacing between plots
+    oma=c(3.5,2,0,0),   # room for the legend
+    mfrow=c(2,2),      # 2x4 matrix
+    mar=c(2,2,2,1) # spacing between plots
   )
 
   # style stuff
@@ -83,14 +83,14 @@ main <- function() {
 
   # legend
   legend(
-    -.05, # x
-    -.5,  # y 
-    cex=0.9,
+    0.1, # x
+    -.06,  # y 
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,
     fill=colors,
-    horiz=TRUE,
+    ncol=2,
     box.col=NA # remove box
   )
 

@@ -6,20 +6,12 @@ main <- function() {
   output_file <- "plot3.png"
 
   clusters <- c(
-    "ls -d processed/* | grep 0~gset~tree",
-    "ls -d processed/* | grep 0~gcounter~tree",
-    "ls -d processed/* | grep 10~gmap~tree",
-    "ls -d processed/* | grep 100~gmap~tree",
     "ls -d processed/* | grep 0~gset~partialmesh",
     "ls -d processed/* | grep 0~gcounter~partialmesh",
     "ls -d processed/* | grep 10~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
   titles <- c(
-    "GSet - Tree",
-    "GCounter - Tree",
-    "GMap 10% - Tree",
-    "GMap 100% - Tree",
     "GSet - Mesh",
     "GCounter - Mesh",
     "GMap 10% - Mesh",
@@ -38,13 +30,13 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=1200, res=240)
+  png(filename=output_file, width=800, height=650, res=130)
 
   # change outer margins
   op <- par(
-    oma=c(3,3,0,0),   # room for the legend
-    mfrow=c(2,4),      # 2x4 matrix
-    mar=c(1,2,3,1) # spacing between plots
+    oma=c(3.5,2,0,0),   # room for the legend
+    mfrow=c(2,2),      # 2x4 matrix
+    mar=c(2,2,2,1) # spacing between plots
   )
 
   # style stuff
@@ -99,14 +91,14 @@ main <- function() {
 
   # legend
   legend(
-    -.08, # x
-    -.2,  # y 
-    cex=0.92,
+    0.1, # x
+    -.06,  # y 
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,
     fill=colors,
-    horiz=TRUE,
+    ncol=2,
     box.col=NA # remove box
   )
 

@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "first.png"
+  output_file <- "second.png"
 
   cluster <- "ls -d processed/* | grep gset~partialmesh | grep -v scuttlebutt | grep -v False~True | grep -v True~False"
 
@@ -17,11 +17,11 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=600, height=400, res=110)
+  png(filename=output_file, width=200, height=410, res=110)
 5
   # change outer margins
   op <- par(
-    oma=c(4,2,0,0),   # room for the legend
+    oma=c(5,2,1,0),   # room for the legend
     mfrow=c(1,1),      # 2x4 matrix
     mar=c(1.5,1.5,0.5,0.5) # spacing between plots
   )
@@ -32,6 +32,8 @@ main <- function() {
     "springgreen4",
     "gray22"
   )
+  angles <- c(0, 135, 45)
+  densities <- c(0, 15, 45)
 
   files <- system(cluster, intern=TRUE)
 
@@ -39,20 +41,25 @@ main <- function() {
   if(length(files) == 0) next
 
   # keys
-  key_x <- "transmission_1_compressed_x"
-  key_y <- "transmission_1_compressed"
+  key_a <- "latency_local"
+  key_b <- "latency_remote"
 
   # data
   title <- ""
-  lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
-  lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+  local <- lapply(files, function(f) { json(c(f))[[key_a]] })
+  remote <- lapply(files, function(f) { json(c(f))[[key_b]] })
+  lines <- lapply(1:length(labels), function(j) { sum(local[[j]]) + sum(remote[[j]]) })
 
-  # plot lines
-  plot_lines(title, lines_x, lines_y, colors)
+  # wrto (state-based)
+  state_based <- lines[[1]]
+  lines <- map(lines, function(v) { v / state_based })
+
+  # plot bars
+  y_min <- 0
+  plot_bars(title, lines, y_min, colors, angles, densities, 0.8)
 
   # axis labels
-  x_axis_label("Time (s)")
-  y_axis_label("Number of set elements")
+  y_axis_label("Processing time wrto State-based")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -60,13 +67,13 @@ main <- function() {
 
   # legend
   legend(
-    0.05, # x
-    -.32,  # y 
+    -.65, # x
+    -.11,  # y 
     cex=0.95,
     legend=labels,
     pch=c(1:10),
     col=colors,
-    horiz=TRUE,
+    horiz=FALSE,
     box.col=NA # remove box
   )
 

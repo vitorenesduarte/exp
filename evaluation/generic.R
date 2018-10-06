@@ -22,7 +22,7 @@ y_axis_label <- function(text) {
 }
 
 add_title <- function(text) {
-  title(text, cex.main=1.5, line=0.7)
+  title(text, cex.main=1.3, line=0.7)
 }
 
 plot_bars <- function(title, lines, y_min, colors, angles, densities, bar_cex=1) {
