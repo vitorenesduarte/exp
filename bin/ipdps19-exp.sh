@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:ipdps19
+IMAGE=${DOCKER_USER}/exp-copy:BLA
 PULL_IMAGE=Always
 
 # start redis
@@ -15,8 +15,8 @@ CPU=7
 
 # overlay nodes
 OVERLAY_CONFIG_=(
-   "partialmesh 16"
-   "tree        14"
+   "partialmesh 15"
+   "tree        15"
 )
 
 # exp configuration

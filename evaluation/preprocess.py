@@ -356,11 +356,12 @@ def aggregate(d):
         def get_compress_index(key):
             m = {
                 110: 1,
-                210: 2,
-                320: 4,
-                330: 5,
-                340: 3,
-                350: 0
+                210: 5,
+                310: 2,
+                420: 4,
+                430: 6,
+                440: 3,
+                450: 0
             }
 
             score = get_score(key)
@@ -444,10 +445,12 @@ def get_score(type):
 
     if mode == "state_based":
         score += 100
-    elif mode == "scuttlebutt":
+    elif mode == "vanilla_scuttlebutt":
         score += 200
-    elif mode == "delta_based":
+    elif mode == "scuttlebutt":
         score += 300
+    elif mode == "delta_based":
+        score += 400
     else:
         error("Mode not found")
 
