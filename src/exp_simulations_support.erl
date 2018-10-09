@@ -55,50 +55,41 @@ push_exp_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    TimeSeries = ldb_metrics:get_time_series(),
-    Latency = ldb_metrics:get_latency(),
-    TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
-    MemoryTS = filter_by_ts_class(memory, TimeSeries),
+    {Transmission0, Memory0, Processing} = ldb_metrics:get_all(),
 
     %% process transmission
-    All0 = lists:foldl(
-        fun({Timestamp, transmission, {MSize, PSize}}, Acc0) ->
+    Transmission = maps:fold(
+        fun(Timestamp, {A, B}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [MSize, PSize]}],
-            orddict:append(transmission, V, Acc0)
+                 {size, [A, B]}],
+            [V | Acc]
         end,
-        orddict:new(),
-        TransmissionTS
+        [],
+        Transmission0
     ),
 
     %% process memory
-    All1 = lists:foldl(
-        fun({Timestamp, memory, {{MCRDTSize, PCRDTSize}, {MRestSize, PRestSize}}}, Acc0) ->
+    Memory = maps:fold(
+        fun(Timestamp, {{A, B}, {C, D}}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [MCRDTSize, PCRDTSize, MRestSize, PRestSize]}],
-            orddict:append(memory, V, Acc0)
+                 {size, [A, B, C, D]}],
+            [V | Acc]
         end,
-        All0,
-        MemoryTS
+        [],
+        Memory0
     ),
 
-    %% process latency
-    All2 = orddict:store(latency, Latency, All1),
+    All = [
+        {transmission, Transmission},
+        {memory, Memory},
+        {processing, Processing}
+    ],
 
     FilePath = file_path(ldb_config:id()),
-    File = ldb_json:encode(All2),
+    File = ldb_json:encode(All),
 
     store(FilePath, File),
     ok.
-
-%% @private
-filter_by_ts_class(Class, TS) ->
-    lists:filter(
-        fun({_, MClass, _}) ->
-                MClass == Class
-        end,
-        TS
-    ).
 
 %% @private
 file_path(Name) ->
@@ -112,10 +103,8 @@ get_configs(App, Vars) ->
     lists:map(
         fun(Var) ->
             Mod = case App of
-                ldb ->
-                    ldb_config;
-                exp ->
-                    exp_config
+                ldb -> ldb_config;
+                exp -> exp_config
             end,
             {Var, Mod:get(Var)}
         end,
