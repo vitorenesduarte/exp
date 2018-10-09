@@ -61,7 +61,7 @@ main <- function() {
     key <- "processing"
 
     # data
-    title <- ""
+    title <- titles[i]
     lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
     # wrto (r)

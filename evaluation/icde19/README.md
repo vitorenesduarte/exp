@@ -13,7 +13,7 @@ From the root of the repository:
 
 ```bash
 $ make
-$ bin/ipdps19-exp.sh
+$ bin/icde19-exp.sh
 ```
 
 When it ends:
@@ -25,5 +25,4 @@ $ make all
 The plots:
 ```bash
 $ ls *.png
-plot0.png  plot1.png  plot2.png  plot3.png  plot4.png
 ```

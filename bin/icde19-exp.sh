@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:BLA
+IMAGE=${DOCKER_USER}/exp-copy:metrics
 PULL_IMAGE=Always
 
 # start redis
