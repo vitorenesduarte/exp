@@ -42,6 +42,10 @@ LDB_=(
    "delta_based true      true      none"
 )
 
+# number of experiments
+NEXP=$((${#OVERLAY_CONFIG_[@]} * ${#SIM_CONFIG_[@]} * ${#LDB_[@]}))
+EXP=1
+
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS); do
   for OVERLAY_CONFIG in "${OVERLAY_CONFIG_[@]}"; do
@@ -74,6 +78,9 @@ for REP in $(seq 1 $REPS); do
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
             BREAK_LINKS=${BREAK_LINKS} \
             CPU=${CPU} "${DIR}"/deploy-exp.sh
+
+        echo "[$(date +%T)] ${EXP} of ${NEXP} ended!"
+        EXP=$((EXP + 1))
       done
     done
   done
