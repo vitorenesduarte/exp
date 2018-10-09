@@ -3,19 +3,20 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot3.png"
+  output_file <- "gset_gcounter.png"
 
   clusters <- c(
-    "ls -d processed/* | grep 0~gset~partialmesh",
-    "ls -d processed/* | grep 0~gcounter~partialmesh",
-    "ls -d processed/* | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep 100~gmap~partialmesh"
+    "ls -d processed/* | grep gset~tree",
+    "ls -d processed/* | grep gset~partialmesh",
+    "ls -d processed/* | grep gcounter~tree",
+    "ls -d processed/* | grep gcounter~partialmesh"
   )
+  ## 0 transmission
   titles <- c(
+    "GSet - Tree",
     "GSet - Mesh",
-    "GCounter - Mesh",
-    "GMap 10% - Mesh",
-    "GMap 100% - Mesh"
+    "GCounter - Tree",
+    "GCounter - Mesh"
   )
   labels <- c(
     "State-based",
@@ -58,20 +59,11 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_a <- "memory_crdt"
-    key_b <- "memory_algorithm"
+    key <- "transmission"
 
     # data
     title <- titles[i]
-    lines <- map(
-      files,
-      function(f) {
-        data <- json(c(f))
-        avg_a <- mean(data[[key_a]])
-        avg_b <- mean(data[[key_b]])
-        avg_a + avg_b
-      }
-    )
+    lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
 
     # (wrto rr)
     if(length(lines) == length(labels)) {
@@ -79,14 +71,14 @@ main <- function() {
       rr <- lines[[rr_index]]
       lines <- map(lines, function(v) { v / rr })
 
-      # plot bars
+      # plot lines
       y_min <- 0
       plot_bars(title, lines, y_min, colors, angles, densities)
     }
   }
 
   # axis labels
-  y_axis_label("Avg. Memory ratio wrto BP+RR")
+  y_axis_label("Transmission ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

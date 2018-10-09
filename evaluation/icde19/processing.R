@@ -3,20 +3,19 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot0.png"
+  output_file <- "processing.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh",
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gcounter~partialmesh"
+    "ls -d processed/* | grep 0~gset~partialmesh",
+    "ls -d processed/* | grep 0~gcounter~partialmesh",
+    "ls -d processed/* | grep 10~gmap~partialmesh",
+    "ls -d processed/* | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
   titles <- c(
-    "GSet - Tree",
     "GSet - Mesh",
-    "GCounter - Tree",
-    "GCounter - Mesh"
+    "GCounter - Mesh",
+    "GMap 10% - Mesh",
+    "GMap 100% - Mesh"
   )
   labels <- c(
     "State-based",
@@ -59,26 +58,26 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key <- "transmission"
+    key <- "processing"
 
     # data
     title <- titles[i]
-    lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
+    lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
-    # (wrto rr)
+    # wrto (r)
     if(length(lines) == length(labels)) {
       rr_index <- length(labels)
       rr <- lines[[rr_index]]
       lines <- map(lines, function(v) { v / rr })
 
-      # plot lines
+      # plot bars
       y_min <- 0
       plot_bars(title, lines, y_min, colors, angles, densities)
     }
   }
 
   # axis labels
-  y_axis_label("Transmission ratio wrto BP+RR")
+  y_axis_label("Processing time ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -88,7 +87,7 @@ main <- function() {
   legend(
     0.1, # x
     -.06,  # y 
-    cex=1,
+    cex=0.92,
     legend=labels,
     angle=angles,
     density=densities,

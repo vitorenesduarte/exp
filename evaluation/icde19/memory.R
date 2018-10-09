@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot6.png"
+  output_file <- "memory.png"
 
   clusters <- c(
     "ls -d processed/* | grep 0~gset~partialmesh",
@@ -58,13 +58,22 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key <- "processing"
+    key_a <- "memory_crdt"
+    key_b <- "memory_algorithm"
 
     # data
     title <- titles[i]
-    lines <- lapply(files, function(f) { json(c(f))[[key]] })
+    lines <- map(
+      files,
+      function(f) {
+        data <- json(c(f))
+        avg_a <- mean(data[[key_a]])
+        avg_b <- mean(data[[key_b]])
+        avg_a + avg_b
+      }
+    )
 
-    # wrto (r)
+    # (wrto rr)
     if(length(lines) == length(labels)) {
       rr_index <- length(labels)
       rr <- lines[[rr_index]]
@@ -77,7 +86,7 @@ main <- function() {
   }
 
   # axis labels
-  y_axis_label("Processing time ratio wrto BP+RR")
+  y_axis_label("Avg. Memory ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -87,7 +96,7 @@ main <- function() {
   legend(
     0.1, # x
     -.06,  # y 
-    cex=0.92,
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,

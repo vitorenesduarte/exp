@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot2.png"
+  output_file <- "gmap.png"
 
   clusters <- c(
     "ls -d processed/* | grep 10~gmap~tree",

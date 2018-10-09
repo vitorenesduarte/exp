@@ -14,12 +14,12 @@ pre: preprocess.py
 	python preprocess.py
 
 plots:
-	-Rscript ipdps19/first.R
-	-Rscript ipdps19/second.R
-	-Rscript ipdps19/plot0.R
-	-Rscript ipdps19/plot2.R
-	-Rscript ipdps19/plot3.R
-	-Rscript ipdps19/plot6.R
+	-Rscript icde19/first.R
+	-Rscript icde19/second.R
+	-Rscript icde19/gset_gcounter.R
+	-Rscript icde19/gmap.R
+	-Rscript icde19/memory.R
+	-Rscript icde19/processing.R
 
 show:
 	$(VIEWER) *.png
