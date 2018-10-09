@@ -5,20 +5,21 @@ else ifeq ($(OS), Darwin)
 	VIEWER=open
 endif
 
-default: disc show
+default: plots show
 
-all: pre default
+all: pre plots
 
 pre: preprocess.py
 	rm -rf processed
 	python preprocess.py
 
-disc: pre
-	Rscript disc18/plot0.R
-	Rscript disc18/plot1.R
-	Rscript disc18/plot2.R
-	Rscript disc18/plot3.R
-	Rscript disc18/plot4.R
+plots:
+	Rscript ipdps19/first.R
+	Rscript ipdps19/second.R
+	Rscript ipdps19/plot0.R
+	Rscript ipdps19/plot2.R
+	Rscript ipdps19/plot3.R
+	Rscript ipdps19/plot6.R
 
 show:
 	$(VIEWER) *.png

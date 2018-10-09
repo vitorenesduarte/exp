@@ -1,15 +1,7 @@
 sudo: false
 language: erlang
 otp_release:
-  - 20.0
-addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck
-before_install:
-  - npm install -g dockerlint
+  - 21.1
 install:
   - make
 before_script:

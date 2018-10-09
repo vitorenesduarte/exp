@@ -19,7 +19,7 @@
 %% -------------------------------------------------------------------
 %%
 
--module(exp_state_based_modes_SUITE).
+-module(exp_modes_SUITE).
 -author("Vitor Enes <vitorenesduarte@gmail.com>").
 
 %% common_test callbacks
@@ -41,7 +41,7 @@
 
 -define(NODE_NUMBER, 3).
 -define(EVENT_NUMBER, 5).
--define(SIMULATION, gset).
+-define(SIMULATION, gcounter).
 
 %% ===================================================================
 %% common_test callbacks
@@ -69,7 +69,10 @@ all() ->
      state_based_ring_test,
      state_based_hyparview_test,
      delta_based_ring_test,
-     delta_based_revisited_ring_test
+     delta_based_revisited_ring_test,
+     scuttlebutt_ring_test,
+     scuttlebutt_hyparview_test,
+     vanilla_scuttlebutt_ring_test
     ].
 
 %% ===================================================================
@@ -87,6 +90,15 @@ delta_based_ring_test(_Config) ->
 
 delta_based_revisited_ring_test(_Config) ->
     run(delta_based_revisited, ring).
+
+scuttlebutt_ring_test(_Config) ->
+    run(scuttlebutt, ring).
+
+scuttlebutt_hyparview_test(_Config) ->
+    run(scuttlebutt, hyparview).
+
+vanilla_scuttlebutt_ring_test(_Config) ->
+    run(vanilla_scuttlebutt, ring).
 
 %% @private
 run(Evaluation, Overlay) ->
@@ -111,4 +123,8 @@ get_config(state_based) ->
 get_config(delta_based) ->
     {delta_based, false, false};
 get_config(delta_based_revisited) ->
-    {delta_based, true, true}.
+    {delta_based, true, true};
+get_config(scuttlebutt) ->
+    {scuttlebutt, false, false};
+get_config(vanilla_scuttlebutt) ->
+    {vanilla_scuttlebutt, false, false}.

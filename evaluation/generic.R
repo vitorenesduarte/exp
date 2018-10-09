@@ -22,10 +22,10 @@ y_axis_label <- function(text) {
 }
 
 add_title <- function(text) {
-  title(text, cex.main=1.5, line=0.7)
+  title(text, cex.main=1.3, line=0.7)
 }
 
-plot_bars <- function(title, lines, y_min, colors, angles, densities) {
+plot_bars <- function(title, lines, y_min, colors, angles, densities, bar_cex=1) {
   # find the y max
   y_max = Reduce(max, lines)
   y_max = y_max + 0.15*y_max
@@ -56,7 +56,7 @@ plot_bars <- function(title, lines, y_min, colors, angles, densities) {
     y=lines,
     label=rounded,
     pos=3,
-    cex=1,
+    cex=bar_cex,
     font=2
   )
 

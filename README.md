@@ -9,11 +9,7 @@
 - __LDB_MODE__:
   - `state_based`
   - `delta_based`
-  - `pure_op_based`
-- __LDB_DRIVEN_MODE__:
-  - `none`
-  - `state_driven`
-  - `digest_driven`
+  - `scuttlebutt`
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean

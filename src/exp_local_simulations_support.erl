@@ -111,7 +111,7 @@ start(Options) ->
                               set,
                               [Property, Value])
             end,
-            LDBSettings
+            [{node_number, NodeNumber} | LDBSettings]
         )
     end,
     lists:foreach(ConfigureFun, IdToNode),

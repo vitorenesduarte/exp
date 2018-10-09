@@ -6,7 +6,6 @@ ENV_VARS=(
   IMAGE
   PULL_IMAGE
   LDB_MODE
-  LDB_DRIVEN_MODE
   LDB_STATE_SYNC_INTERVAL
   LDB_REDUNDANT_DGROUPS
   LDB_DGROUP_BACK_PROPAGATION
@@ -31,7 +30,6 @@ echo "[$(date +%T)] Configuration: "
 echo "    IMAGE: ${IMAGE}"
 echo "    PULL_IMAGE: ${PULL_IMAGE}"
 echo "    LDB_MODE: ${LDB_MODE}"
-echo "    LDB_DRIVEN_MODE: ${LDB_DRIVEN_MODE}"
 echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
@@ -61,7 +59,7 @@ PEER_PORT=6866
 # DEPLOYMENT:
 # Deployment names
 RSG_NAME=rsg-${TIMESTAMP}
-LSIM_NAME=exp-${TIMESTAMP}
+EXP_NAME=exp-${TIMESTAMP}
 
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
@@ -100,8 +98,6 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS
@@ -126,7 +122,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "${LSIM_NAME}"
+  name: "${EXP_NAME}"
 spec:
   replicas: ${NODE_NUMBER}
   template:
@@ -136,7 +132,7 @@ spec:
         tag: exp
     spec:
       containers:
-      - name: "${LSIM_NAME}"
+      - name: "${EXP_NAME}"
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
         resources:
@@ -163,8 +159,6 @@ spec:
           value: "${TIMESTAMP}"
         - name: LDB_MODE
           value: "${LDB_MODE}"
-        - name: LDB_DRIVEN_MODE
-          value: "${LDB_DRIVEN_MODE}"
         - name: LDB_STATE_SYNC_INTERVAL
           value: "${LDB_STATE_SYNC_INTERVAL}"
         - name: LDB_REDUNDANT_DGROUPS

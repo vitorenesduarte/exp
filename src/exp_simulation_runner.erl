@@ -44,7 +44,7 @@
                 node_event_number :: non_neg_integer()}).
 
 -define(DEFAULT_EVENT_INTERVAL, 1000).
--define(SIMULATION_END_INTERVAL, 10000).
+-define(SIMULATION_END_INTERVAL, 2000).
 
 -spec start_link([function()]) ->
     {ok, pid()} | ignore | {error, term()}.

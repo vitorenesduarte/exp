@@ -134,8 +134,9 @@ get_specs(Simulation) ->
 
         gmap ->
             StartFun = fun() ->
-                Type = {gmap, [max_int]},
-                ldb:create(?KEY, Type)
+                ldb:create(?KEY, lwwmap),
+                ldb:create("gmap_events", gcounter),
+                ldb_metrics:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
             EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
                 Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
@@ -159,17 +160,20 @@ get_specs(Simulation) ->
                 KeysPerIteration = round_up((Percentage * KeysPerNode) / 100),
                 Keys = lists:sublist(MyKeys, KeysPerIteration),
 
-                Ops = lists:map(fun(Key) -> {Key, increment} end, Keys),
-                %% TODO support rewriting of ops in ldb
-                EventOp = {gmap_events, state_gcounter, increment},
-                ldb:update(?KEY, {apply_all, [EventOp | Ops]})
+                Ops = lists:map(
+                    fun(Key) ->
+                        Timestamp = erlang:system_time(nanosecond),
+                        Value = <<>>,
+                        {set, Key, Timestamp, Value}
+                    end,
+                    Keys
+                ),
+                ldb:update(?KEY, Ops),
+                ldb:update("gmap_events", increment)
             end,
             TotalEventsFun = fun() ->
-                {ok, Query} = ldb:query(?KEY),
-                case lists:keyfind(gmap_events, 1, Query) of
-                    {gmap_events, V} -> V;
-                    false -> 0
-                end
+                {ok, Value} = ldb:query("gmap_events"),
+                Value
             end,
             CheckEndFun = fun(NodeNumber, NodeEventNumber) ->
                 TotalEventsFun() == NodeNumber * NodeEventNumber

@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot4.png"
+  output_file <- "plot5.png"
 
   clusters <- c(
     "ls -d processed/* | grep -v False~True | grep -v True~False | grep 10~gmap~partialmesh",
@@ -15,6 +15,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Scuttlebutt",
     "Delta-based",
     "Delta-based BP+RR"
   )
@@ -36,10 +37,11 @@ main <- function() {
   colors <- c(
     "snow4",
     "steelblue4",
-    "red4"
+    "red4",
+    "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30)
+  angles <- c(0, 45, 135, 45, 135, 45)
+  densities <- c(0, 15, 15, 30, 30, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -58,10 +60,8 @@ main <- function() {
     lines_b <- lapply(files, function(f) { json(c(f))[[key_b]] })
 
     # plot cdf
-    y_max <- .94
-    y_step <- 0.01
-    plot_cdf(title_a, lines_a, colors, y_max, y_step)
-    plot_cdf(title_b, lines_b, colors, y_max, y_step)
+    plot_box(title_a, lines_a, colors)
+    plot_box(title_b, lines_b, colors)
   }
 
   # axis labels
@@ -78,7 +78,7 @@ main <- function() {
     inset=-1.25,
     # 0, # x
     # -1,  # y 
-    cex=1.1,
+    cex=0.92,
     legend=labels,
     col=colors,
     lty=c(1:3),

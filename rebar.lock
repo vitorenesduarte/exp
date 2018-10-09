@@ -6,18 +6,18 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"f752d65d72f3bd9006ee7dea900944b964440ade"}},
+       {ref,"b8ad31cbfd14fb3753ea80b81b7046a8edb53fd5"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"partisan">>,
   {git,"https://github.com/lasp-lang/partisan",
-       {ref,"619007a7841a055db217af7d2ddbd07ff3aa7d75"}},
+       {ref,"abc43ea87974057b50697fe948613ac8bfba8a1e"}},
   0},
  {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
  {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
  {<<"types">>,
   {git,"https://github.com/vitorenesduarte/types",
-       {ref,"14dfd3af715d5dbe130f531aaa76a4ed10fbea1d"}},
+       {ref,"7ce35d1f61b1d6ec77e1dc4de61782c5af3b562c"}},
   0}]}.
 [
 {pkg_hash,[

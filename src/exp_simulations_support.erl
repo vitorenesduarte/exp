@@ -32,7 +32,6 @@
 -spec push_exp_metrics(timestamp()) -> ok.
 push_exp_metrics(StartTime) ->
     LDBVars = [ldb_mode,
-               ldb_driven_mode,
                ldb_state_sync_interval,
                ldb_redundant_dgroups,
                ldb_dgroup_back_propagation],

@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot1.png"
+  output_file <- "plot0.png"
 
   clusters <- c(
     "ls -d processed/* | grep gset~tree",
@@ -20,6 +20,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Scuttlebutt",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -30,13 +31,13 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=650, res=240)
+  png(filename=output_file, width=800, height=650, res=130)
 
   # change outer margins
   op <- par(
-    oma=c(5,3,0,0),   # room for the legend
-    mfrow=c(1,4),      # 2x4 matrix
-    mar=c(2,2,3,1) # spacing between plots
+    oma=c(3.5,2,0,0),   # room for the legend
+    mfrow=c(2,2),      # 2x4 matrix
+    mar=c(2,2,2,1) # spacing between plots
   )
 
   # style stuff
@@ -45,8 +46,11 @@ main <- function() {
     "steelblue4",
     "springgreen4",
     "darkorange1",
-    "red4"
+    "red4",
+    "gray22"
   )
+  angles <- c(0, 45, 135, 45, 135, 45)
+  densities <- c(0, 15, 15, 30, 30, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -55,21 +59,23 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_1_compressed_x"
-    key_y <- "transmission_1_compressed"
+    key <- "transmission_1"
 
     # data
     title <- titles[i]
-    lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
-    lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+    lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
+
+    # min (rr)
+    rr <- Reduce(min, lines)
+    lines <- map(lines, function(v) { v / rr })
 
     # plot lines
-    plot_lines(title, lines_x, lines_y, colors)
+    y_min <- 0
+    plot_bars(title, lines, y_min, colors, angles, densities)
   }
 
   # axis labels
-  x_axis_label("Time (s)")
-  y_axis_label("Transmission")
+  y_axis_label("Transmission ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -77,13 +83,14 @@ main <- function() {
 
   # legend
   legend(
-    -.03, # x
-    -.75,  # y 
-    cex=1.1,
+    0.1, # x
+    -.06,  # y 
+    cex=1,
     legend=labels,
-    pch=c(1:10),
-    col=colors,
-    horiz=TRUE,
+    angle=angles,
+    density=densities,
+    fill=colors,
+    ncol=2,
     box.col=NA # remove box
   )
 

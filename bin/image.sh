@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 
-ENV_VARS=(
-  IMAGE
-  DOCKERFILE
-)
+if [ -z "$1" ]; then
+  TAG=latest
+else
+  TAG="$1"
+fi
 
-for ENV_VAR in "${ENV_VARS[@]}"
-do
-  if [ -z "${!ENV_VAR}" ]; then
-    echo ">>> ${ENV_VAR} is not configured; please export it."
-    exit 1
-  fi
-done
+DIR=$(dirname "$0")
+IMAGE=vitorenesduarte/exp-copy:${TAG}
+DOCKERFILE=${DIR}/../Dockerfiles/exp-copy
+
+# release vcd
+cd "${DIR}"/.. && make rel && cd -
 
 # build image
 docker build \
   --no-cache \
-  -t "${IMAGE}" -f "${DOCKERFILE}" .
+  -t "${IMAGE}" \
+  -f "${DOCKERFILE}" .
 
 # push image
 docker push "${IMAGE}"
