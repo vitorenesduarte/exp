@@ -49,27 +49,14 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure exp overlay
-    Overlay = configure_var("OVERLAY",
-                            exp_overlay,
-                            ?DEFAULT_OVERLAY),
-
-    PeerService = case Overlay of
-        hyparview ->
-            partisan_hyparview_peer_service_manager;
-        _ ->
-            partisan_static_peer_service_manager
-    end,
-
-
-    %% configure ldb peer service
-    ldb_config:set(ldb_peer_service, PeerService),
+    configure_var("OVERLAY",
+                  exp_overlay,
+                  ?DEFAULT_OVERLAY),
 
     %% configure partisan manager
+    PeerService = partisan_static_peer_service_manager,
     partisan_config:set(partisan_peer_service_manager,
-                        PeerService),
-
-    partisan_config:set(min_active_size, 4),
-    partisan_config:set(max_active_size, 5).
+                        PeerService).
 
 %% @private
 configure() ->
@@ -113,12 +100,6 @@ configure() ->
                         exp_rsg,
                         false),
 
-    %% configure metrics store
-    configure_var("METRICS_STORE",
-                  exp_metrics_store,
-                  undefined),
-
-
     %% configure break links
     configure_var("BREAK_LINKS",
                   exp_break_links,
@@ -140,7 +121,7 @@ exp_specs(Simulation, Orchestration, RSG) ->
             [];
         _ ->
             BarrierPeerServiceSpecs = [?CHILD(exp_barrier_peer_service)],
-            Store = [?CHILD(exp_metrics_store)],
+            Store = [?CHILD(exp_redis_metrics_store)],
 
             RSGSpecs = case RSG of
                 true ->

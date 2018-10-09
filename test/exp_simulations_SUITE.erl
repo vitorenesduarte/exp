@@ -85,7 +85,7 @@ gmap_test(_Config) ->
 
 %% @private
 run(Simulation) ->
-    Overlay = hyparview,
+    Overlay = ring,
     Mode = state_based,
 
     Options = [{node_number, ?NODE_NUMBER},

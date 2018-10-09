@@ -165,8 +165,6 @@ spec:
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
           value: "${LDB_DGROUP_BACK_PROPAGATION}"
-        - name: LDB_METRICS
-          value: "true"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION

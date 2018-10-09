@@ -127,10 +127,6 @@ start(Options) ->
     IdToNode.
 
 %% @private Connect each node to its peers.
-%%          If `Overlay' is hyparview, it's enough all peers
-%%          connected to the same node.
-%%          Otherwise use `exp_overlay' to decide to which
-%%          nodes a node should connect.
 construct_overlay(Options, IdToNode) ->
     Overlay = proplists:get_value(
         exp_overlay,

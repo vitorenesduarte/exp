@@ -25,8 +25,6 @@
 -export([push_exp_metrics/1,
          push_ldb_metrics/0]).
 
--define(LDB_METRICS, ldb_metrics).
--define(STORE, exp_metrics_store).
 -define(SEP, ",").
 
 -spec push_exp_metrics(timestamp()) -> ok.
@@ -57,8 +55,8 @@ push_exp_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    TimeSeries = ?LDB_METRICS:get_time_series(),
-    Latency = ?LDB_METRICS:get_latency(),
+    TimeSeries = ldb_metrics:get_time_series(),
+    Latency = ldb_metrics:get_latency(),
     TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
     MemoryTS = filter_by_ts_class(memory, TimeSeries),
 
@@ -132,4 +130,4 @@ str(V) when is_integer(V) ->
 
 %% @private
 store(FilePath, File) ->
-    ok = ?STORE:put(FilePath, File).
+    ok = exp_redis_metrics_store:put(FilePath, File).
