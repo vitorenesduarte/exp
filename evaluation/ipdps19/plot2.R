@@ -65,8 +65,8 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_1_compressed_x"
-    key_y <- "transmission_1_compressed"
+    key_x <- "transmission_compressed_x"
+    key_y <- "transmission_compressed"
 
     # data
     title <- titles[i]

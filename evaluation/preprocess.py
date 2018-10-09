@@ -8,8 +8,6 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
-#RATIO=[1, 4, 16, 32, 64]
-RATIO=[1]
 COMPRESS=12 # every x
 #MAX_TIME=60
 
@@ -105,12 +103,12 @@ def group_by_config(d):
             # read metric file
             j = read_json(file)
 
-            # for all time-series types (all but latency)
+            # for all time-series types (all but processing)
             # for all metrics remove start_time
 
             for type in j:
 
-                if type != "latency":
+                if type != "processing":
                     for m in j[type]:
                         m[TS] -= start_time
 
@@ -196,7 +194,7 @@ def assume_unknown_values(d):
 
         # get all time-series types
         types = d[key].keys()
-        types.remove("latency")
+        types.remove("processing")
 
         for type in types:
 
@@ -268,12 +266,12 @@ def average(d):
 
         # get all time-series types
         types = d[key].keys()
-        types.remove("latency")
+        types.remove("processing")
 
         for type in types:
             # number of runs
             runs_number = len(d[key][type])
-            # number of metrics
+            # number of metrics (all but processing)
             metrics_number = len(d[key][type][0]) - 1
 
             # get bottom size
@@ -310,112 +308,66 @@ def aggregate(d):
     Aggregate types of the same run.
     """
 
-    def ratio_key(ratio):
-        return "transmission_" + str(ratio)
+    def get_compress_index(key):
+        m = {
+            110: 1,
+            210: 5,
+            310: 2,
+            420: 4,
+            430: 6,
+            440: 3,
+            450: 0
+        }
+
+        score = get_score(key)
+        if score in m:
+            return (COMPRESS * m[score]) / len(m)
+        else:
+            return 0
 
     r = {}
 
     for key in d:
         # create key in dictionary
         r[key] = {}
-
-        # store transmission for different ratios
-        # between metadata and payload
-        for ratio in RATIO:
-            r[key][ratio_key(ratio)] = []
-        r[key]["transmission_metadata"] = []
-        r[key]["transmission_payload"] = []
+        r[key]["transmission"] = []
         r[key]["memory_crdt"] = []
-        r[key]["memory_crdt_metadata"] = []
-        r[key]["memory_crdt_payload"] = []
         r[key]["memory_algorithm"] = []
-        r[key]["memory_algorithm_metadata"] = []
-        r[key]["memory_algorithm_payload"] = []
-        r[key]["latency"] = []
-        r[key]["latency_local"] = []
-        r[key]["latency_remote"] = []
+        r[key]["processing"] = sum(d[key]["processing"])
 
-        # fetch all lists that have these types
-        for type in ["transmission"]:
-            if type in d[key]:
-                Ms = [M for [M, P] in d[key][type]]
-                Ps = [P for [M, P] in d[key][type]]
-                r[key]["transmission_metadata"].append(Ms)
-                r[key]["transmission_payload"].append(Ps)
-
-                for ratio in RATIO:
-                    MPs = [M + P*ratio for [M, P] in d[key][type]]
-                    r[key][ratio_key(ratio)].append(MPs)
-
-        # sum the fetched lists
-        for ratio in RATIO:
-            r[key][ratio_key(ratio)] = sum_lists(r[key][ratio_key(ratio)])
-        r[key]["transmission_metadata"] = sum_lists(r[key]["transmission_metadata"])
-        r[key]["transmission_payload"] = sum_lists(r[key]["transmission_payload"])
-
-        def get_compress_index(key):
-            m = {
-                110: 1,
-                210: 5,
-                310: 2,
-                420: 4,
-                430: 6,
-                440: 3,
-                450: 0
-            }
-
-            score = get_score(key)
-            if score in m:
-                return (COMPRESS * m[score]) / len(m)
-            else:
-                return 0
+        # aggregate transmission
+        r[key]["transmission"] = [A + B for [A, B] in d[key]["transmission"]]
 
         # compress transmissions
         # e.g. sum every 10 values
         # and average them
-        max_len = 0
-        for ratio in RATIO:
-            xs = []
-            ys = []
-            current_sum = 0
-            run_len = len(r[key][ratio_key(ratio)])
-            max_len = max(max_len, run_len)
-            index = get_compress_index(key)
+        xs = []
+        ys = []
+        current_sum = 0
+        run_len = len(r[key]["transmission"])
+        index = get_compress_index(key)
 
-            for i in range(run_len):
-                # update sum
-                current_sum += r[key][ratio_key(ratio)][i]
+        for i in range(run_len):
+            # update sum
+            current_sum += r[key]["transmission"][i]
 
-                if(i % COMPRESS == index):
-                    ys.append(current_sum)
-                    # reset sum
-                    current_sum = 0
+            if(i % COMPRESS == index):
+                ys.append(current_sum)
+                # reset sum
+                current_sum = 0
 
-            for i in range(len(ys)):
-                xs.append((i * COMPRESS) + index)
+        for i in range(len(ys)):
+            xs.append((i * COMPRESS) + index)
 
-            ys = divide_lists(ys, COMPRESS)
-            r[key][ratio_key(ratio) + "_compressed"] = ys
-            r[key][ratio_key(ratio) + "_compressed_x"] = xs
+        ys = divide_lists(ys, COMPRESS)
+        r[key]["transmission_compressed"] = ys
+        r[key]["transmission_compressed_x"] = xs
 
-        # aggregate memory values
-        for [MC, PC, MR, PR] in d[key]["memory"]:
-            r[key]["memory_crdt"].append(MC + PC)
-            r[key]["memory_crdt_metadata"].append(MC)
-            r[key]["memory_crdt_payload"].append(PC)
-            r[key]["memory_algorithm"].append(MR + PR)
-            r[key]["memory_algorithm_metadata"].append(MR)
-            r[key]["memory_algorithm_payload"].append(PR)
+        # aggregate memory
+        for [A, B, C, D] in d[key]["memory"]:
+            r[key]["memory_crdt"].append(A + B)
+            r[key]["memory_algorithm"].append(C + D)
         
-        # aggregate latency values
-        for lord in d[key]["latency"]: # local or remote dict
-            for lort in lord: # local or remote type
-                k = "latency_" + lort
-                latency_values = map(to_ms, lord[lort])
-                r[key][k].extend(latency_values)
-
-        r[key]["latency"] = r[key]["latency_local"] + r[key]["latency_remote"]
-
     return r
 
 def save_file(path, content):

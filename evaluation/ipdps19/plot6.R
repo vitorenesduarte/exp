@@ -58,14 +58,11 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_a <- "latency_local"
-    key_b <- "latency_remote"
+    key <- "processing"
 
     # data
-    title <- titles[i]
-    local <- lapply(files, function(f) { json(c(f))[[key_a]] })
-    remote <- lapply(files, function(f) { json(c(f))[[key_b]] })
-    lines <- lapply(1:length(labels), function(j) { sum(local[[j]]) + sum(remote[[j]]) })
+    title <- ""
+    lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
     # wrto (state-based)
     state_based <- lines[[1]]

@@ -59,7 +59,7 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key <- "transmission_1"
+    key <- "transmission"
 
     # data
     title <- titles[i]
