@@ -1,3 +1,3 @@
 *.png
-metrics*
-processed*
+metrics/
+processed/

@@ -64,17 +64,20 @@ main <- function() {
     title <- ""
     lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
-    # wrto (state-based)
-    state_based <- lines[[1]]
-    lines <- map(lines, function(v) { v / state_based })
+    # wrto (r)
+    if(length(lines) == length(labels)) {
+      rr_index <- length(labels)
+      rr <- lines[[rr_index]]
+      lines <- map(lines, function(v) { v / rr })
 
-    # plot bars
-    y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities)
+      # plot bars
+      y_min <- 0
+      plot_bars(title, lines, y_min, colors, angles, densities)
+    }
   }
 
   # axis labels
-  y_axis_label("Processing time wrto State-based")
+  y_axis_label("Processing time ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

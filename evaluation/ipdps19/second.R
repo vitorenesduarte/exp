@@ -21,7 +21,7 @@ main <- function() {
 5
   # change outer margins
   op <- par(
-    oma=c(5,2,1,0),   # room for the legend
+    oma=c(5,2,2,0),   # room for the legend
     mfrow=c(1,1),      # 2x4 matrix
     mar=c(1.5,1.5,0.5,0.5) # spacing between plots
   )
@@ -48,15 +48,17 @@ main <- function() {
   lines <- lapply(files, function(f) { json(c(f))[[key]] })
 
   # wrto (state-based)
-  state_based <- lines[[1]]
-  lines <- map(lines, function(v) { v / state_based })
+  if(length(lines) == length(labels)) {
+    state_based <- lines[[1]]
+    lines <- map(lines, function(v) { v / state_based })
 
-  # plot bars
-  y_min <- 0
-  plot_bars(title, lines, y_min, colors, angles, densities, 0.8)
+    # plot bars
+    y_min <- 0
+    plot_bars(title, lines, y_min, colors, angles, densities, 0.8)
+  }
 
   # axis labels
-  y_axis_label("Processing time wrto State-based")
+  y_axis_label("Processing time ratio wrto State-based")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

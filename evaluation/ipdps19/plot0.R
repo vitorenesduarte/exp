@@ -65,13 +65,16 @@ main <- function() {
     title <- titles[i]
     lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
 
-    # min (rr)
-    rr <- Reduce(min, lines)
-    lines <- map(lines, function(v) { v / rr })
+    # (wrto rr)
+    if(length(lines) == length(labels)) {
+      rr_index <- length(labels)
+      rr <- lines[[rr_index]]
+      lines <- map(lines, function(v) { v / rr })
 
-    # plot lines
-    y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities)
+      # plot lines
+      y_min <- 0
+      plot_bars(title, lines, y_min, colors, angles, densities)
+    }
   }
 
   # axis labels

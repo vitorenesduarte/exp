@@ -7,7 +7,7 @@ endif
 
 default: plots show
 
-all: pre plots
+all: pre plots show
 
 pre: preprocess.py
 	rm -rf processed
