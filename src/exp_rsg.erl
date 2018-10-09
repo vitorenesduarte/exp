@@ -84,7 +84,7 @@ handle_cast({break_links_info, Infos}, State) ->
     {Names, _, _} = lists:unzip3(Specs),
     lager:info("Received BREAK LINKS INFO. ~p", [Names]),
 
-    ldb_whisperer:update_metrics_members(Names),
+    %% ldb_whisperer:update_metrics_members(Names),
     {noreply, State#state{break_links_specs=Specs}};
 
 handle_cast(break_links, #state{break_links_specs=Specs,
