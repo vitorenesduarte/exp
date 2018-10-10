@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:nobl
+IMAGE=${DOCKER_USER}/exp-copy:img
 PULL_IMAGE=Always
 
 # start redis
@@ -27,12 +27,13 @@ SIM_CONFIG_=(
   "gmap     30"
   "gmap     60"
   "gmap     100"
-  "retwis 0"
+  # "retwis 0"
 )
-NODE_EVENT_NUMBER=100
+NODE_EVENT_NUMBER=2000
+EVENT_INTERVAL=50
 
 # ldb configuration
-LDB_STATE_SYNC_INTERVAL=1000
+LDB_STATE_SYNC_INTERVAL=500
 # mode bp rr
 LDB_=(
    "state_based undefined undefined"
@@ -76,6 +77,7 @@ for REP in $(seq 1 $REPS); do
             GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
+            EVENT_INTERVAL=${EVENT_INTERVAL} \
             CPU=${CPU} "${DIR}"/deploy-exp.sh
 
         echo "[$(date +%T)] ${EXP} of ${NEXP} ended!"

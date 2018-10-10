@@ -14,6 +14,7 @@ ENV_VARS=(
   GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
+  EVENT_INTERVAL
   CPU
 )
 
@@ -37,6 +38,7 @@ echo "    SIMULATION: ${SIMULATION}"
 echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
+echo "    EVENT_INTERVAL: ${EVENT_INTERVAL}"
 echo "    CPU: ${CPU}"
 
 # ENV SETUP:
@@ -112,6 +114,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: EVENT_INTERVAL
+          value: "${EVENT_INTERVAL}"
         - name: RSG
           value: "true"
 ---
@@ -171,6 +175,8 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
+        - name: EVENT_INTERVAL
+          value: "${EVENT_INTERVAL}"
         - name: RSG
           value: "false"
 EOF
