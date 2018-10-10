@@ -67,8 +67,8 @@ all() ->
     [
      gset_test,
      gcounter_test,
-     gmap_test,
-     retwis_test
+     gmap_test
+     %retwis_test
     ].
 
 %% ===================================================================

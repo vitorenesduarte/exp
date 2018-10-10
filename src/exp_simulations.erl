@@ -28,11 +28,6 @@
 %% exp_simulations callbacks
 -export([get_specs/1]).
 
-%% compiler not smart enough
--export([retwis_follow/0,
-         retwis_post/0,
-         retwis_timeline/0]).
-
 %% @doc
 -spec get_specs(atom()) -> [term()].
 get_specs(Simulation) ->
@@ -238,14 +233,10 @@ element_sufix(EventNumber) ->
 round_up(A) ->
     trunc(A) + 1.
 
--define(USER_NUMBER,    5000).
--define(USER_FOLLOWS,   20). %% initially
+-define(USER_NUMBER,    100000).
 -define(POST_SIZE,      270).
 -define(POST_ID_SIZE,   31).
 -define(TIMELINE_POSTS, 10).
-
--define(CHARS, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,!?:()").
--define(CHARS_LEN, length(?CHARS)).
 
 %% @private
 %%  Sizes:
@@ -259,7 +250,6 @@ round_up(A) ->
 %%
 %%  Initial numbers:
 %%  - ?USER_NUMBER users
-%%  - each user follows ?USER_FOLLOWS users
 %%
 retwis_init() ->
     %% create all the keys that will ever exist
@@ -268,19 +258,6 @@ retwis_init() ->
             ldb:create(followers_key(UserId), gset),
             ldb:create(posts_key(UserId),     lwwmap),
             ldb:create(timeline_key(UserId),  lwwmap)
-        end,
-        all_users()
-    ),
-    %% each user follows ?USER_FOLLOWS users
-    lists:foreach(
-        fun(From) ->
-            lists:foreach(
-                fun(_) ->
-                    To = random_user(From),
-                    ldb:update(followers_key(To), {add, From})
-                end,
-                lists:seq(0, ?USER_FOLLOWS - 1)
-            )
         end,
         all_users()
     ).
@@ -393,19 +370,15 @@ random_user(UserA) ->
         false -> UserB
     end.
 
--spec create_post() -> string().
+-spec create_post() -> binary().
 create_post() ->
-    random_string(?POST_SIZE).
+    random_bytes(?POST_SIZE).
 
--spec create_post_id() -> string().
+-spec create_post_id() -> binary().
 create_post_id() ->
-    random_string(?POST_ID_SIZE).
+    random_bytes(?POST_ID_SIZE).
 
-%% @doc Generate a random string.
--spec random_string(non_neg_integer()) -> string().
-random_string(Length) ->
-    [random_char() || _ <- lists:seq(1, Length)].
-
-%% @private
-random_char() ->
-    lists:nth(rand:uniform(?CHARS_LEN), ?CHARS).
+%% @doc Generate a random byte array.
+-spec random_bytes(non_neg_integer()) -> binary().
+random_bytes(Length) ->
+    crypto:strong_rand_bytes(Length).
