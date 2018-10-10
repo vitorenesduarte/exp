@@ -80,7 +80,7 @@ push_ldb_metrics() ->
     ),
 
     %% process latency
-    Latency = maps:from_list(Latency0),
+    Latency = maps:to_list(Latency0),
 
     All = [
         {transmission, Transmission},
