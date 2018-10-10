@@ -55,7 +55,7 @@ push_exp_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    {Transmission0, Memory0, Processing} = ldb_metrics:get_all(),
+    {Transmission0, Memory0, Latency0, Processing} = ldb_metrics:get_all(),
 
     %% process transmission
     Transmission = maps:fold(
@@ -79,9 +79,13 @@ push_ldb_metrics() ->
         Memory0
     ),
 
+    %% process latency
+    Latency = maps:from_list(Latency0),
+
     All = [
         {transmission, Transmission},
         {memory, Memory},
+        {latency, Latency},
         {processing, Processing}
     ],
 

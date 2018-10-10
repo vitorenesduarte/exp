@@ -180,7 +180,8 @@ wait_for_completion(IdToNode) ->
                                              exp_config,
                                              get,
                                              [exp_simulation_end,
-                                              false]),
+                                              false],
+                                             infinity),
 
                     case SimulationEnd of
                         true ->

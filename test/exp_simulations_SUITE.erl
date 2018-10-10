@@ -67,7 +67,8 @@ all() ->
     [
      gset_test,
      gcounter_test,
-     gmap_test
+     gmap_test,
+     retwis_test
     ].
 
 %% ===================================================================
@@ -82,6 +83,9 @@ gcounter_test(_Config) ->
 
 gmap_test(_Config) ->
     run(gmap).
+
+retwis_test(_Config) ->
+    run(retwis).
 
 %% @private
 run(Simulation) ->

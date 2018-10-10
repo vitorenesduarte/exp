@@ -41,9 +41,9 @@
                 total_events_fun :: function(),
                 check_end_fun :: function(),
                 node_number :: non_neg_integer(),
-                node_event_number :: non_neg_integer()}).
+                node_event_number :: non_neg_integer(),
+                event_interval :: non_neg_integer()}).
 
--define(DEFAULT_EVENT_INTERVAL, 1000).
 -define(SIMULATION_END_INTERVAL, 2000).
 
 -spec start_link([function()]) ->
@@ -66,16 +66,18 @@ init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
     %% get node number and node event number
     NodeNumber = exp_config:get(exp_node_number),
     NodeEventNumber = exp_config:get(exp_node_event_number),
+    EventInterval = exp_config:get(exp_event_interval),
 
     {ok, #state{event_count=0,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun,
                 check_end_fun=CheckEndFun,
                 node_number=NodeNumber,
-                node_event_number=NodeEventNumber}}.
+                node_event_number=NodeEventNumber,
+                event_interval=EventInterval}}.
 
-handle_call(start_simulation, _From, State) ->
-    schedule_event(),
+handle_call(start_simulation, _From, #state{event_interval=EventInterval}=State) ->
+    schedule_event(EventInterval),
     {reply, ok, State};
 
 handle_call(Msg, _From, State) ->
@@ -90,7 +92,8 @@ handle_info(event, #state{event_count=Events0,
                           event_fun=EventFun,
                           total_events_fun=TotalEventsFun,
                           node_number=NodeNumber,
-                          node_event_number=NodeEventNumber}=State) ->
+                          node_event_number=NodeEventNumber,
+                          event_interval=EventInterval}=State) ->
     Events = Events0 + 1,
     EventFun(Events, NodeNumber, NodeEventNumber),
     TotalEvents = TotalEventsFun(),
@@ -101,7 +104,7 @@ handle_info(event, #state{event_count=Events0,
             %% If I did all the events I should do
             schedule_simulation_end();
         false ->
-            schedule_event()
+            schedule_event(EventInterval)
     end,
 
     {noreply, State#state{event_count=Events}};
@@ -135,8 +138,8 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-schedule_event() ->
-    timer:send_after(?DEFAULT_EVENT_INTERVAL, event).
+schedule_event(EventInterval) ->
+    timer:send_after(EventInterval, event).
 
 %% @private
 schedule_simulation_end() ->

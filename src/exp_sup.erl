@@ -75,6 +75,11 @@ configure() ->
                   exp_node_event_number,
                   30),
 
+    %% configure event interval
+    configure_int("EVENT_INTERVAL",
+                  exp_event_interval,
+                  1000), %% milliseconds
+
     %% configure unique simulation timestamp
     configure_int("TIMESTAMP",
                   exp_timestamp,
