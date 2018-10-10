@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:metrics
+IMAGE=${DOCKER_USER}/exp-copy:nobl
 PULL_IMAGE=Always
 
 # start redis
@@ -27,19 +27,20 @@ SIM_CONFIG_=(
   "gmap     30"
   "gmap     60"
   "gmap     100"
+  "retwis 0"
 )
 NODE_EVENT_NUMBER=100
 
 # ldb configuration
 LDB_STATE_SYNC_INTERVAL=1000
-# mode bp rr break_links
+# mode bp rr
 LDB_=(
-   "state_based undefined undefined none"
-   "scuttlebutt undefined undefined none"
-   "delta_based false     false     none"
-   "delta_based true      false     none"
-   "delta_based false     true      none"
-   "delta_based true      true      none"
+   "state_based undefined undefined"
+   "scuttlebutt undefined undefined"
+   "delta_based false     false"
+   "delta_based true      false"
+   "delta_based false     true"
+   "delta_based true      true"
 )
 
 # number of experiments
@@ -63,7 +64,6 @@ for REP in $(seq 1 $REPS); do
         LDB_MODE=${LDB[0]}
         LDB_DGROUP_BACK_PROPAGATION=${LDB[1]}
         LDB_REDUNDANT_DGROUPS=${LDB[2]}
-        BREAK_LINKS=${LDB[3]}
 
         IMAGE=${IMAGE} \
             PULL_IMAGE=${PULL_IMAGE} \
@@ -76,7 +76,6 @@ for REP in $(seq 1 $REPS); do
             GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
             NODE_NUMBER=${NODE_NUMBER} \
             NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
-            BREAK_LINKS=${BREAK_LINKS} \
             CPU=${CPU} "${DIR}"/deploy-exp.sh
 
         echo "[$(date +%T)] ${EXP} of ${NEXP} ended!"

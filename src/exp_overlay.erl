@@ -23,8 +23,7 @@
 -include("exp.hrl").
 
 -export([get/2,
-         numerical_id_and_neighbors/3,
-         break_links/3]).
+         numerical_id_and_neighbors/3]).
 
 %% @doc The first argument can be:
 %%          - `ring'
@@ -120,79 +119,6 @@ numerical_id(MyName, Sorted) ->
         Sorted
     ).
 
-%% @doc Given break links configuration,
-%%      a list of node specs and a overlay,
-%%      returns a tuple:
-%%      {names of interesting (we want metrics from) nodes, map from name to links to break}
--spec break_links(none | one | half | quarter | eighth,
-                  [node_spec()],
-                  atom()) ->
-    {[ldb_node_id()], [{ldb_node_id(), [node_spec()]}]}.
-break_links(none, Nodes, _Overlay) ->
-    %% all nodes are interesting
-    {Names, _, _} = lists:unzip3(Nodes),
-    %% and no links to break
-    LinkMap = [],
-    {Names, LinkMap};
-break_links(one, Nodes, Overlay) ->
-    NodeNumber = length(Nodes),
-    Link = get_predefined_link(Overlay, NodeNumber),
-    compute_names_and_link_map([Link], Nodes);
-break_links(BreakLinks, Nodes, Overlay) ->
-    NodeNumber = length(Nodes),
-    AllLinks = get_links(Overlay, NodeNumber),
-    LinkNumber = length(AllLinks),
-
-    N = case BreakLinks of
-        half -> LinkNumber div 2;
-        quarter -> LinkNumber div 4;
-        eighth -> LinkNumber div 8
-    end,
-
-    ShuffledLinks = exp_util:shuffle_list(AllLinks),
-    %% take the first `N' links
-    Links = lists:sublist(ShuffledLinks, N),
-    compute_names_and_link_map(Links, Nodes).
-
-%% @private
-compute_names_and_link_map(Links, Nodes) ->
-    Sorted = lists:sort(Nodes),
-
-    LinkMap = lists:foldl(
-        fun({AId, BId}, Acc0) ->
-            {AName, _, _}=A = lists:nth(AId + 1, Sorted),
-            {BName, _, _}=B = lists:nth(BId + 1, Sorted),
-
-            Acc1 = orddict:append(AName, B, Acc0),
-            Acc2 = orddict:append(BName, A, Acc1),
-            Acc2
-        end,
-        orddict:new(),
-        Links
-    ),
-    Names = orddict:fetch_keys(LinkMap),
-    {Names, LinkMap}.
-
-%% @private
-get_links(Overlay, NodeNumber) ->
-    Graph = get(Overlay, NodeNumber),
-    lists:foldl(
-        fun({From, ToList}, Acc0) ->
-            lists:foldl(
-                fun(To, Acc1) ->
-                    %% sort link
-                    AId = min(From, To),
-                    BId = max(From, To),
-                    ordsets:add_element({AId, BId}, Acc1)
-                end,
-                Acc0,
-                ToList
-            )
-        end,
-        ordsets:new(),
-        Graph
-    ).
-
 %% @private
 previous(I, N) ->
     First = 0,
@@ -212,13 +138,3 @@ next(I, N) ->
         _ ->
             I + 1
     end.
-
-%% @private
-%% automatically generated
-get_predefined_link(fullmesh, 2) ->
-    {0, 1};
-get_predefined_link(tree, 14) ->
-    {11, 12};
-get_predefined_link(partialmesh, 16) ->
-    {10, 14}.
-

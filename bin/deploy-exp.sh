@@ -14,7 +14,6 @@ ENV_VARS=(
   GMAP_SIMULATION_KEY_PERCENTAGE
   NODE_NUMBER
   NODE_EVENT_NUMBER
-  BREAK_LINKS
   CPU
 )
 
@@ -38,7 +37,6 @@ echo "    SIMULATION: ${SIMULATION}"
 echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
-echo "    BREAK_LINKS: ${BREAK_LINKS}"
 echo "    CPU: ${CPU}"
 
 # ENV SETUP:
@@ -86,7 +84,7 @@ spec:
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
           value: "${METRICS_STORE}"
-        - name: IP
+        - name: LDB_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
@@ -114,8 +112,6 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: BREAK_LINKS
-          value: "${BREAK_LINKS}"
         - name: RSG
           value: "true"
 ---
@@ -145,12 +141,12 @@ spec:
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
           value: "${METRICS_STORE}"
-        - name: IP
+        - name: LDB_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: PEER_PORT
-          value: "${PEER_PORT}"
+        - name: LDB_PORT
+          value: "6866"
         - name: APISERVER
           value: "${APISERVER}"
         - name: TOKEN
@@ -175,8 +171,6 @@ spec:
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
           value: "${NODE_EVENT_NUMBER}"
-        - name: BREAK_LINKS
-          value: "${BREAK_LINKS}"
         - name: RSG
           value: "false"
 EOF

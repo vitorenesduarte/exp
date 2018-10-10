@@ -100,11 +100,6 @@ configure() ->
                         exp_rsg,
                         false),
 
-    %% configure break links
-    configure_var("BREAK_LINKS",
-                  exp_break_links,
-                  none),
-
     %% configure gmap simulation key percentage
     configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",
                   exp_gmap_simulation_key_percentage,
