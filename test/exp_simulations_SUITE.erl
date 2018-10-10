@@ -90,7 +90,6 @@ retwis_test(_Config) ->
 %% @private
 run(Simulation) ->
     Overlay = ring,
-    Mode = state_based,
 
     Options = [{node_number, ?NODE_NUMBER},
                {exp_settings,
@@ -99,6 +98,8 @@ run(Simulation) ->
                  {exp_node_number, ?NODE_NUMBER},
                  {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode}]}],
+                [{ldb_mode, delta_based},
+                 {ldb_redundant_dgroups, true},
+                 {ldb_dgroup_back_propagation, true}]}],
 
     exp_local_simulations_support:run(Options).

@@ -79,7 +79,7 @@ loop(Req) ->
 
     case string:tokens(Path, "/") of
         ["membership"] ->
-            {ok, Names} = ldb_peer_service:members(),
+            {ok, Names} = ldb_hao:members(),
 
             Req:ok({
               _ContentType = "application/javascript",

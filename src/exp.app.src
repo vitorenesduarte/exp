@@ -12,7 +12,6 @@
                   ssl,
                   ldb,
                   jsx,
-                  partisan,
                   eredis,
                   mochiweb
                  ]},

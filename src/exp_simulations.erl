@@ -192,8 +192,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 retwis_init(),
                 ldb:create("retwis_events", gcounter),
-                IgnoreKeys = sets:from_list(["retwis_events"]),
-                ldb_forward:update_ignore_keys(IgnoreKeys)
+                ldb_forward:update_ignore_keys(sets:from_list(["retwis_events"]))
             end,
             EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber) ->
                 retwis_event(),

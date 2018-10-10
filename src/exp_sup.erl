@@ -51,12 +51,7 @@ configure_peer_service() ->
     %% configure exp overlay
     configure_var("OVERLAY",
                   exp_overlay,
-                  ?DEFAULT_OVERLAY),
-
-    %% configure partisan manager
-    PeerService = partisan_static_peer_service_manager,
-    partisan_config:set(partisan_peer_service_manager,
-                        PeerService).
+                  ?DEFAULT_OVERLAY).
 
 %% @private
 configure() ->
