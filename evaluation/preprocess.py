@@ -70,7 +70,6 @@ def key(config):
         "exp_simulation",
         "exp_overlay",
         "exp_node_number",
-        "exp_break_links",
         "ldb_mode",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
@@ -108,7 +107,7 @@ def group_by_config(d):
 
             for type in j:
 
-                if type != "processing":
+                if not type in ["processing", "latency"]:
                     for m in j[type]:
                         m[TS] -= start_time
 
@@ -193,8 +192,7 @@ def assume_unknown_values(d):
     for key in d:
 
         # get all time-series types
-        types = d[key].keys()
-        types.remove("processing")
+        types = ["transmission", "memory"]
 
         for type in types:
 
@@ -265,8 +263,7 @@ def average(d):
     for key in d:
 
         # get all time-series types
-        types = d[key].keys()
-        types.remove("processing")
+        types = ["transmission", "memory"]
 
         for type in types:
             # number of runs
@@ -392,8 +389,8 @@ def get_score(type):
     score = 0
 
     parts = type.split("~")
-    mode = parts[5]
-    delta_mode = "_".join(parts[6:])
+    mode = parts[4]
+    delta_mode = "_".join(parts[5:])
 
     if mode == "state_based":
         score += 100
