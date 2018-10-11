@@ -54,7 +54,9 @@ push_exp_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    {Transmission0, Memory0, Latency0, Processing} = ldb_metrics:get_all(),
+    RunnerMetrics = exp_simulation_runner:get_metrics(),
+    LDBMetrics = ldb_forward:get_metrics(),
+    {Transmission0, Memory0, Latency0, Processing} = ldb_metrics:merge_all([RunnerMetrics | LDBMetrics]),
 
     %% process transmission
     Transmission = maps:fold(

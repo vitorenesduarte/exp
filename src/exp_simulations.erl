@@ -39,7 +39,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, awset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber, MetricsSt) ->
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -68,7 +68,8 @@ get_specs(Simulation) ->
                             ByMe
                         ),
                         ldb:update(?KEY, {rmv, Element})
-                end
+                end,
+                MetricsSt
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -97,8 +98,9 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
             end,
-            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber) ->
-                ldb:update(?KEY, increment)
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt) ->
+                ldb:update(?KEY, increment),
+                MetricsSt
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -116,9 +118,10 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber) ->
+            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt) ->
                 Element = create_element(EventNumber),
-                ldb:update(?KEY, {add, Element})
+                ldb:update(?KEY, {add, Element}),
+                MetricsSt
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -138,7 +141,7 @@ get_specs(Simulation) ->
                 ldb:create("gmap_events", gcounter),
                 ldb_forward:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
-            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber) ->
+            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber, MetricsSt) ->
                 Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
                 KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
@@ -169,7 +172,8 @@ get_specs(Simulation) ->
                     Keys
                 ),
                 ldb:update(?KEY, Ops),
-                ldb:update("gmap_events", increment)
+                ldb:update("gmap_events", increment),
+                MetricsSt
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query("gmap_events"),
@@ -189,9 +193,10 @@ get_specs(Simulation) ->
                 ldb:create("retwis_events", gcounter),
                 ldb_forward:update_ignore_keys(sets:from_list(["retwis_events"]))
             end,
-            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber) ->
-                retwis_event(),
-                ldb:update("retwis_events", increment)
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt0) ->
+                MetricsSt = retwis_event(MetricsSt0),
+                ldb:update("retwis_events", increment),
+                MetricsSt
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query("retwis_events"),
@@ -265,8 +270,8 @@ retwis_init() ->
 %% @private
 %%  for timeline, ?TIMELINE_POSTS are read
 %%  TODO does it matter this number?
--spec retwis_event() -> ok.
-retwis_event() ->
+-spec retwis_event(ldb_metrics:st()) -> ldb_metrics:st().
+retwis_event(MetricsSt0) ->
 
     %% the following code does not look good on purpose
     %% - to avoid the pattern matching, we repeat code,
@@ -274,13 +279,13 @@ retwis_event() ->
     case event_type() of
         follow ->
             {MicroSeconds, _} = timer:tc(fun retwis_follow/0),
-            ldb_metrics:record_latency(follow, MicroSeconds);
+            ldb_metrics:record_latency(follow, MicroSeconds, MetricsSt0);
         post ->
             {MicroSeconds, _} = timer:tc(fun retwis_post/0),
-            ldb_metrics:record_latency(post, MicroSeconds);
+            ldb_metrics:record_latency(post, MicroSeconds, MetricsSt0);
         timeline ->
             {MicroSeconds, _} = timer:tc(fun retwis_timeline/0),
-            ldb_metrics:record_latency(timeline, MicroSeconds)
+            ldb_metrics:record_latency(timeline, MicroSeconds, MetricsSt0)
     end.
 
 %% @private
