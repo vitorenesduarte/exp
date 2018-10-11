@@ -1,6 +1,6 @@
 #!/bin/bash
 
-delete_all() { 
+delete_all() {
     kubectl delete deployment --all
     kubectl delete rs --all
     kubectl delete pods --all

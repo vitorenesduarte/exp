@@ -3,27 +3,26 @@
 DIR=$(dirname "$0")
 
 ENV_VARS=(
-  IMAGE
-  PULL_IMAGE
-  LDB_MODE
-  LDB_STATE_SYNC_INTERVAL
-  LDB_REDUNDANT_DGROUPS
-  LDB_DGROUP_BACK_PROPAGATION
-  OVERLAY
-  SIMULATION
-  GMAP_SIMULATION_KEY_PERCENTAGE
-  NODE_NUMBER
-  NODE_EVENT_NUMBER
-  EVENT_INTERVAL
-  CPU
+    IMAGE
+    PULL_IMAGE
+    LDB_MODE
+    LDB_STATE_SYNC_INTERVAL
+    LDB_REDUNDANT_DGROUPS
+    LDB_DGROUP_BACK_PROPAGATION
+    OVERLAY
+    SIMULATION
+    GMAP_SIMULATION_KEY_PERCENTAGE
+    NODE_NUMBER
+    NODE_EVENT_NUMBER
+    EVENT_INTERVAL
+    CPU
 )
 
-for ENV_VAR in "${ENV_VARS[@]}"
-do
-  if [ -z "${!ENV_VAR}" ]; then
-    echo ">>> ${ENV_VAR} is not configured; please export it."
-    exit 1
-  fi
+for ENV_VAR in "${ENV_VARS[@]}"; do
+    if [ -z "${!ENV_VAR}" ]; then
+        echo ">>> ${ENV_VAR} is not configured; please export it."
+        exit 1
+    fi
 done
 
 echo "[$(date +%T)] Configuration: "
@@ -64,7 +63,7 @@ EXP_NAME=exp-${TIMESTAMP}
 # YAML file
 FILE=/tmp/${TIMESTAMP}.yaml
 
-cat <<EOF > "${FILE}"
+cat <<EOF >"${FILE}"
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -184,8 +183,8 @@ EOF
 kubectl create -f "${FILE}"
 
 # wait until the end of the experiment
-while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2> /dev/null | wc -l) -gt 0 ]; do
-  sleep 3
+while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2>/dev/null | wc -l) -gt 0 ]; do
+    sleep 3
 done
 
 # fetch logs from redis

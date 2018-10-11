@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 show_pod() {
     pod=$1
     status=$(kubectl logs ${pod} | grep -Eo "Event [0-9]+ \| Observed [0-9]+" | tail -n 1 | awk '{ print $2" of " $5 }')

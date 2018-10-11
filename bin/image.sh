@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 if [ -z "$1" ]; then
-  TAG=latest
+    TAG=latest
 else
-  TAG="$1"
+    TAG="$1"
 fi
 
 DIR=$(dirname "$0")
@@ -15,9 +15,9 @@ cd "${DIR}"/.. && make rel && cd -
 
 # build image
 docker build \
-  --no-cache \
-  -t "${IMAGE}" \
-  -f "${DOCKERFILE}" .
+    --no-cache \
+    -t "${IMAGE}" \
+    -f "${DOCKERFILE}" .
 
 # push image
 docker push "${IMAGE}"

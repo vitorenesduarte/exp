@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 RUNNING=$(kubectl get pods |
-          grep lsim-dash |
-          grep Running)
+    grep lsim-dash |
+    grep Running)
 
 if [ ! -z "$RUNNING" ]; then
-  echo "[$(date +%T)] lsim-dash already running. Exiting."
-  exit
+    echo "[$(date +%T)] lsim-dash already running. Exiting."
+    exit
 fi
 
 # ENV SETUP:
@@ -17,7 +17,7 @@ TOKEN=$(bin/k8s_api_token.sh)
 # YAML file
 FILE=/tmp/lsim-dash.yaml
 
-cat <<EOF > ${FILE}
+cat <<EOF >${FILE}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

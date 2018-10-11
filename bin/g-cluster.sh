@@ -11,19 +11,19 @@ VERSION=1.9.7-gke.6
 
 if [ "$1" = "start" ]; then
 
-  # create the cluster
-  gcloud container clusters \
-    create ${NAME} \
-    --zone=${ZONE} \
-    --num-nodes=${NUM_NODES} \
-    --machine-type=${MACHINE} \
-    --cluster-version ${VERSION} \
-    --preemptible
+    # create the cluster
+    gcloud container clusters \
+        create ${NAME} \
+        --zone=${ZONE} \
+        --num-nodes=${NUM_NODES} \
+        --machine-type=${MACHINE} \
+        --cluster-version ${VERSION} \
+        --preemptible
 
 elif [ "$1" = "stop" ]; then
 
-  # delete the cluster
-  yes | gcloud container clusters \
-    delete ${NAME}
+    # delete the cluster
+    yes | gcloud container clusters \
+        delete ${NAME}
 
 fi
