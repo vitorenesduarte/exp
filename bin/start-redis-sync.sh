@@ -2,6 +2,7 @@
 
 POD_NAME=$(kubectl get pods |
            grep redis |
+           grep Running |
            awk '{print $1}')
 
 PORT=6379
