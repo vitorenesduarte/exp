@@ -54,9 +54,9 @@ PEER_PORT=6866
 init_exp() {
 
 # event number * event interval
-# - multiply by five (worst case; should never happen)
+# - multiply by 4 (worst case; should never happen)
 START_TIME=$(date +%s)
-MAX_EXPECTED_TIME=$((5 * ${NODE_EVENT_NUMBER} * ${EVENT_INTERVAL} / 1000))
+MAX_EXPECTED_TIME=$((4 * ${NODE_EVENT_NUMBER} * ${EVENT_INTERVAL} / 1000))
 
 # Evaluation timestamp: unix timestamp + random
 R=$(echo $RANDOM + 10000 | bc)
@@ -88,6 +88,8 @@ spec:
         image: "${IMAGE}"
         imagePullPolicy: "${PULL_IMAGE}"
         env:
+        - name: ERL_MAX_PORTS
+          value: "10000"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
@@ -147,6 +149,8 @@ spec:
         securityContext:
           privileged: true
         env:
+        - name: ERL_MAX_PORTS
+          value: "10000"
         - name: ORCHESTRATION
           value: "${ORCHESTRATION}"
         - name: METRICS_STORE
