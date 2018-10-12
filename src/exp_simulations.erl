@@ -239,8 +239,8 @@ round_up(A) ->
     trunc(A) + 1.
 
 -define(USER_NUMBER,    100000).
--define(POST_SIZE,      270).
--define(POST_ID_SIZE,   31).
+-define(POST_SIZE,      100).
+-define(POST_ID_SIZE,   32).
 -define(TIMELINE_POSTS, 10).
 
 %% @private
