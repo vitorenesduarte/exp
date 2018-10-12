@@ -111,7 +111,11 @@ handle_info(event, #state{event_count=Events0,
     Events = Events0 + 1,
     MetricsSt = EventFun(Events, NodeNumber, NodeEventNumber, MetricsSt0),
     TotalEvents = TotalEventsFun(),
-    lager:info("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
+    case Events rem 100 of
+        0 -> lager:info("Event ~p | Observed ~p | Node ~p",
+                        [Events, TotalEvents, ldb_config:id()]);
+        _ -> ok
+    end,
 
     case Events == NodeEventNumber of
         true ->
