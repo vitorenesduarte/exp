@@ -48,12 +48,19 @@ TOKEN=$(bin/k8s_api_token.sh)
 ORCHESTRATION=kubernetes
 METRICS_STORE=redis
 
-# Evaluation timestamp: unix timestamp + random
-R=$(echo $RANDOM + 10000 | bc)
-TIMESTAMP=$(date +%s)${R}
-
 # Port
 PEER_PORT=6866
+
+init_exp() {
+
+# event number * event interval
+# - multiply by five (worst case; should never happen)
+START_TIME=$(date +%s)
+MAX_EXPECTED_TIME=$((5 * ${NODE_EVENT_NUMBER} * ${EVENT_INTERVAL} / 1000))
+
+# Evaluation timestamp: unix timestamp + random
+R=$(echo $RANDOM + 10000 | bc)
+TIMESTAMP=${START_TIME}${R}
 
 # DEPLOYMENT:
 # Deployment names
@@ -181,10 +188,28 @@ spec:
 EOF
 
 kubectl create -f "${FILE}"
+sleep 5
+
+}
+
+# initialize all needed variables
+init_exp
 
 # wait until the end of the experiment
 while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2>/dev/null | wc -l) -gt 0 ]; do
     sleep 3
+
+    MAX_TIME=$((${START_TIME} + ${MAX_EXPECTED_TIME}))
+    CURRENT_TIME=$(date +%s)
+
+		# maybe restart, if running for too long
+    if [ ${CURRENT_TIME} -gt ${MAX_TIME} ]; then
+        kubectl delete -f "${FILE}"
+			  while [ $(kubectl get pods -l timestamp=${TIMESTAMP} 2>/dev/null | wc -l) -gt 0 ]; do
+            sleep 1
+        done
+        init_exp
+    fi
 done
 
 # fetch logs from redis
