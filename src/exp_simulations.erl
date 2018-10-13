@@ -39,7 +39,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, awset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber, _) ->
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber, St) ->
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -68,7 +68,8 @@ get_specs(Simulation) ->
                             ByMe
                         ),
                         ldb:update(?KEY, {rmv, Element})
-                end
+                end,
+                St
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -97,8 +98,9 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
             end,
-            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, _) ->
-                ldb:update(?KEY, increment)
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, St) ->
+                ldb:update(?KEY, increment),
+                St
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -116,9 +118,10 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber, _) ->
+            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber, St) ->
                 Element = create_element(EventNumber),
-                ldb:update(?KEY, {add, Element})
+                ldb:update(?KEY, {add, Element}),
+                St
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -138,7 +141,7 @@ get_specs(Simulation) ->
                 ldb:create("gmap_events", gcounter),
                 ldb_forward:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
-            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber, _) ->
+            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber, St) ->
                 Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
                 KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
@@ -169,7 +172,8 @@ get_specs(Simulation) ->
                     Keys
                 ),
                 ldb:update(?KEY, Ops),
-                ldb:update("gmap_events", increment)
+                ldb:update("gmap_events", increment),
+                St
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query("gmap_events"),
