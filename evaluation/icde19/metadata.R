@@ -6,15 +6,15 @@ main <- function() {
   output_file <- "metadata.png"
 
   clusters <- c(
-    "ls -d processed/* | grep partialmesh~8",
     "ls -d processed/* | grep partialmesh~16",
-    "ls -d processed/* | grep partialmesh~32"
+    "ls -d processed/* | grep partialmesh~32",
+    "ls -d processed/* | grep partialmesh~64"
   )
   ## 0 transmission
   titles <- c(
-    "8 Nodes",
     "16 Nodes",
-    "32 Nodes"
+    "32 Nodes",
+    "64 Nodes"
   )
   labels <- c(
     "Scuttlebutt",
@@ -62,7 +62,7 @@ main <- function() {
 
     # plot bars
     y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities, 80)
+    plot_bars(title, lines, y_min, colors, angles, densities, 290)
   }
 
   # axis labels

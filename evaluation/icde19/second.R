@@ -5,7 +5,7 @@ source("generic.R")
 main <- function() {
   output_file <- "second.png"
 
-  cluster <- "ls -d processed/* | grep gset~partialmesh | grep -v scuttlebutt | grep -v False~True | grep -v True~False"
+  cluster <- "ls -d processed/* | grep 0~gset~partialmesh~15 | grep -v scuttlebutt | grep -v False~True | grep -v True~False"
 
   labels <- c(
     "State-based",
@@ -54,7 +54,8 @@ main <- function() {
 
     # plot bars
     y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities, 0.8)
+    plot_bars(title, lines, y_min, colors, angles, densities,
+              bar_cex=0.8)
   }
 
   # axis labels
