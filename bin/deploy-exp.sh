@@ -187,6 +187,7 @@ spec:
 EOF
 
 kubectl create -f "${FILE}"
+sleep 3
 
 while [ $(kubectl get pods 2>/dev/null | grep exp- | grep Running | wc -l) -ne ${NODE_NUMBER} ]; do
     echo "nodes are not up yet..."

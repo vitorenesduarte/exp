@@ -70,8 +70,9 @@ main <- function() {
     -.11,  # y 
     cex=0.95,
     legend=labels,
-    pch=c(1:10),
-    col=colors,
+    angle=angles,
+    density=densities,
+    fill=colors,
     horiz=FALSE,
     box.col=NA # remove box
   )
