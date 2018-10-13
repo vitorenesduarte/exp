@@ -66,6 +66,7 @@ def key(config):
     start_time = config["start_time"]
 
     keys = [
+        "exp_retwis_zipf",
         "exp_gmap_simulation_key_percentage",
         "exp_simulation",
         "exp_overlay",
@@ -370,8 +371,8 @@ def get_score(type):
     score = 0
 
     parts = type.split("~")
-    mode = parts[4]
-    delta_mode = "_".join(parts[5:])
+    mode = parts[5]
+    delta_mode = "_".join(parts[6:])
 
     if mode == "state_based":
         score += 100
@@ -396,7 +397,7 @@ def get_score(type):
         score += 50
     else:
         error("Delta mode not found")
-        
+
     return score
 
 def dump(d):
