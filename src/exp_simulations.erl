@@ -39,7 +39,7 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, awset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber, MetricsSt) ->
+            EventFun = fun(EventNumber, _NodeNumber, NodeEventNumber, _) ->
                 Addition = EventNumber rem 4 /= 0,
                 LastEvent = EventNumber == NodeEventNumber,
 
@@ -68,8 +68,7 @@ get_specs(Simulation) ->
                             ByMe
                         ),
                         ldb:update(?KEY, {rmv, Element})
-                end,
-                MetricsSt
+                end
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -98,9 +97,8 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gcounter)
             end,
-            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt) ->
-                ldb:update(?KEY, increment),
-                MetricsSt
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, _) ->
+                ldb:update(?KEY, increment)
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -118,10 +116,9 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 ldb:create(?KEY, gset)
             end,
-            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt) ->
+            EventFun = fun(EventNumber, _NodeNumber, _NodeEventNumber, _) ->
                 Element = create_element(EventNumber),
-                ldb:update(?KEY, {add, Element}),
-                MetricsSt
+                ldb:update(?KEY, {add, Element})
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query(?KEY),
@@ -141,7 +138,7 @@ get_specs(Simulation) ->
                 ldb:create("gmap_events", gcounter),
                 ldb_forward:update_ignore_keys(sets:from_list(["gmap_events"]))
             end,
-            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber, MetricsSt) ->
+            EventFun = fun(_EventNumber, NodeNumber, _NodeEventNumber, _) ->
                 Percentage = exp_config:get(exp_gmap_simulation_key_percentage),
                 KeysPerNode = round_up(?GMAP_KEY_NUMBER / NodeNumber),
 
@@ -172,8 +169,7 @@ get_specs(Simulation) ->
                     Keys
                 ),
                 ldb:update(?KEY, Ops),
-                ldb:update("gmap_events", increment),
-                MetricsSt
+                ldb:update("gmap_events", increment)
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query("gmap_events"),
@@ -191,12 +187,14 @@ get_specs(Simulation) ->
             StartFun = fun() ->
                 retwis_init(),
                 ldb:create("retwis_events", gcounter),
-                ldb_forward:update_ignore_keys(sets:from_list(["retwis_events"]))
+                ldb_forward:update_ignore_keys(sets:from_list(["retwis_events"])),
+                %% st for this experiment:
+                ldb_metrics:new()
             end,
-            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, MetricsSt0) ->
-                MetricsSt = retwis_event(MetricsSt0),
+            EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, St0) ->
+                St = retwis_event(St0),
                 ldb:update("retwis_events", increment),
-                MetricsSt
+                St
             end,
             TotalEventsFun = fun() ->
                 {ok, Value} = ldb:query("retwis_events"),
@@ -238,15 +236,15 @@ element_sufix(EventNumber) ->
 round_up(A) ->
     trunc(A) + 1.
 
--define(USER_NUMBER,    100000).
+-define(USER_NUMBER,    10000).
 -define(POST_SIZE,      100).
 -define(POST_ID_SIZE,   32).
 -define(TIMELINE_POSTS, 10).
 
 %% @private
 %%  Sizes:
-%%  - Post: 270 bytes
-%%  - *Id:  31 bytes
+%%  - Post: 100 bytes
+%%  - *Id:  32 bytes
 %%
 %%  Data structures:
 %%  - UserId_followers: GSet<UserId>
@@ -265,38 +263,64 @@ retwis_init() ->
             ldb:create(timeline_key(UserId),  lwwmap)
         end,
         all_users()
-    ).
+    ),
+    generate_experiment_ids().
+
+%% @private
+-spec generate_experiment_ids() -> list(integer()).
+generate_experiment_ids() ->
+    Zipf = exp_config:get(retwis_zipf),
+    NodeEventNumber = exp_config:get(exp_node_event_number),
+    %% each follow (15%), requires 2 users
+    %% each post (35%), requires 1 user
+    Per100 = 15 * 2 + 35,
+    ImpossibleCase = Per100 * 2,
+    IdsRequiredEstimation = round_up(NodeEventNumber * ImpossibleCase / 100),
+
+    case Zipf of
+        0 ->
+            %% uniform
+            [random_user() || _ <- lists:seq(1, IdsRequiredEstimation)];
+        _ ->
+            CMD = "python3 bin/zipf.py "
+               ++ integer_to_list(?USER_NUMBER) ++ " "
+               ++ float_to_list(Zipf / 100, [{decimals, 1}]) ++ " "
+               ++ integer_to_list(IdsRequiredEstimation),
+            Result = os:cmd(CMD),
+            [list_to_integer(Id) || Id <- string:lexemes(Result, "\n")]
+    end.
 
 %% @private
 %%  for timeline, ?TIMELINE_POSTS are read
 %%  TODO does it matter this number?
--spec retwis_event(ldb_metrics:st()) -> ldb_metrics:st().
-retwis_event(MetricsSt0) ->
+-spec retwis_event({ldb_metrics:st(), list(integer())}) -> ldb_metrics:st().
+retwis_event({MetricsSt0, NextIds0}) ->
 
     %% the following code does not look good on purpose
     %% - to avoid the pattern matching, we repeat code,
     %%   in principle, providing a more accurate measure
     case event_type() of
         follow ->
-            {MicroSeconds, _} = timer:tc(fun retwis_follow/0),
-            ldb_metrics:record_latency(follow, MicroSeconds, MetricsSt0);
+            {MicroSeconds, NextIds1} = timer:tc(fun retwis_follow/1, [NextIds0]),
+            MetricsSt1 = ldb_metrics:record_latency(follow, MicroSeconds, MetricsSt0),
+            {MetricsSt1, NextIds1};
         post ->
-            {MicroSeconds, _} = timer:tc(fun retwis_post/0),
-            ldb_metrics:record_latency(post, MicroSeconds, MetricsSt0);
+            {MicroSeconds, NextIds1} = timer:tc(fun retwis_post/1, [NextIds0]),
+            MetricsSt1 = ldb_metrics:record_latency(post, MicroSeconds, MetricsSt0),
+            {MetricsSt1, NextIds1};
         timeline ->
-            {MicroSeconds, _} = timer:tc(fun retwis_timeline/0),
-            ldb_metrics:record_latency(timeline, MicroSeconds, MetricsSt0)
+            {MicroSeconds, _} = timer:tc(fun retwis_timeline/0, []),
+            MetricsSt1 = ldb_metrics:record_latency(timeline, MicroSeconds, MetricsSt0),
+            {MetricsSt1, NextIds0}
     end.
 
 %% @private
-retwis_follow() ->
-    User = random_user(),
-    NewFollowee = random_user(User),
-    ldb:update(followers_key(NewFollowee), {add, User}).
+retwis_follow([User,NewFollowee | NextIds1]) ->
+    ldb:update(followers_key(NewFollowee), {add, User}),
+    NextIds1.
 
 %% @private
-retwis_post() ->
-    User = random_user(),
+retwis_post([User | NextIds1]) ->
     %% post data
     Post = create_post(),
     PostId = create_post_id(),
@@ -314,7 +338,8 @@ retwis_post() ->
         fun(Follower, _) -> ldb:update(timeline_key(Follower), Op) end,
         undefined,
         Followers
-    ).
+    ),
+    NextIds1.
 
 %% @private
 retwis_timeline() ->
@@ -366,14 +391,6 @@ all_users() ->
 -spec random_user() -> non_neg_integer().
 random_user() ->
     rand:uniform(?USER_NUMBER).
-
--spec random_user(non_neg_integer()) -> non_neg_integer().
-random_user(UserA) ->
-    UserB = random_user(),
-    case UserA == UserB of
-        true -> random_user(UserA); %% generate another if equals
-        false -> UserB
-    end.
 
 -spec create_post() -> binary().
 create_post() ->

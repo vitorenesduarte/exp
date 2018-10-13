@@ -44,7 +44,8 @@
                 node_number :: non_neg_integer(),
                 node_event_number :: non_neg_integer(),
                 event_interval :: non_neg_integer(),
-                metrics_st :: ldb_metrics:st()}).
+                metrics_st :: ldb_metrics:st(),
+                simulation_st :: term()}).
 
 -define(SIMULATION_END_INTERVAL, 2000).
 
@@ -63,11 +64,11 @@ get_metrics() ->
 
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
-    lager:info("exp_simulation_runner initialized"),
-
     %% start fun is called here,
     %% and start simulation schedules the first event
-    StartFun(),
+    SimulationSt = StartFun(),
+
+    lager:info("exp_simulation_runner initialized with state ~p", [SimulationSt]),
 
     %% get node number and node event number
     NodeNumber = exp_config:get(exp_node_number),
@@ -84,7 +85,8 @@ init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
                 node_number=NodeNumber,
                 node_event_number=NodeEventNumber,
                 event_interval=EventInterval,
-                metrics_st=MetricsSt}}.
+                metrics_st=MetricsSt,
+                simulation_st=SimulationSt}}.
 
 handle_call(start_simulation, _From, #state{event_interval=EventInterval}=State) ->
     schedule_event(EventInterval),
@@ -107,11 +109,13 @@ handle_info(event, #state{event_count=Events0,
                           node_number=NodeNumber,
                           node_event_number=NodeEventNumber,
                           event_interval=EventInterval,
-                          metrics_st=MetricsSt0}=State) ->
+                          metrics_st=MetricsSt0,
+                          simulation_st=SimulationSt0}=State) ->
     Events = Events0 + 1,
-    MetricsSt = EventFun(Events, NodeNumber, NodeEventNumber, MetricsSt0),
+    {MetricsSt, SimulationSt} = EventFun(Events, NodeNumber, NodeEventNumber,
+                                         {MetricsSt0, SimulationSt0}),
     TotalEvents = TotalEventsFun(),
-    case Events rem 100 of
+    case Events rem 10 of
         0 -> lager:info("Event ~p | Observed ~p | Node ~p",
                         [Events, TotalEvents, ldb_config:id()]);
         _ -> ok
@@ -126,7 +130,8 @@ handle_info(event, #state{event_count=Events0,
     end,
 
     {noreply, State#state{event_count=Events,
-                          metrics_st=MetricsSt}};
+                          metrics_st=MetricsSt,
+                          simulation_st=SimulationSt}};
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
                                    check_end_fun=CheckEndFun,

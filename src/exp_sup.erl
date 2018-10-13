@@ -105,6 +105,11 @@ configure() ->
                   exp_gmap_simulation_key_percentage,
                   100),
 
+    %% configure gmap simulation key percentage
+    configure_int("RETWIS_ZIPF",
+                  exp_retwis_zipf,
+                  0),
+
     {Simulation, Orchestration, RSG}.
 
 %% @private
