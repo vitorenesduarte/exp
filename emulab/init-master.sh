@@ -45,10 +45,9 @@ echo -e "sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/
 sudo kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=default:default &&
 echo -e "sudo kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=default:default ${GREEN}successfull${NC}" &&
 
-for NODE in ${NODES[@]};
-do
-  echo "$arg1 $NODE $USER" &&
-    ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE" 'bash -s' < $INIT_NODE &&
-    echo -e "ssh... ${GREEN}successfull${NC}"
+for NODE in ${NODES[@]}; do
+  echo "$arg1 $NODE $USER"
+  ssh -o "StrictHostKeyChecking no" ${USER}@"$NODE" 'bash -s' < $INIT_NODE &
 done 
+wait
 echo -e "${GREEN}init-master.sh DONE${NC}"

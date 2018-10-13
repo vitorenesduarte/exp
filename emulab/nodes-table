@@ -45,6 +45,7 @@ replica-47      replicas     UB16-64-Docker-K8s++ replica-47.join-decomposition.
 replica-48      replicas     UB16-64-Docker-K8s++ replica-48.join-decomposition.CRDT.emulab.net
 replica-49      replicas     UB16-64-Docker-K8s++ replica-49.join-decomposition.CRDT.emulab.net
 replica-5       replicas     UB16-64-Docker-K8s++ replica-5.join-decomposition.CRDT.emulab.net
+replica-50      replicas     UB16-64-Docker-K8s++ replica-50.join-decomposition.CRDT.emulab.net
 replica-6       replicas     UB16-64-Docker-K8s++ replica-6.join-decomposition.CRDT.emulab.net
 replica-7       replicas     UB16-64-Docker-K8s++ replica-7.join-decomposition.CRDT.emulab.net
 replica-8       replicas     UB16-64-Docker-K8s++ replica-8.join-decomposition.CRDT.emulab.net

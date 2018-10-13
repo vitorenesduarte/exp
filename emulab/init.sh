@@ -20,3 +20,8 @@ echo -e "ssh init-master.sh done ${GREEN}successfull${NC}"
 
 echo -e "Copying k8s config from ${USER}@${Main}"
 scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" ${USER}@"$Main":~/.kube/config ~/.kube/config
+
+while [ $(kubectl get nodes | grep NotReady | wc -l) -gt 0 ]; do
+    echo "Some nodes are not ready yet... Trying again in 2s"
+    sleep 2
+done
