@@ -319,7 +319,7 @@ retwis_event({MetricsSt0, NextIds0}) ->
     end.
 
 %% @private
-retwis_follow([User,NewFollowee | NextIds1]) ->
+retwis_follow([User, NewFollowee | NextIds1]) ->
     ldb:update(followers_key(NewFollowee), {add, User}),
     NextIds1.
 
