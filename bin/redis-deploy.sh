@@ -31,3 +31,8 @@ spec:
 EOF
 
 kubectl create -f ${FILE}
+
+while [ $(kubectl get pods 2>/dev/null | grep redis | grep Running | wc -l) -eq 0 ]; do
+    echo "redis is not up yet..."
+    sleep 3
+done
