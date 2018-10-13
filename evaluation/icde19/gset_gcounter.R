@@ -14,8 +14,8 @@ main <- function() {
   ## 0 transmission
   titles <- c(
     "GSet - Tree",
-    "GSet - Mesh",
     "GCounter - Tree",
+    "GSet - Mesh",
     "GCounter - Mesh"
   )
   labels <- c(
