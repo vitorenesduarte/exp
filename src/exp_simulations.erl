@@ -185,11 +185,11 @@ get_specs(Simulation) ->
 
         retwis ->
             StartFun = fun() ->
-                retwis_init(),
+                SimulationSt = retwis_init(),
                 ldb:create("retwis_events", gcounter),
                 ldb_forward:update_ignore_keys(sets:from_list(["retwis_events"])),
                 %% st for this experiment:
-                ldb_metrics:new()
+                SimulationSt
             end,
             EventFun = fun(_EventNumber, _NodeNumber, _NodeEventNumber, St0) ->
                 St = retwis_event(St0),
@@ -269,7 +269,7 @@ retwis_init() ->
 %% @private
 -spec generate_experiment_ids() -> list(integer()).
 generate_experiment_ids() ->
-    Zipf = exp_config:get(retwis_zipf),
+    Zipf = exp_config:get(exp_retwis_zipf),
     NodeEventNumber = exp_config:get(exp_node_event_number),
     %% each follow (15%), requires 2 users
     %% each post (35%), requires 1 user
