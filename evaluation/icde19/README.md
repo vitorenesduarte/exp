@@ -2,7 +2,7 @@
 
 #### Prerequisites
 
-- A running Kubernetes cluster
+- A running Kubernetes cluster (version compatible with v1.8.1)
 - [`kubectl`](https://github.com/kubernetes/kubectl)
 - [Erlang](https://github.com/erlang/otp)
 - [R](https://www.r-project.org/)
