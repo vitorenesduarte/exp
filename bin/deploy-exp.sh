@@ -12,6 +12,7 @@ ENV_VARS=(
     OVERLAY
     SIMULATION
     GMAP_SIMULATION_KEY_PERCENTAGE
+    RETWIS_ZIPF
     NODE_NUMBER
     NODE_EVENT_NUMBER
     EVENT_INTERVAL
@@ -35,6 +36,7 @@ echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
+echo "    RETWIS_ZIPF: ${RETWIS_ZIPF}"
 echo "    NODE_NUMBER: ${NODE_NUMBER}"
 echo "    NODE_EVENT_NUMBER: ${NODE_EVENT_NUMBER}"
 echo "    EVENT_INTERVAL: ${EVENT_INTERVAL}"
@@ -113,6 +115,8 @@ spec:
           value: "${SIMULATION}"
         - name: GMAP_SIMULATION_KEY_PERCENTAGE
           value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
+        - name: RETWIS_ZIPF
+          value: "${RETWIS_ZIPF}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER
@@ -176,6 +180,8 @@ spec:
           value: "${SIMULATION}"
         - name: GMAP_SIMULATION_KEY_PERCENTAGE
           value: "${GMAP_SIMULATION_KEY_PERCENTAGE}"
+        - name: RETWIS_ZIPF
+          value: "${RETWIS_ZIPF}"
         - name: NODE_NUMBER
           value: "${NODE_NUMBER}"
         - name: NODE_EVENT_NUMBER

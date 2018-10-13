@@ -3,7 +3,7 @@
 REPS=1
 DIR=$(dirname "$0")
 DOCKER_USER=vitorenesduarte
-IMAGE=${DOCKER_USER}/exp-copy:allco
+IMAGE=${DOCKER_USER}/exp-copy:832
 PULL_IMAGE=Always
 
 # start redis
@@ -15,46 +15,53 @@ CPU=7
 
 # event number, event interval, state sync interval
 SPEED_CONFIG_=(
-    "50 1000 1000"
-    "100 500 500"
-    "1000 100 500"
-    "1000 200 500"
+    "100 1000 1000"
+    # "120 500 500"
+    # "100 500 500"
+    # "100 500 500"
+    # "1000 100 500"
+    # "4000 50 500"
 )
 
 # overlay nodes
 OVERLAY_CONFIG_=(
-    "partialmesh 15"
+    # "partialmesh 49"
+    # "partialmesh 15"
     # "tree        15"
+    "partialmesh 8"
+    "partialmesh 16"
+    "partialmesh 32"
 )
 
-# exp configuration
+# exp configuration retwis_zipf
 SIM_CONFIG_=(
-    "gset     0"
-    "gcounter 0"
-    "gmap     10"
-    "gmap     30"
-    "gmap     60"
-    "gmap     100"
-    # "retwis   0"
+    "gset     0   0"
+    # "gcounter 0   0"
+    # "gmap     10  0"
+    # "gmap     30  0"
+    # "gmap     60  0"
+    # "gmap     100 0"
+    # "retwis   0   0"
+    # "retwis   0   50"
+    # "retwis   0   100"
 )
 
 # ldb configuration
 # mode bp rr
 LDB_=(
-    "state_based undefined undefined"
+    # "state_based undefined undefined"
     "scuttlebutt undefined undefined"
-    "delta_based false     false"
-    "delta_based true      false"
-    "delta_based false     true"
-    "delta_based true      true"
-    # "delta_based true      true"
-    # "scuttlebutt undefined undefined"
     # "delta_based false     false"
+    # "delta_based true      false"
+    # "delta_based false     true"
+    "delta_based true      true"
 )
 
 # number of experiments
 NEXP=$((${#OVERLAY_CONFIG_[@]} * ${#SIM_CONFIG_[@]} * ${#SPEED_CONFIG_[@]} * ${#LDB_[@]}))
 EXP=1
+
+echo "Found ${NEXP} configurations. Let's start!"
 
 # shellcheck disable=SC2034
 for REP in $(seq 1 $REPS); do
@@ -73,6 +80,7 @@ for REP in $(seq 1 $REPS); do
                 SIM_CONFIG=($(echo ${SIM_CONFIG} | tr ' ' '\n'))
                 SIMULATION=${SIM_CONFIG[0]}
                 GMAP_SIMULATION_KEY_PERCENTAGE=${SIM_CONFIG[1]}
+                RETWIS_ZIPF=${SIM_CONFIG[2]}
 
                 for LDB in "${LDB_[@]}"; do
                     LDB=($(echo ${LDB} | tr ' ' '\n'))
@@ -89,6 +97,7 @@ for REP in $(seq 1 $REPS); do
                         OVERLAY=${OVERLAY} \
                         SIMULATION=${SIMULATION} \
                         GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
+                        RETWIS_ZIPF=${RETWIS_ZIPF} \
                         NODE_NUMBER=${NODE_NUMBER} \
                         NODE_EVENT_NUMBER=${NODE_EVENT_NUMBER} \
                         EVENT_INTERVAL=${EVENT_INTERVAL} \
