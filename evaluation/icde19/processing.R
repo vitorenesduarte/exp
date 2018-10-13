@@ -87,7 +87,7 @@ main <- function() {
   legend(
     0.1, # x
     -.06,  # y 
-    cex=0.92,
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,

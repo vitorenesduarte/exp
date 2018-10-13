@@ -7,8 +7,8 @@ main <- function() {
 
   clusters <- c(
     "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gset~partialmesh",
     "ls -d processed/* | grep gcounter~tree",
+    "ls -d processed/* | grep gset~partialmesh",
     "ls -d processed/* | grep gcounter~partialmesh"
   )
   ## 0 transmission
