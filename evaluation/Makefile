@@ -20,6 +20,8 @@ plots:
 	-Rscript icde19/gmap.R
 	-Rscript icde19/memory.R
 	-Rscript icde19/processing.R
+	-Rscript icde19/metadata.R
+	-Rscript icde19/retwis.R
 
 show:
 	$(VIEWER) *.png
