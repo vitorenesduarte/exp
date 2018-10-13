@@ -39,7 +39,8 @@ push_exp_metrics(StartTime) ->
                 exp_node_number,
                 exp_simulation,
                 exp_node_event_number,
-                exp_gmap_simulation_key_percentage],
+                exp_gmap_simulation_key_percentage,
+                exp_retwis_zipf],
     LSimConfigs = get_configs(exp, LSimVars),
 
     All = [{start_time, StartTime}]
