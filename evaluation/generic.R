@@ -25,10 +25,15 @@ add_title <- function(text) {
   title(text, cex.main=1.3, line=0.7)
 }
 
-plot_bars <- function(title, lines, y_min, colors, angles, densities, bar_cex=1) {
-  # find the y max
-  y_max = Reduce(max, lines)
-  y_max = y_max + 0.15*y_max
+plot_bars <- function(title, lines, y_min, colors, angles, densities,
+                      y_max=-1,
+                      bar_cex=1) {
+
+  if(y_max == -1) {
+    # find the y max
+    y_max = Reduce(max, lines)
+    y_max = y_max + 0.15*y_max
+  }
 
   # configure and draw
   p <- barplot(
