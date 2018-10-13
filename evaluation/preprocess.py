@@ -107,22 +107,26 @@ def group_by_config(d):
             # for all time-series types (all but processing)
             # for all metrics remove start_time
             for type in json:
+                if not type in r[k]:
+                    r[k][type] = []
+
                 if not type in ["processing", "latency"]:
                     for m in json[type]:
                         m[TS] -= start_time
 
                 # store metrics by type
-                r[k][type] = json[type]
+                r[k][type].append(json[type])
 
     return r
 
-def get_higher_ts(run):
+def get_higher_ts(runs):
     """
     Find the higher timestamp of run.
     """
     higher = 0
-    for metric in run:
-        higher = max(higher, metric[TS])
+    for run in runs:
+        for metric in run:
+            higher = max(higher, metric[TS])
 
     return higher
 
@@ -174,51 +178,52 @@ def assume_unknown_values(d):
     """
     Assume values for timestamps not reported for transmission graphs.
     """
-
+    
     for key in d:
-
         # get all time-series types
         types = ["transmission", "memory"]
 
         for type in types:
-            run = d[key][type]
+            runs = []
+            # find the higher timestamp for all runs
+            higher_ts = get_higher_ts(d[key][type])
 
-            # find the higher timestamp
-            higher_ts = get_higher_ts(run)
+            for run in d[key][type]:
+                # remove timestamps before 0
+                run = ignore_pre_big_bang(run)
 
-            # remove timestamps before 0
-            run = ignore_pre_big_bang(run)
+                # get bottom size
+                bs = bottom_size(type)
 
-            # get bottom size
-            bs = bottom_size(type)
+                # since we can have several metrics
+                # for the same timestamp,
+                # aggregate metrics per timestamp
+                ts_to_size = {}
 
-            # since we can have several metrics
-            # for the same timestamp,
-            # aggregate metrics per timestamp
-            ts_to_size = {}
+                for metric in run:
+                    ts = metric[TS]
+                    size = metric[SIZE]
 
-            for metric in run:
-                ts = metric[TS]
-                size = metric[SIZE]
+                    # if ts not in map
+                    # create an entry
+                    if not ts in ts_to_size:
+                        ts_to_size[ts] = bs
 
-                # if ts not in map
-                # create an entry
-                if not ts in ts_to_size:
-                    ts_to_size[ts] = bs
+                    ts_to_size[ts] = add(type, ts_to_size[ts], size)
 
-                ts_to_size[ts] = add(type, ts_to_size[ts], size)
+                previous = bs
 
-            previous = bs
+                # create bottom values for unknown timestamps
+                for ts in range(0, higher_ts):
+                    if not ts in ts_to_size:
+                        ts_to_size[ts] = default(type, previous)
 
-            # create bottom values for unknown timestamps
-            for ts in range(0, higher_ts):
-                if not ts in ts_to_size:
-                    ts_to_size[ts] = default(type, previous)
+                    previous = ts_to_size[ts]
 
-                previous = ts_to_size[ts]
+                # store the ts_to_size map
+                runs.append(ts_to_size)
 
-            # store the ts_to_size map
-            d[key][type] = ts_to_size
+            d[key][type] = runs
 
     return d
 
@@ -233,6 +238,37 @@ def divide_lists(ls, by):
     Divide lists by 'by'.
     """
     return [x / float(by) for x in ls]
+
+def average(d):
+    """
+    Average runs.
+    """
+    for key in d:
+        # get all time-series types
+        types = ["transmission", "memory"]
+        
+        for type in types:
+            # number of runs
+            runs_number = len(d[key][type])
+            # number of metrics (all but processing)
+            metrics_number = len(d[key][type][0]) - 1
+            # get bottom size
+            bs = bottom_size(type)
+            # list where we'll store the sum of the sizes
+            sum = [bs for i in range(0, metrics_number)]
+            # sum all runs
+            for run in d[key][type]:
+                for i in range(0, metrics_number):
+                    ls = [
+                        sum[i],
+                        run[i]
+                    ]
+                    sum[i] = sum_lists(ls)
+            # avg of sum
+            avg = [divide_lists(ls, runs_number) for ls in sum]
+            # store avg
+            d[key][type] = avg
+    return d
 
 def to_ms(microseconds):
     """
@@ -275,7 +311,7 @@ def aggregate(d):
         r[key]["processing"] = d[key]["processing"]
 
         # group transmission
-        for [M, C] in d[key]["transmission"].itervalues():
+        for [M, C] in d[key]["transmission"]:
             r[key]["transmission_metadata"].append(M)
             r[key]["transmission_crdt"].append(C)
             r[key]["transmission"].append(M + C)
@@ -306,7 +342,7 @@ def aggregate(d):
         r[key]["transmission_compressed_x"] = xs
 
         # aggregate memory
-        for [A, C] in d[key]["memory"].itervalues():
+        for [A, C] in d[key]["memory"]:
             r[key]["memory_algorithm"].append(A)
             r[key]["memory_crdt"].append(C)
         
@@ -384,6 +420,7 @@ def main():
     d = get_metric_files()
     d = group_by_config(d)
     d = assume_unknown_values(d)
+    d = average(d)
     d = aggregate(d)
     dump(d)
 
