@@ -51,7 +51,7 @@ main <- function() {
     # keys
     key <- "transmission_metadata"
 
-    id_size = 16
+    id_size = 20
 
     # data
     title <- titles[i]
@@ -62,7 +62,7 @@ main <- function() {
 
     # plot bars
     y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities, 290)
+    plot_bars(title, lines, y_min, colors, angles, densities, 350)
   }
 
   # axis labels
