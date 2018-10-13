@@ -136,6 +136,39 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
   add_title(title)
 }
 
+plot_lines_log <- function(title, lines_x, lines_y, colors) {
+  # find the x max and y max
+  x_max <- Reduce(max, lapply(lines_x, max))
+  y_max <- Reduce(max, lapply(lines_y, max))
+  y_min <- Reduce(min, lapply(lines_y, min))
+
+  # configure plot
+  plot(
+    range(x_max),
+    range(y_min, y_max),
+    type="n",
+    xlim=c(0.1, x_max), # max x
+    ylim=c(y_min, y_max), # max y
+    xlab="",
+    ylab="",
+    log="y"
+  )
+
+  # draw
+  for(i in 1:length(lines_y)) {
+    lines(
+      lines_x[[i]],
+      lines_y[[i]],
+      col=colors[[i]],
+      type="b",
+      pch=i
+    )
+  }
+
+  # title
+  add_title(title)
+}
+
 plot_box <- function(title, lines, colors) {
   boxplot(
     lines,
