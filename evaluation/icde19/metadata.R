@@ -12,9 +12,9 @@ main <- function() {
   )
   ## 0 transmission
   titles <- c(
-    "8 Replicas",
-    "16 Replicas",
-    "32 Replicas"
+    "8 Nodes",
+    "16 Nodes",
+    "32 Nodes"
   )
   labels <- c(
     "Scuttlebutt",
@@ -25,7 +25,7 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=800, height=350, res=130)
+  png(filename=output_file, width=550, height=350, res=130)
 
   # change outer margins
   op <- par(
@@ -39,8 +39,8 @@ main <- function() {
     "steelblue4",
     "gray22"
   )
-  angles <- c(0, 45)
-  densities <- c(0, 45)
+  angles <- c(45, 45)
+  densities <- c(15, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -49,25 +49,24 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key <- "transmission_crdt"
     key <- "transmission_metadata"
 
-    id_size = 8
+    id_size = 16
 
     # data
     title <- titles[i]
     lines <- map(files, function(f) {
       entries <- json(c(f))[[key]]
-      sum(entries) / length(entries) * 8
+      sum(entries) / length(entries) * id_size / 1000
     })
 
     # plot bars
     y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities, 38000)
+    plot_bars(title, lines, y_min, colors, angles, densities, 80)
   }
 
   # axis labels
-  y_axis_label("Avg. metadata (KB)")
+  y_axis_label("Avg. metadata (MB)")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -75,7 +74,7 @@ main <- function() {
 
   # legend
   legend(
-    0.1, # x
+    -0.2, # x
     -.6,  # y 
     cex=1,
     legend=labels,

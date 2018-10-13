@@ -308,7 +308,7 @@ def aggregate(d):
         r[key]["transmission"] = []
         r[key]["memory_algorithm"] = []
         r[key]["memory_crdt"] = []
-        r[key]["processing"] = d[key]["processing"]
+        r[key]["processing"] = sum(d[key]["processing"])
 
         # group transmission
         for [M, C] in d[key]["transmission"]:
