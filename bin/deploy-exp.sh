@@ -53,14 +53,9 @@ PEER_PORT=6866
 
 init_exp() {
 
-# event number * event interval
-# - multiply by 4 (worst case; should never happen)
-START_TIME=$(date +%s)
-MAX_EXPECTED_TIME=$((4 * ${NODE_EVENT_NUMBER} * ${EVENT_INTERVAL} / 1000))
-
 # Evaluation timestamp: unix timestamp + random
 R=$(echo $RANDOM + 10000 | bc)
-TIMESTAMP=${START_TIME}${R}
+TIMESTAMP=$(date +%s)${R}
 
 # DEPLOYMENT:
 # Deployment names
@@ -192,7 +187,17 @@ spec:
 EOF
 
 kubectl create -f "${FILE}"
-sleep 5
+
+while [ $(kubectl get pods 2>/dev/null | grep exp- | grep Running | wc -l) -ne ${NODE_NUMBER} ]; do
+    echo "nodes are not up yet..."
+    sleep 3
+done
+echo "nodes are up!"
+
+# event number * event interval
+# - multiply by 5 (worst case; should never happen)
+START_TIME=$(date +%s)
+MAX_EXPECTED_TIME=$((5 * ${NODE_EVENT_NUMBER} * ${EVENT_INTERVAL} / 1000))
 
 }
 
