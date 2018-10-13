@@ -23,9 +23,10 @@ class ZipfGenerator:
         # Translate the Zipf variable: 
         return bisect.bisect(self.distMap, u) - 1
 
-if len(sys.argv) == 3:
+if len(sys.argv) == 4:
     n = int(sys.argv[1])
     alpha = float(sys.argv[2])
+    events = int(sys.argv[3])
     gen = ZipfGenerator(n, alpha)
-    for i in range(n):
+    for i in range(events):
         print(gen.next())
