@@ -1,4 +1,4 @@
-FROM erlang:20.2.2-slim
+FROM vitorenesduarte/exp-base
 
 MAINTAINER Vitor Enes <vitorenesduarte@gmail.com>
 
@@ -7,6 +7,7 @@ ARG profile=default
 ENV NAME=/exp
 
 COPY _build/${profile}/rel/$NAME $NAME
+COPY bin/zipf.py $NAME/bin
 
 WORKDIR $NAME
 
