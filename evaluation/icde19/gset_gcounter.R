@@ -6,10 +6,10 @@ main <- function() {
   output_file <- "gset_gcounter.png"
 
   clusters <- c(
-    "ls -d processed/* | grep gset~tree",
-    "ls -d processed/* | grep gcounter~tree",
-    "ls -d processed/* | grep gset~partialmesh",
-    "ls -d processed/* | grep gcounter~partialmesh"
+    "ls -d processed/* | grep gset~tree~15",
+    "ls -d processed/* | grep gcounter~tree~15",
+    "ls -d processed/* | grep gset~partialmesh~15",
+    "ls -d processed/* | grep gcounter~partialmesh~15"
   )
   ## 0 transmission
   titles <- c(

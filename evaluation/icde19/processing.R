@@ -6,10 +6,10 @@ main <- function() {
   output_file <- "processing.png"
 
   clusters <- c(
-    "ls -d processed/* | grep 0~gset~partialmesh",
-    "ls -d processed/* | grep 0~gcounter~partialmesh",
-    "ls -d processed/* | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep 100~gmap~partialmesh"
+    "ls -d processed/* | grep 0~gset~partialmesh~15",
+    "ls -d processed/* | grep 0~gcounter~partialmesh~15",
+    "ls -d processed/* | grep 10~gmap~partialmesh~15",
+    "ls -d processed/* | grep 100~gmap~partialmesh~15"
   )
   titles <- c(
     "GSet - Mesh",
