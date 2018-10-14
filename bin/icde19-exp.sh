@@ -2,7 +2,7 @@
 
 DIR=$(dirname "$0")
 
-IMAGE=vitorenesduarte/exp-copy:nbs
+IMAGE=vitorenesduarte/exp-copy:latest
 
 IMAGE=${IMAGE} ${DIR}/bench_retwis.sh
 IMAGE=${IMAGE} ${DIR}/bench_micro.sh
