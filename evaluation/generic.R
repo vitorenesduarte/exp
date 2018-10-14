@@ -136,7 +136,10 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
   add_title(title)
 }
 
-plot_lines_log <- function(title, lines_x, lines_y, colors) {
+plot_lines_retwis <- function(lines_x, lines_y, colors,
+                              x_lab="",
+                              y_lab="",
+                              log="y") {
   # find the x max and y max
   x_max <- Reduce(max, lapply(lines_x, max))
   y_max <- Reduce(max, lapply(lines_y, max))
@@ -151,22 +154,48 @@ plot_lines_log <- function(title, lines_x, lines_y, colors) {
     ylim=c(y_min, y_max), # max y
     xlab="",
     ylab="",
-    log="y"
+    log=log,
+    xaxt="n",
+    cex.axis=0.8
+  )
+  # add custom axis
+  xtick <- lines_x[[1]]
+  axis(
+    side=1,
+    at=xtick,
+    labels=TRUE,
+    cex.axis=0.85
+  )
+
+  # add custom labels
+  mtext(
+    side=1, # bottom
+    las=0, # vertical text
+    text=x_lab,
+    font=2, # bold
+    line=2.3, # closeness to plot
+    cex=.9 # size
+  )
+  mtext(
+    side=2, # left
+    las=0, # vertical text
+    text=y_lab,
+    font=2, # bold
+    line=2.3, # closeness to plot
+    cex=.9 # size
   )
 
   # draw
   for(i in 1:length(lines_y)) {
+    pch <- if(i == 1) { 3 } else { 6 }
     lines(
       lines_x[[i]],
       lines_y[[i]],
       col=colors[[i]],
       type="b",
-      pch=i
+      pch=pch
     )
   }
-
-  # title
-  add_title(title)
 }
 
 plot_box <- function(title, lines, colors) {

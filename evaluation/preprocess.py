@@ -8,6 +8,7 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
+TERM_SIZE="term_size"
 COMPRESS=12 # every x
 #MAX_TIME=60
 
@@ -108,15 +109,36 @@ def group_by_config(d):
             # for all time-series types (all but processing)
             # for all metrics remove start_time
             for type in json:
-                if not type in r[k]:
-                    r[k][type] = []
+                if type in ["transmission", "memory"]:
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = []
 
-                if not type in ["processing", "latency"]:
+                    # store it
                     for m in json[type]:
                         m[TS] -= start_time
+                    r[k][type].append(json[type])
 
-                # store metrics by type
-                r[k][type].append(json[type])
+                elif type == "processing":
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = 0
+
+                    # store it
+                    r[k][type] += json[type]
+
+                elif type == "latency":
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = {}
+
+                    for latency_type in json[type]:
+                        # init latency type
+                        if not latency_type in r[k][type]:
+                            r[k][type][latency_type] = []
+
+                        # store it
+                        r[k][type][latency_type].extend(json[type][latency_type])
 
     return r
 
@@ -137,7 +159,7 @@ def bottom_size(type):
     """
 
     if type in ["transmission", "memory"]:
-        return [0, 0]
+        return [0, 0, 0]
 
     error("type not found.")
 
@@ -147,7 +169,9 @@ def add(type, sizeA, sizeB):
     """
 
     if type in ["transmission", "memory"]:
-        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
+        return [sizeA[0] + sizeB[0],
+                sizeA[1] + sizeB[1],
+                sizeA[2] + sizeB[2]]
 
     error("type not found")
 
@@ -161,7 +185,7 @@ def default(type, previous):
     two = ["memory"]
 
     if type in one:
-        return [0, 0]
+        return [0, 0, 0]
     if type in two:
         return previous
 
@@ -174,6 +198,12 @@ def ignore_pre_big_bang(run):
     
     return [m for m in run if m[TS] >= 0]
     #return [m for m in run if m[TS] >= 0 and m[TS] < MAX_TIME]
+
+def b_to_mb(bytes):
+    """
+    Convert from bytes to gigabytes.
+    """
+    return bytes / 1000
 
 def assume_unknown_values(d):
     """
@@ -204,6 +234,8 @@ def assume_unknown_values(d):
                 for metric in run:
                     ts = metric[TS]
                     size = metric[SIZE]
+                    term_size = b_to_mb(metric[TERM_SIZE])
+                    size.append(term_size)
 
                     # if ts not in map
                     # create an entry
@@ -307,15 +339,19 @@ def aggregate(d):
         r[key]["transmission_metadata"] = []
         r[key]["transmission_crdt"] = []
         r[key]["transmission"] = []
+        r[key]["transmission_term_size"] = []
         r[key]["memory_algorithm"] = []
         r[key]["memory_crdt"] = []
-        r[key]["processing"] = sum(d[key]["processing"])
+        r[key]["memory_term_size"] = []
+        r[key]["processing"] = d[key]["processing"]
+        r[key]["latency"] = d[key]["latency"]
 
         # group transmission
-        for [M, C] in d[key]["transmission"]:
+        for [M, C, T] in d[key]["transmission"]:
             r[key]["transmission_metadata"].append(M)
             r[key]["transmission_crdt"].append(C)
             r[key]["transmission"].append(M + C)
+            r[key]["transmission_term_size"].append(T)
 
         # compress transmissions
         # e.g. sum every 10 values
@@ -343,9 +379,10 @@ def aggregate(d):
         r[key]["transmission_compressed_x"] = xs
 
         # aggregate memory
-        for [A, C] in d[key]["memory"]:
+        for [A, C, T] in d[key]["memory"]:
             r[key]["memory_algorithm"].append(A)
             r[key]["memory_crdt"].append(C)
+            r[key]["memory_term_size"].append(T)
         
     return r
 

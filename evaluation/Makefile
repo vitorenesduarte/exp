@@ -21,7 +21,12 @@ plots:
 	-Rscript icde19/memory.R
 	-Rscript icde19/processing.R
 	-Rscript icde19/metadata.R
+	make retwis_plots
+
+retwis_plots:
 	-Rscript icde19/retwis.R
+	-Rscript icde19/retwis_latency.R
+	-Rscript icde19/retwis_processing.R
 
 show:
 	$(VIEWER) *.png
