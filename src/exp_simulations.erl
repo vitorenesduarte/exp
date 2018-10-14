@@ -241,14 +241,14 @@ round_up(A) ->
     trunc(A) + 1.
 
 -define(USER_NUMBER,    10000).
--define(POST_SIZE,      100).
--define(POST_ID_SIZE,   32).
+-define(POST_SIZE,      270).
+-define(POST_ID_SIZE,   31).
 -define(TIMELINE_POSTS, 10).
 
 %% @private
 %%  Sizes:
-%%  - Post: 100 bytes
-%%  - *Id:  32 bytes
+%%  - Post: 270 bytes
+%%  - *Id:  31 bytes
 %%
 %%  Data structures:
 %%  - UserId_followers: GSet<UserId>

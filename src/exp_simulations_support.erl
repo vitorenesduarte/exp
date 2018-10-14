@@ -61,9 +61,10 @@ push_ldb_metrics() ->
 
     %% process transmission
     Transmission = maps:fold(
-        fun(Timestamp, {A, B}, Acc) ->
+        fun(Timestamp, {{A, B}, C}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [A, B]}],
+                 {size, [A, B]},
+                 {term_size, C}],
             [V | Acc]
         end,
         [],
@@ -72,9 +73,10 @@ push_ldb_metrics() ->
 
     %% process memory
     Memory = maps:fold(
-        fun(Timestamp, {A, B}, Acc) ->
+        fun(Timestamp, {{A, B}, C}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [A, B]}],
+                 {size, [A, B]},
+                 {term_size, C}],
             [V | Acc]
         end,
         [],
