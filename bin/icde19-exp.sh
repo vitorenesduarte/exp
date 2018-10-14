@@ -2,6 +2,8 @@
 
 DIR=$(dirname "$0")
 
-# ${DIR}/bench_retwis.sh
-${DIR}/bench_metadata.sh
-${DIR}/bench_micro.sh
+IMAGE=vitorenesduarte/exp-copy:nbs
+
+IMAGE=${IMAGE} ${DIR}/bench_retwis.sh
+IMAGE=${IMAGE} ${DIR}/bench_micro.sh
+IMAGE=${IMAGE} ${DIR}/bench_metadata.sh
