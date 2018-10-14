@@ -12,9 +12,9 @@
                   ssl,
                   ldb,
                   jsx,
-                  partisan,
                   eredis,
-                  mochiweb
+                  mochiweb,
+                  erlang_term
                  ]},
   {mod, {exp_app, []}},
   {modules, []}

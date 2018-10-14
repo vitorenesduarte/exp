@@ -26,7 +26,8 @@
 
 %% exp_simulation_runner callbacks
 -export([start_link/1,
-         start_simulation/0]).
+         start_simulation/0,
+         get_metrics/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -41,10 +42,12 @@
                 total_events_fun :: function(),
                 check_end_fun :: function(),
                 node_number :: non_neg_integer(),
-                node_event_number :: non_neg_integer()}).
+                node_event_number :: non_neg_integer(),
+                event_interval :: non_neg_integer(),
+                metrics_st :: ldb_metrics:st(),
+                simulation_st :: term()}).
 
--define(DEFAULT_EVENT_INTERVAL, 1000).
--define(SIMULATION_END_INTERVAL, 10000).
+-define(SIMULATION_END_INTERVAL, 2000).
 
 -spec start_link([function()]) ->
     {ok, pid()} | ignore | {error, term()}.
@@ -55,28 +58,42 @@ start_link(Funs) ->
 start_simulation() ->
     gen_server:call(?MODULE, start_simulation, infinity).
 
+-spec get_metrics() -> ldb_metrics:st().
+get_metrics() ->
+    gen_server:call(?MODULE, get_metrics, infinity).
+
 %% gen_server callbacks
 init([StartFun, EventFun, TotalEventsFun, CheckEndFun]) ->
-    lager:info("exp_simulation_runner initialized"),
-
     %% start fun is called here,
     %% and start simulation schedules the first event
-    StartFun(),
+    SimulationSt = StartFun(),
+
+    lager:info("exp_simulation_runner initialized with state ~p", [SimulationSt]),
 
     %% get node number and node event number
     NodeNumber = exp_config:get(exp_node_number),
     NodeEventNumber = exp_config:get(exp_node_event_number),
+    EventInterval = exp_config:get(exp_event_interval),
+
+    %% metrics
+    MetricsSt = ldb_metrics:new(),
 
     {ok, #state{event_count=0,
                 event_fun=EventFun,
                 total_events_fun=TotalEventsFun,
                 check_end_fun=CheckEndFun,
                 node_number=NodeNumber,
-                node_event_number=NodeEventNumber}}.
+                node_event_number=NodeEventNumber,
+                event_interval=EventInterval,
+                metrics_st=MetricsSt,
+                simulation_st=SimulationSt}}.
 
-handle_call(start_simulation, _From, State) ->
-    schedule_event(),
+handle_call(start_simulation, _From, #state{event_interval=EventInterval}=State) ->
+    schedule_event(EventInterval),
     {reply, ok, State};
+
+handle_call(get_metrics, _From, #state{metrics_st=MetricsSt}=State) ->
+    {reply, MetricsSt, State};
 
 handle_call(Msg, _From, State) ->
     lager:warning("Unhandled call message: ~p", [Msg]),
@@ -90,21 +107,31 @@ handle_info(event, #state{event_count=Events0,
                           event_fun=EventFun,
                           total_events_fun=TotalEventsFun,
                           node_number=NodeNumber,
-                          node_event_number=NodeEventNumber}=State) ->
+                          node_event_number=NodeEventNumber,
+                          event_interval=EventInterval,
+                          metrics_st=MetricsSt0,
+                          simulation_st=SimulationSt0}=State) ->
     Events = Events0 + 1,
-    EventFun(Events, NodeNumber, NodeEventNumber),
+    {MetricsSt, SimulationSt} = EventFun(Events, NodeNumber, NodeEventNumber,
+                                         {MetricsSt0, SimulationSt0}),
     TotalEvents = TotalEventsFun(),
-    lager:info("Event ~p | Observed ~p | Node ~p", [Events, TotalEvents, ldb_config:id()]),
+    case Events rem 10 of
+        0 -> lager:info("Event ~p | Observed ~p | Node ~p",
+                        [Events, TotalEvents, ldb_config:id()]);
+        _ -> ok
+    end,
 
     case Events == NodeEventNumber of
         true ->
             %% If I did all the events I should do
             schedule_simulation_end();
         false ->
-            schedule_event()
+            schedule_event(EventInterval)
     end,
 
-    {noreply, State#state{event_count=Events}};
+    {noreply, State#state{event_count=Events,
+                          metrics_st=MetricsSt,
+                          simulation_st=SimulationSt}};
 
 handle_info(simulation_end, #state{total_events_fun=TotalEventsFun,
                                    check_end_fun=CheckEndFun,
@@ -135,8 +162,8 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% @private
-schedule_event() ->
-    timer:send_after(?DEFAULT_EVENT_INTERVAL, event).
+schedule_event(EventInterval) ->
+    timer:send_after(EventInterval, event).
 
 %% @private
 schedule_simulation_end() ->

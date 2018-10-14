@@ -1,32 +1,28 @@
 {"1.1.0",
 [{<<"acceptor_pool">>,{pkg,<<"acceptor_pool">>,<<"1.0.0-rc.0">>},0},
  {<<"eredis">>,{pkg,<<"eredis">>,<<"1.0.8">>},0},
+ {<<"erlang_term">>,{pkg,<<"erlang_term">>,<<"1.7.3">>},1},
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},0},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"f752d65d72f3bd9006ee7dea900944b964440ade"}},
+       {ref,"bfa922774c968272a3b9c987a7ce00a2e4da6c02"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
- {<<"partisan">>,
-  {git,"https://github.com/lasp-lang/partisan",
-       {ref,"619007a7841a055db217af7d2ddbd07ff3aa7d75"}},
-  0},
- {<<"rand_compat">>,{pkg,<<"rand_compat">>,<<"0.0.1">>},0},
- {<<"time_compat">>,{pkg,<<"time_compat">>,<<"0.0.1">>},0},
+ {<<"ranch">>,{pkg,<<"ranch">>,<<"1.5.0">>},1},
  {<<"types">>,
   {git,"https://github.com/vitorenesduarte/types",
-       {ref,"14dfd3af715d5dbe130f531aaa76a4ed10fbea1d"}},
+       {ref,"bc2327a0c2b6f43ca092440a54c2c2dc21fb71a1"}},
   0}]}.
 [
 {pkg_hash,[
  {<<"acceptor_pool">>, <<"679D741DF87FC13599B1AEF2DF8F78F1F880449A6BEFAB7C44FB6FAE0E92A2DE">>},
  {<<"eredis">>, <<"AB4FDA1C4BA7FBE6C19C26C249DC13DA916D762502C4B4FA2DF401A8D51C5364">>},
+ {<<"erlang_term">>, <<"9A77FAFE03DA5726A2013F12246CE2D2068B5DEE6C03752EC80A6575AFD3AC4B">>},
  {<<"goldrush">>, <<"F06E5D5F1277DA5C413E84D5A2924174182FB108DABB39D5EC548B27424CD106">>},
  {<<"jsx">>, <<"749BEC6D205C694AE1786D62CEA6CC45A390437E24835FD16D12D74F07097727">>},
  {<<"lager">>, <<"A6DEB74DAE7927F46BD13255268308EF03EB206EC784A94EAF7C1C0F3B811615">>},
  {<<"mochiweb">>, <<"E1DAAC474DF07651E5D17CC1E642C4069C7850DC4508D3DB7263A0651330AACC">>},
- {<<"rand_compat">>, <<"624B590931D27252D0BCF710211699DB3695540706F57D2E91B918A17AB58839">>},
- {<<"time_compat">>, <<"23FE0AD1FDF3B5B88821B2D04B4B5E865BF587AE66056D671FE0F53514ED8139">>}]}
+ {<<"ranch">>, <<"F04166F456790FEE2AC1AA05A02745CC75783C2BFB26D39FAF6AEFC9A3D3A58A">>}]}
 ].

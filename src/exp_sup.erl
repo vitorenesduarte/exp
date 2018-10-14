@@ -49,27 +49,9 @@ init([]) ->
 %% @private
 configure_peer_service() ->
     %% configure exp overlay
-    Overlay = configure_var("OVERLAY",
-                            exp_overlay,
-                            ?DEFAULT_OVERLAY),
-
-    PeerService = case Overlay of
-        hyparview ->
-            partisan_hyparview_peer_service_manager;
-        _ ->
-            partisan_static_peer_service_manager
-    end,
-
-
-    %% configure ldb peer service
-    ldb_config:set(ldb_peer_service, PeerService),
-
-    %% configure partisan manager
-    partisan_config:set(partisan_peer_service_manager,
-                        PeerService),
-
-    partisan_config:set(min_active_size, 4),
-    partisan_config:set(max_active_size, 5).
+    configure_var("OVERLAY",
+                  exp_overlay,
+                  ?DEFAULT_OVERLAY).
 
 %% @private
 configure() ->
@@ -87,6 +69,11 @@ configure() ->
     configure_int("NODE_EVENT_NUMBER",
                   exp_node_event_number,
                   30),
+
+    %% configure event interval
+    configure_int("EVENT_INTERVAL",
+                  exp_event_interval,
+                  1000), %% milliseconds
 
     %% configure unique simulation timestamp
     configure_int("TIMESTAMP",
@@ -113,21 +100,15 @@ configure() ->
                         exp_rsg,
                         false),
 
-    %% configure metrics store
-    configure_var("METRICS_STORE",
-                  exp_metrics_store,
-                  undefined),
-
-
-    %% configure break links
-    configure_var("BREAK_LINKS",
-                  exp_break_links,
-                  none),
-
     %% configure gmap simulation key percentage
     configure_int("GMAP_SIMULATION_KEY_PERCENTAGE",
                   exp_gmap_simulation_key_percentage,
                   100),
+
+    %% configure gmap simulation key percentage
+    configure_int("RETWIS_ZIPF",
+                  exp_retwis_zipf,
+                  0),
 
     {Simulation, Orchestration, RSG}.
 
@@ -140,7 +121,7 @@ exp_specs(Simulation, Orchestration, RSG) ->
             [];
         _ ->
             BarrierPeerServiceSpecs = [?CHILD(exp_barrier_peer_service)],
-            Store = [?CHILD(exp_metrics_store)],
+            Store = [?CHILD(exp_redis_metrics_store)],
 
             RSGSpecs = case RSG of
                 true ->

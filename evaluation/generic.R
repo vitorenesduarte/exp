@@ -22,13 +22,18 @@ y_axis_label <- function(text) {
 }
 
 add_title <- function(text) {
-  title(text, cex.main=1.5, line=0.7)
+  title(text, cex.main=1.3, line=0.7)
 }
 
-plot_bars <- function(title, lines, y_min, colors, angles, densities) {
-  # find the y max
-  y_max = Reduce(max, lines)
-  y_max = y_max + 0.15*y_max
+plot_bars <- function(title, lines, y_min, colors, angles, densities,
+                      y_max=-1,
+                      bar_cex=1) {
+
+  if(y_max == -1) {
+    # find the y max
+    y_max = Reduce(max, lines)
+    y_max = y_max + 0.15*y_max
+  }
 
   # configure and draw
   p <- barplot(
@@ -56,7 +61,7 @@ plot_bars <- function(title, lines, y_min, colors, angles, densities) {
     y=lines,
     label=rounded,
     pos=3,
-    cex=1,
+    cex=bar_cex,
     font=2
   )
 
@@ -129,6 +134,68 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
 
   # title
   add_title(title)
+}
+
+plot_lines_retwis <- function(lines_x, lines_y, colors,
+                              x_lab="",
+                              y_lab="",
+                              log="y") {
+  # find the x max and y max
+  x_max <- Reduce(max, lapply(lines_x, max))
+  y_max <- Reduce(max, lapply(lines_y, max))
+  y_min <- Reduce(min, lapply(lines_y, min))
+
+  # configure plot
+  plot(
+    range(x_max),
+    range(y_min, y_max),
+    type="n",
+    xlim=c(0.1, x_max), # max x
+    ylim=c(y_min, y_max), # max y
+    xlab="",
+    ylab="",
+    log=log,
+    xaxt="n",
+    cex.axis=0.8
+  )
+  # add custom axis
+  xtick <- lines_x[[1]]
+  axis(
+    side=1,
+    at=xtick,
+    labels=TRUE,
+    cex.axis=0.85
+  )
+
+  # add custom labels
+  mtext(
+    side=1, # bottom
+    las=0, # vertical text
+    text=x_lab,
+    font=2, # bold
+    line=2.3, # closeness to plot
+    cex=.9 # size
+  )
+  mtext(
+    side=2, # left
+    las=0, # vertical text
+    text=y_lab,
+    font=2, # bold
+    line=2.3, # closeness to plot
+    cex=.9 # size
+  )
+
+  # draw
+  for(i in 1:length(lines_y)) {
+    pch <- if(i == 1) { 3 } else { 6 }
+    lines(
+      lines_x[[i]],
+      lines_y[[i]],
+      col=colors[[i]],
+      type="b",
+      pch=pch
+    )
+  }
 }
 
 plot_box <- function(title, lines, colors) {

@@ -71,7 +71,7 @@ handle_info({tcp, _Socket, Data}, State) ->
     {noreply, State};
 
 handle_info({tcp_closed, Socket}, State) ->
-    lager:info("TCP closed ~p", [Socket]),
+    lager:info("Barrier TCP closed ~p", [Socket]),
     {stop, normal, State};
 
 handle_info(Msg, State) ->

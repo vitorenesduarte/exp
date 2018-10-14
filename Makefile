@@ -1,7 +1,7 @@
 PACKAGE         ?= exp
 REBAR            = $(shell pwd)/rebar3
 
-.PHONY: test
+.PHONY: test rel
 
 all: compile
 
@@ -13,7 +13,7 @@ check: test xref dialyzer lint
 test: ct eunit
 	${REBAR} cover -v
 
-lint: erl-lint #shell-lint docker-lint
+lint: erl-lint
 
 erl-lint:
 	${REBAR} as lint lint
@@ -42,8 +42,15 @@ cover: test
 shell:
 	${REBAR} shell --apps ${PACKAGE}
 
-stage:
-	${REBAR} release -d
+rel:
+	rm -rf _build/default/rel/
+	${REBAR} release
+
+modes:
+	pkill -9 beam.smp ; rm -rf priv/lager ; ${REBAR} ct --readable=false --verbose --suite exp_modes_SUITE
+
+simulations:
+	pkill -9 beam.smp ; rm -rf priv/lager ; ${REBAR} ct --readable=false --verbose --suite exp_simulations_SUITE
 
 logs:
 	  tail -F priv/lager/*/log/*.log

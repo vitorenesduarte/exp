@@ -3,23 +3,15 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "plot3.png"
+  output_file <- "memory.png"
 
   clusters <- c(
-    "ls -d processed/* | grep 0~gset~tree",
-    "ls -d processed/* | grep 0~gcounter~tree",
-    "ls -d processed/* | grep 10~gmap~tree",
-    "ls -d processed/* | grep 100~gmap~tree",
-    "ls -d processed/* | grep 0~gset~partialmesh",
-    "ls -d processed/* | grep 0~gcounter~partialmesh",
-    "ls -d processed/* | grep 10~gmap~partialmesh",
-    "ls -d processed/* | grep 100~gmap~partialmesh"
+    "ls -d processed/* | grep 0~gset~partialmesh~15",
+    "ls -d processed/* | grep 0~gcounter~partialmesh~15",
+    "ls -d processed/* | grep 10~gmap~partialmesh~15",
+    "ls -d processed/* | grep 100~gmap~partialmesh~15"
   )
   titles <- c(
-    "GSet - Tree",
-    "GCounter - Tree",
-    "GMap 10% - Tree",
-    "GMap 100% - Tree",
     "GSet - Mesh",
     "GCounter - Mesh",
     "GMap 10% - Mesh",
@@ -27,6 +19,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Scuttlebutt",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -37,13 +30,13 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=2600, height=1200, res=240)
+  png(filename=output_file, width=800, height=650, res=130)
 
   # change outer margins
   op <- par(
-    oma=c(3,3,0,0),   # room for the legend
-    mfrow=c(2,4),      # 2x4 matrix
-    mar=c(1,2,3,1) # spacing between plots
+    oma=c(3.5,2,0,0),   # room for the legend
+    mfrow=c(2,2),      # 2x4 matrix
+    mar=c(2,2,2,1) # spacing between plots
   )
 
   # style stuff
@@ -52,10 +45,11 @@ main <- function() {
     "steelblue4",
     "springgreen4",
     "darkorange1",
-    "red4"
+    "red4",
+    "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30)
+  angles <- c(0, 45, 135, 45, 135, 45)
+  densities <- c(0, 15, 15, 30, 30, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -79,17 +73,20 @@ main <- function() {
       }
     )
 
-    # min (state-based)
-    state_based <- Reduce(min, lines)
-    lines <- map(lines, function(v) { v / state_based })
+    # (wrto rr)
+    if(length(lines) == length(labels)) {
+      rr_index <- length(labels)
+      rr <- lines[[rr_index]]
+      lines <- map(lines, function(v) { v / rr })
 
-    # plot bars
-    y_min <- 0
-    plot_bars(title, lines, y_min, colors, angles, densities)
+      # plot bars
+      y_min <- 0
+      plot_bars(title, lines, y_min, colors, angles, densities)
+    }
   }
 
   # axis labels
-  y_axis_label("Avg. Memory ratio wrto State-based")
+  y_axis_label("Avg. Memory ratio wrto BP+RR")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates
@@ -97,14 +94,14 @@ main <- function() {
 
   # legend
   legend(
-    -.08, # x
-    -.2,  # y 
-    cex=1.1,
+    0.1, # x
+    -.06,  # y 
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,
     fill=colors,
-    horiz=TRUE,
+    ncol=2,
     box.col=NA # remove box
   )
 

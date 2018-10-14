@@ -23,9 +23,8 @@
 -include("exp.hrl").
 
 -behaviour(gen_server).
--behaviour(exp_metrics_store).
 
-%% exp_metrics_store callbacks
+%% exp_redis_metrics_store callbacks
 -export([start_link/0,
          put/2]).
 

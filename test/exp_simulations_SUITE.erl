@@ -68,6 +68,7 @@ all() ->
      gset_test,
      gcounter_test,
      gmap_test
+     %retwis_test
     ].
 
 %% ===================================================================
@@ -83,10 +84,12 @@ gcounter_test(_Config) ->
 gmap_test(_Config) ->
     run(gmap).
 
+retwis_test(_Config) ->
+    run(retwis).
+
 %% @private
 run(Simulation) ->
-    Overlay = hyparview,
-    Mode = state_based,
+    Overlay = ring,
 
     Options = [{node_number, ?NODE_NUMBER},
                {exp_settings,
@@ -95,6 +98,8 @@ run(Simulation) ->
                  {exp_node_number, ?NODE_NUMBER},
                  {exp_node_event_number, ?EVENT_NUMBER}]},
                {ldb_settings,
-                [{ldb_mode, Mode}]}],
+                [{ldb_mode, delta_based},
+                 {ldb_redundant_dgroups, true},
+                 {ldb_dgroup_back_propagation, true}]}],
 
     exp_local_simulations_support:run(Options).

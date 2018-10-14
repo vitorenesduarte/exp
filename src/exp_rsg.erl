@@ -36,9 +36,7 @@
          terminate/2,
          code_change/3]).
 
--record(state, {node_number :: non_neg_integer(),
-                break_links_specs :: [node_spec()] | undefined,
-                partisan_manager :: atom()}).
+-record(state, {node_number :: non_neg_integer()}).
 
 -define(BARRIER_PEER_SERVICE, exp_barrier_peer_service).
 -define(INTERVAL, 3000).
@@ -56,12 +54,9 @@ init([]) ->
     schedule_create_barrier(),
 
     NodeNumber = exp_config:get(exp_node_number),
-    Manager = partisan_config:get(partisan_peer_service_manager),
 
     lager:info("exp_rsg initialized"),
-    {ok, #state{node_number=NodeNumber,
-                break_links_specs=undefined,
-                partisan_manager=Manager}}.
+    {ok, #state{node_number=NodeNumber}}.
 
 handle_call(simulation_end, _From, State) ->
     tell({sim_done, ldb_config:id()}),
@@ -74,30 +69,6 @@ handle_call(Msg, _From, State) ->
 handle_cast(sim_go, State) ->
     lager:info("Received SIM GO. Starting simulation."),
     exp_simulation_runner:start_simulation(),
-    {noreply, State};
-
-handle_cast({break_links_info, Infos}, State) ->
-    Specs = lists:map(
-        fun({Name, Ip, ?BARRIER_PORT}) -> {Name, Ip, ?PORT} end,
-        Infos
-    ),
-    {Names, _, _} = lists:unzip3(Specs),
-    lager:info("Received BREAK LINKS INFO. ~p", [Names]),
-
-    ldb_whisperer:update_metrics_members(Names),
-    {noreply, State#state{break_links_specs=Specs}};
-
-handle_cast(break_links, #state{break_links_specs=Specs,
-                                partisan_manager=Manager}=State) ->
-    lager:info("Received BREAK LINKS."),
-    {_, Ips, _} = lists:unzip3(Specs),
-    Manager:close_connections(Ips),
-    {noreply, State};
-
-handle_cast(heal_links, #state{break_links_specs=Specs,
-                               partisan_manager=Manager}=State) ->
-    lager:info("Received HEAL LINKS."),
-    connect(Specs, Manager),
     {noreply, State};
 
 handle_cast(metrics_go, State) ->
@@ -121,8 +92,7 @@ handle_info(create_barrier, State) ->
 
     {noreply, State};
 
-handle_info(join_peers, #state{node_number=NodeNumber,
-                               partisan_manager=Manager}=State) ->
+handle_info(join_peers, #state{node_number=NodeNumber}=State) ->
     MyName = ldb_config:id(),
     Nodes = exp_orchestration:get_tasks(exp, ?PORT, true),
     Overlay = exp_config:get(exp_overlay),
@@ -131,12 +101,12 @@ handle_info(join_peers, #state{node_number=NodeNumber,
         true ->
             %% if all nodes are connected
             {NumericalId, ToConnect} = exp_overlay:numerical_id_and_neighbors(MyName,
-                                                                               Nodes,
-                                                                               Overlay),
+                                                                              Nodes,
+                                                                              Overlay),
             %% set numerical id
             exp_config:set(exp_numerical_id, NumericalId),
             %% and connect to neighbors
-            ok = connect(ToConnect, Manager),
+            ok = connect(ToConnect, ldb_hao),
             tell({connect_done, ldb_config:id()});
         _ ->
             schedule_join_peers()
@@ -164,15 +134,15 @@ schedule_join_peers() ->
 %% @private
 connect([], _) ->
     ok;
-connect([Node|Rest]=All, PeerService) ->
-    case PeerService:join(Node) of
+connect([Node|Rest]=All, Manager) ->
+    case Manager:join(Node) of
         ok ->
-            connect(Rest, PeerService);
+            connect(Rest, Manager);
         Error ->
             lager:info("Couldn't connect to ~p. Reason ~p. Will try again in ~p ms",
                        [Node, Error, ?INTERVAL]),
             timer:sleep(?INTERVAL),
-            connect(All, PeerService)
+            connect(All, Manager)
     end.
 
 %% @private

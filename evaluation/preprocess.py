@@ -8,9 +8,8 @@ PROCESSED_DIR = "processed"
 CONFIG_FILE = "rsg.json"
 TS="ts"
 SIZE="size"
-#RATIO=[1, 4, 16, 32, 64]
-RATIO=[1]
-COMPRESS=15 # every x
+TERM_SIZE="term_size"
+COMPRESS=12 # every x
 #MAX_TIME=60
 
 def error(message):
@@ -68,13 +67,12 @@ def key(config):
     start_time = config["start_time"]
 
     keys = [
+        "exp_retwis_zipf",
         "exp_gmap_simulation_key_percentage",
         "exp_simulation",
         "exp_overlay",
         "exp_node_number",
-        "exp_break_links",
         "ldb_mode",
-        "ldb_driven_mode",
         "ldb_redundant_dgroups",
         "ldb_dgroup_back_propagation"
     ]
@@ -99,34 +97,54 @@ def group_by_config(d):
         )
         
         # create empty dictionary if key not already in dictionary
-        if not k in r:
-            r[k] = {}
+        if k in r:
+            error("key " + k + " already found!")
+
+        r[k] = {}
 
         for file in d[dir]:
             # read metric file
-            j = read_json(file)
+            json = read_json(file)
 
-            # for all time-series types (all but latency)
+            # for all time-series types (all but processing)
             # for all metrics remove start_time
+            for type in json:
+                if type in ["transmission", "memory"]:
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = []
 
-            for type in j:
-
-                if type != "latency":
-                    for m in j[type]:
+                    # store it
+                    for m in json[type]:
                         m[TS] -= start_time
+                    r[k][type].append(json[type])
 
-                # create empty list if type not already in dictionary
-                if not type in r[k]:
-                    r[k][type] = []
+                elif type == "processing":
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = 0
 
-                # store metrics by type
-                r[k][type].append(j[type])
+                    # store it
+                    r[k][type] += json[type]
+
+                elif type == "latency":
+                    # init type
+                    if not type in r[k]:
+                        r[k][type] = {}
+
+                    for latency_type in json[type]:
+                        # init latency type
+                        if not latency_type in r[k][type]:
+                            r[k][type][latency_type] = []
+
+                        # store it
+                        r[k][type][latency_type].extend(json[type][latency_type])
 
     return r
 
 def get_higher_ts(runs):
     """
-    Find the higher timestamp of all runs.
+    Find the higher timestamp of run.
     """
     higher = 0
     for run in runs:
@@ -137,15 +155,11 @@ def get_higher_ts(runs):
 
 def bottom_size(type):
     """
-    Return bottom size depending on the type passed as input.
+    Return bottom size.
     """
-    one = ["transmission"]
-    two = ["memory"]
 
-    if type in one:
-        return [0, 0]
-    if type in two:
-        return [0, 0, 0, 0]
+    if type in ["transmission", "memory"]:
+        return [0, 0, 0]
 
     error("type not found.")
 
@@ -154,13 +168,10 @@ def add(type, sizeA, sizeB):
     Sum two sizes
     """
 
-    one = ["transmission"]
-    two = ["memory"]
-
-    if type in one:
-        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1]]
-    if type in two:
-        return [sizeA[0] + sizeB[0], sizeA[1] + sizeB[1], sizeA[2] + sizeB[2], sizeA[3] + sizeB[3]]
+    if type in ["transmission", "memory"]:
+        return [sizeA[0] + sizeB[0],
+                sizeA[1] + sizeB[1],
+                sizeA[2] + sizeB[2]]
 
     error("type not found")
 
@@ -174,7 +185,7 @@ def default(type, previous):
     two = ["memory"]
 
     if type in one:
-        return [0, 0]
+        return [0, 0, 0]
     if type in two:
         return previous
 
@@ -188,27 +199,27 @@ def ignore_pre_big_bang(run):
     return [m for m in run if m[TS] >= 0]
     #return [m for m in run if m[TS] >= 0 and m[TS] < MAX_TIME]
 
+def b_to_mb(bytes):
+    """
+    Convert from bytes to gigabytes.
+    """
+    return bytes / 1000
+
 def assume_unknown_values(d):
     """
     Assume values for timestamps not reported for transmission graphs.
     """
-
+    
     for key in d:
-
         # get all time-series types
-        types = d[key].keys()
-        types.remove("latency")
+        types = ["transmission", "memory"]
 
         for type in types:
-
-            # find the higher timestamp of all runs for this type
-            higher_ts = get_higher_ts(d[key][type])
-            #higher_ts = MAX_TIME
-
             runs = []
+            # find the higher timestamp for all runs
+            higher_ts = get_higher_ts(d[key][type])
 
             for run in d[key][type]:
-
                 # remove timestamps before 0
                 run = ignore_pre_big_bang(run)
 
@@ -223,6 +234,8 @@ def assume_unknown_values(d):
                 for metric in run:
                     ts = metric[TS]
                     size = metric[SIZE]
+                    term_size = b_to_mb(metric[TERM_SIZE])
+                    size.append(term_size)
 
                     # if ts not in map
                     # create an entry
@@ -243,7 +256,6 @@ def assume_unknown_values(d):
                 # store the ts_to_size map
                 runs.append(ts_to_size)
 
-            # update all runs
             d[key][type] = runs
 
     return d
@@ -264,25 +276,19 @@ def average(d):
     """
     Average runs.
     """
-
     for key in d:
-
         # get all time-series types
-        types = d[key].keys()
-        types.remove("latency")
-
+        types = ["transmission", "memory"]
+        
         for type in types:
             # number of runs
             runs_number = len(d[key][type])
-            # number of metrics
+            # number of metrics (all but processing)
             metrics_number = len(d[key][type][0]) - 1
-
             # get bottom size
             bs = bottom_size(type)
-
             # list where we'll store the sum of the sizes
             sum = [bs for i in range(0, metrics_number)]
-
             # sum all runs
             for run in d[key][type]:
                 for i in range(0, metrics_number):
@@ -291,13 +297,10 @@ def average(d):
                         run[i]
                     ]
                     sum[i] = sum_lists(ls)
-
             # avg of sum
             avg = [divide_lists(ls, runs_number) for ls in sum]
-
             # store avg
             d[key][type] = avg
-
     return d
 
 def to_ms(microseconds):
@@ -311,110 +314,76 @@ def aggregate(d):
     Aggregate types of the same run.
     """
 
-    def ratio_key(ratio):
-        return "transmission_" + str(ratio)
+    def get_compress_index(key):
+        m = {
+            110: 1,
+            210: 5,
+            310: 2,
+            420: 4,
+            430: 6,
+            440: 3,
+            450: 0
+        }
+
+        score = get_score(key)
+        if score in m:
+            return (COMPRESS * m[score]) / len(m)
+        else:
+            return 0
 
     r = {}
 
     for key in d:
         # create key in dictionary
         r[key] = {}
-
-        # store transmission for different ratios
-        # between metadata and payload
-        for ratio in RATIO:
-            r[key][ratio_key(ratio)] = []
         r[key]["transmission_metadata"] = []
-        r[key]["transmission_payload"] = []
-        r[key]["memory_crdt"] = []
-        r[key]["memory_crdt_metadata"] = []
-        r[key]["memory_crdt_payload"] = []
+        r[key]["transmission_crdt"] = []
+        r[key]["transmission"] = []
+        r[key]["transmission_term_size"] = []
         r[key]["memory_algorithm"] = []
-        r[key]["memory_algorithm_metadata"] = []
-        r[key]["memory_algorithm_payload"] = []
-        r[key]["latency"] = []
-        r[key]["latency_local"] = []
-        r[key]["latency_remote"] = []
+        r[key]["memory_crdt"] = []
+        r[key]["memory_term_size"] = []
+        r[key]["processing"] = d[key]["processing"]
+        r[key]["latency"] = d[key]["latency"]
 
-        # fetch all lists that have these types
-        for type in ["transmission"]:
-            if type in d[key]:
-                Ms = [M for [M, P] in d[key][type]]
-                Ps = [P for [M, P] in d[key][type]]
-                r[key]["transmission_metadata"].append(Ms)
-                r[key]["transmission_payload"].append(Ps)
-
-                for ratio in RATIO:
-                    MPs = [M + P*ratio for [M, P] in d[key][type]]
-                    r[key][ratio_key(ratio)].append(MPs)
-
-        # sum the fetched lists
-        for ratio in RATIO:
-            r[key][ratio_key(ratio)] = sum_lists(r[key][ratio_key(ratio)])
-        r[key]["transmission_metadata"] = sum_lists(r[key]["transmission_metadata"])
-        r[key]["transmission_payload"] = sum_lists(r[key]["transmission_payload"])
-
-        def get_compress_index(key):
-            m = {
-                1110: 1,
-                2120: 3,
-                2130: 0,
-                2140: 2,
-                2150: 4
-            }
-
-            score = get_score(key)
-            if score in m:
-                return (COMPRESS * m[score]) / 5
-            else:
-                return 0
+        # group transmission
+        for [M, C, T] in d[key]["transmission"]:
+            r[key]["transmission_metadata"].append(M)
+            r[key]["transmission_crdt"].append(C)
+            r[key]["transmission"].append(M + C)
+            r[key]["transmission_term_size"].append(T)
 
         # compress transmissions
         # e.g. sum every 10 values
         # and average them
-        max_len = 0
-        for ratio in RATIO:
-            xs = []
-            ys = []
-            current_sum = 0
-            run_len = len(r[key][ratio_key(ratio)])
-            max_len = max(max_len, run_len)
-            index = get_compress_index(key)
+        xs = []
+        ys = []
+        current_sum = 0
+        run_len = len(r[key]["transmission"])
+        index = get_compress_index(key)
 
-            for i in range(run_len):
-                # update sum
-                current_sum += r[key][ratio_key(ratio)][i]
+        for i in range(run_len):
+            # update sum
+            current_sum += r[key]["transmission"][i]
 
-                if(i % COMPRESS == index):
-                    ys.append(current_sum)
-                    # reset sum
-                    current_sum = 0
+            if(i % COMPRESS == index):
+                ys.append(current_sum)
+                # reset sum
+                current_sum = 0
 
-            for i in range(len(ys)):
-                xs.append((i * COMPRESS) + index)
+        for i in range(len(ys)):
+            xs.append((i * COMPRESS) + index)
 
-            ys = divide_lists(ys, COMPRESS)
-            r[key][ratio_key(ratio) + "_compressed"] = ys
-            r[key][ratio_key(ratio) + "_compressed_x"] = xs
+        ys = divide_lists(ys, COMPRESS)
+        r[key]["transmission_compressed"] = ys
+        r[key]["transmission_compressed_x"] = xs
 
-        # aggregate memory values
-        for [MC, PC, MR, PR] in d[key]["memory"]:
-            r[key]["memory_crdt"].append(MC + PC)
-            r[key]["memory_crdt_metadata"].append(MC)
-            r[key]["memory_crdt_payload"].append(PC)
-            r[key]["memory_algorithm"].append(MR + PR)
-            r[key]["memory_algorithm_metadata"].append(MR)
-            r[key]["memory_algorithm_payload"].append(PR)
+        # aggregate memory
+        for [A, C, T] in d[key]["memory"]:
+            r[key]["memory_algorithm"].append(A)
+            r[key]["memory_crdt"].append(C)
+            r[key]["memory_term_size"].append(T)
         
-        # aggregate latency values
-        for lord in d[key]["latency"]: # local or remote dict
-            for lort in lord: # local or remote type
-                k = "latency_" + lort
-                latency_values = map(to_ms, lord[lort])
-                r[key][k].extend(latency_values)
-
-        r[key]["latency"] = r[key]["latency_local"] + r[key]["latency_remote"]
-
     return r
 
 def save_file(path, content):
@@ -440,25 +409,19 @@ def get_score(type):
 
     parts = type.split("~")
     mode = parts[5]
-    driven_mode = parts[6]
-    delta_mode = "_".join(parts[7:])
+    delta_mode = "_".join(parts[6:])
 
     if mode == "state_based":
-        score += 1000
+        score += 100
+    elif mode == "vanilla_scuttlebutt":
+        score += 200
+    elif mode == "scuttlebutt":
+        score += 300
     elif mode == "delta_based":
-        score += 2000
+        score += 400
     else:
         error("Mode not found")
 
-    if driven_mode == "none":
-        score += 100
-    elif driven_mode == "state_driven":
-        score += 200
-    elif driven_mode == "digest_driven":
-        score += 300
-    else:
-        error("Driven mode not found")
-        
     if delta_mode == "undefined_undefined":
         score += 10
     elif delta_mode == "False_False":
@@ -471,7 +434,7 @@ def get_score(type):
         score += 50
     else:
         error("Delta mode not found")
-        
+
     return score
 
 def dump(d):

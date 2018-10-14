@@ -25,14 +25,11 @@
 -export([push_exp_metrics/1,
          push_ldb_metrics/0]).
 
--define(LDB_METRICS, ldb_metrics).
--define(STORE, exp_metrics_store).
 -define(SEP, ",").
 
 -spec push_exp_metrics(timestamp()) -> ok.
 push_exp_metrics(StartTime) ->
     LDBVars = [ldb_mode,
-               ldb_driven_mode,
                ldb_state_sync_interval,
                ldb_redundant_dgroups,
                ldb_dgroup_back_propagation],
@@ -42,8 +39,8 @@ push_exp_metrics(StartTime) ->
                 exp_node_number,
                 exp_simulation,
                 exp_node_event_number,
-                exp_break_links,
-                exp_gmap_simulation_key_percentage],
+                exp_gmap_simulation_key_percentage,
+                exp_retwis_zipf],
     LSimConfigs = get_configs(exp, LSimVars),
 
     All = [{start_time, StartTime}]
@@ -58,50 +55,49 @@ push_exp_metrics(StartTime) ->
 
 -spec push_ldb_metrics() -> ok.
 push_ldb_metrics() ->
-    TimeSeries = ?LDB_METRICS:get_time_series(),
-    Latency = ?LDB_METRICS:get_latency(),
-    TransmissionTS = filter_by_ts_class(transmission, TimeSeries),
-    MemoryTS = filter_by_ts_class(memory, TimeSeries),
+    RunnerMetrics = exp_simulation_runner:get_metrics(),
+    LDBMetrics = ldb_forward:get_metrics(),
+    {Transmission0, Memory0, Latency0, Processing} = ldb_metrics:merge_all([RunnerMetrics | LDBMetrics]),
 
     %% process transmission
-    All0 = lists:foldl(
-        fun({Timestamp, transmission, {MSize, PSize}}, Acc0) ->
+    Transmission = maps:fold(
+        fun(Timestamp, {{A, B}, C}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [MSize, PSize]}],
-            orddict:append(transmission, V, Acc0)
+                 {size, [A, B]},
+                 {term_size, C}],
+            [V | Acc]
         end,
-        orddict:new(),
-        TransmissionTS
+        [],
+        Transmission0
     ),
 
     %% process memory
-    All1 = lists:foldl(
-        fun({Timestamp, memory, {{MCRDTSize, PCRDTSize}, {MRestSize, PRestSize}}}, Acc0) ->
+    Memory = maps:fold(
+        fun(Timestamp, {{A, B}, C}, Acc) ->
             V = [{ts, Timestamp},
-                 {size, [MCRDTSize, PCRDTSize, MRestSize, PRestSize]}],
-            orddict:append(memory, V, Acc0)
+                 {size, [A, B]},
+                 {term_size, C}],
+            [V | Acc]
         end,
-        All0,
-        MemoryTS
+        [],
+        Memory0
     ),
 
     %% process latency
-    All2 = orddict:store(latency, Latency, All1),
+    Latency = maps:to_list(Latency0),
+
+    All = [
+        {transmission, Transmission},
+        {memory, Memory},
+        {latency, Latency},
+        {processing, Processing}
+    ],
 
     FilePath = file_path(ldb_config:id()),
-    File = ldb_json:encode(All2),
+    File = ldb_json:encode(All),
 
     store(FilePath, File),
     ok.
-
-%% @private
-filter_by_ts_class(Class, TS) ->
-    lists:filter(
-        fun({_, MClass, _}) ->
-                MClass == Class
-        end,
-        TS
-    ).
 
 %% @private
 file_path(Name) ->
@@ -115,10 +111,8 @@ get_configs(App, Vars) ->
     lists:map(
         fun(Var) ->
             Mod = case App of
-                ldb ->
-                    ldb_config;
-                exp ->
-                    exp_config
+                ldb -> ldb_config;
+                exp -> exp_config
             end,
             {Var, Mod:get(Var)}
         end,
@@ -133,4 +127,4 @@ str(V) when is_integer(V) ->
 
 %% @private
 store(FilePath, File) ->
-    ok = ?STORE:put(FilePath, File).
+    ok = exp_redis_metrics_store:put(FilePath, File).

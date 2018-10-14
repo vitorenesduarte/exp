@@ -111,7 +111,8 @@ start(Options) ->
                               set,
                               [Property, Value])
             end,
-            LDBSettings
+            [{node_number, NodeNumber},
+             {ldb_port, get_port(Id)} | LDBSettings]
         )
     end,
     lists:foreach(ConfigureFun, IdToNode),
@@ -127,10 +128,6 @@ start(Options) ->
     IdToNode.
 
 %% @private Connect each node to its peers.
-%%          If `Overlay' is hyparview, it's enough all peers
-%%          connected to the same node.
-%%          Otherwise use `exp_overlay' to decide to which
-%%          nodes a node should connect.
 construct_overlay(Options, IdToNode) ->
     Overlay = proplists:get_value(
         exp_overlay,
@@ -142,7 +139,7 @@ construct_overlay(Options, IdToNode) ->
 
     IdToNodeSpec = lists:map(
         fun({Id, Node}) ->
-            Spec = rpc:call(Node, ldb_peer_service, myself, []),
+            Spec = rpc:call(Node, ldb_hao, myself, []),
             {Id, Spec}
         end,
         IdToNode
@@ -160,7 +157,7 @@ construct_overlay(Options, IdToNode) ->
                     PeerSpec = orddict:fetch(Peer, IdToNodeSpec),
 
                     ok = rpc:call(Node,
-                                  ldb_peer_service,
+                                  ldb_hao,
                                   join,
                                   [PeerSpec])
                 end,
@@ -184,7 +181,8 @@ wait_for_completion(IdToNode) ->
                                              exp_config,
                                              get,
                                              [exp_simulation_end,
-                                              false]),
+                                              false],
+                                             infinity),
 
                     case SimulationEnd of
                         true ->
@@ -260,3 +258,7 @@ wait_until(Fun, Retry, Delay) when Retry > 0 ->
             timer:sleep(Delay),
             wait_until(Fun, Retry - 1, Delay)
     end.
+
+%% @private
+get_port(Id) ->
+    5000 + Id.

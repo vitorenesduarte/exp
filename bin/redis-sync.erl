@@ -31,7 +31,7 @@ redis(connect) ->
     {ok, Redis} = eredis:start_link(),
     put(redis, Redis);
 redis(fetch_keys) ->
-    {ok, Keys} = eredis:q(get(redis), ["KEYS", "*"]),
+    {ok, Keys} = eredis:q(get(redis), ["KEYS", "*"], infinity),
     lists:map(fun(Key) -> binary_to_list(Key) end, Keys).
 redis(fetch_key, Key) ->
     {ok, File} = eredis:q(get(redis), ["GET", Key], infinity),
