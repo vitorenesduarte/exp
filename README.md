@@ -33,17 +33,7 @@ the simulation
 the Retwis application
 
 
-#### Kubernetes
-
-```bash
-$ bin/exp.sh build
-$ bin/exp.sh
-```
-
-- `build` will build a new image, push it, and the run the experiments with that image
-- if no argument, the experiments will be run using the last pushed image
-
-
+<!--
 #### Google Cloud Platform
 
 - To start and stop the cluster:
@@ -78,3 +68,4 @@ $ bin/dash-proxy.sh
 ```
 
 This will open a new chrome tab with the dashboard.
+-->
