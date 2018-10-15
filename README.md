@@ -15,28 +15,22 @@
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
 - __NODE_NUMBER__: number of nodes
 - __OVERLAY__:
-  - `hyparview`
   - `fullmesh`
   - `line`
   - `ring`
-  - `partialmesh` with __NODE_NUMBER__ ` = 16`
-  - `tree` with __NODE_NUMBER__ ` = 14`
+  - `partialmesh`
+  - `tree`
 - __SIMULATION__:
   - `gcounter`
   - `gset`
   - `gmap`
-  - `awset`
+  - `retwis`
 - __NODE_EVENT_NUMBER__: number of events to be performed in
-the simulation. The event interval is 1 second
+the simulation
+- __EVENT_INTERVAL__: milliseconds between events
 - __GMAP_SIMULATION_KEY_PERCENTAGE__: percentage of keys update at each event in the gmap simulation
-- __BREAK_LINKS__:
-Links are broken when the simulation
-reaches 50% of progress and healed at 75%. Possible values for break link:
-  - `none`: no link is broken
-  - `one`: a predefined link is broken
-  - `half`: 1/2 of the links are broken
-  - `quarter`: 1/4 of the links are broken
-  - `eighth`: 1/8 of the links are broken
+- __RETWIS_ZIPF__: Zipf coefficient to be used in
+the Retwis application
 
 
 #### Kubernetes
