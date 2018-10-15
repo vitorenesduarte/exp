@@ -59,7 +59,7 @@ main <- function() {
   }
 
   # axis labels
-  y_axis_label("Processing time ratio wrto State-based")
+  y_axis_label("CPU time ratio wrto State-based")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

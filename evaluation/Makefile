@@ -25,7 +25,6 @@ plots:
 
 retwis_plots:
 	-Rscript icde19/retwis.R
-	-Rscript icde19/retwis_latency.R
 	-Rscript icde19/retwis_processing.R
 
 show:

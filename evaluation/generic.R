@@ -105,7 +105,8 @@ plot_cdf <- function(title, lines, colors, y_max, y_step) {
   add_title(title)
 }
 
-plot_lines <- function(title, lines_x, lines_y, colors) {
+plot_lines <- function(title, lines_x, lines_y, colors,
+                       lwd=1.5) {
   # find the x max and y max
   x_max <- Reduce(max, lapply(lines_x, max))
   y_max <- Reduce(max, lapply(lines_y, max))
@@ -128,7 +129,8 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
       lines_y[[i]],
       col=colors[[i]],
       type="b",
-      pch=i
+      pch=i,
+      lwd=lwd
     )
   }
 
@@ -139,24 +141,31 @@ plot_lines <- function(title, lines_x, lines_y, colors) {
 plot_lines_retwis <- function(lines_x, lines_y, colors,
                               x_lab="",
                               y_lab="",
-                              log="y") {
+                              log="y",
+                              y_max=0,
+                              las=2,
+                              digits=1,
+                              lwd=1) {
   # find the x max and y max
+  x_min <- Reduce(min, lapply(lines_x, min))
   x_max <- Reduce(max, lapply(lines_x, max))
-  y_max <- Reduce(max, lapply(lines_y, max))
   y_min <- Reduce(min, lapply(lines_y, min))
+  if(y_max == 0) {
+    y_max <- Reduce(max, lapply(lines_y, max))
+  }
 
   # configure plot
   plot(
     range(x_max),
-    range(y_min, y_max),
+    range(y_max),
     type="n",
-    xlim=c(0.1, x_max), # max x
+    xlim=c(x_min, x_max), # max x
     ylim=c(y_min, y_max), # max y
     xlab="",
     ylab="",
     log=log,
     xaxt="n",
-    cex.axis=0.8
+    yaxt="n",
   )
   # add custom axis
   xtick <- lines_x[[1]]
@@ -164,7 +173,15 @@ plot_lines_retwis <- function(lines_x, lines_y, colors,
     side=1,
     at=xtick,
     labels=TRUE,
-    cex.axis=0.85
+    cex.axis=0.8
+  )
+  ytick <- round(lines_y[[1]], digits=digits)
+  axis(
+    side=2,
+    at=ytick,
+    labels=TRUE,
+    cex.axis=0.8,
+    las=las
   )
 
   # add custom labels
@@ -193,7 +210,8 @@ plot_lines_retwis <- function(lines_x, lines_y, colors,
       lines_y[[i]],
       col=colors[[i]],
       type="b",
-      pch=pch
+      pch=pch,
+      lwd=lwd
     )
   }
 }

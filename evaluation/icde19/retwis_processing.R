@@ -22,7 +22,6 @@ main <- function() {
   output_file <- "retwis_processing.png"
 
   clusters <- c(
-    "ls -d processed/* | grep ~25~0~retwis",
     "ls -d processed/* | grep ~50~0~retwis",
     "ls -d processed/* | grep ~75~0~retwis",
     "ls -d processed/* | grep ~100~0~retwis",
@@ -38,7 +37,7 @@ main <- function() {
 
   # change outer margins
   op <- par(
-    oma=c(4,4,1,2),   # room for the legend
+    oma=c(4,3.5,1,1.5),   # room for the legend
     mfrow=c(1,1),      # 2x4 matrix
     mar=c(0, 0, 0, 0) # spacing between plots
   )
@@ -48,20 +47,33 @@ main <- function() {
     "springgreen4"
   )
 
-  coefs <- c(0.25, 0.5, 0.75, 1, 1.25, 1.5)
+  coefs <- c(0.5, 0.75, 1, 1.25, 1.5)
   lines_x <- list()
   lines_x[[1]] <- coefs
   x_lab <- "Zipf coefficients"
 
   # first plot
   key <- "processing"
+  y_lab <- "CPU overhead (%)"
   lines_y <- get_all_lines(clusters, key)
-  y_lab <- "Processing overhead (%)"
+  ytick <- round(lines_y[[1]])
+
+  print(lines_y[[1]] / 100)
 
   plot_lines_retwis(lines_x, lines_y, colors,
                     x_lab=x_lab,
                     y_lab=y_lab,
-                    log="")
+                    log="",
+                    las=0,
+                    digits=0,
+                    lwd=2)
+  polygon(
+    c(min(lines_x[[1]]), lines_x[[1]], max(lines_x[[1]])),
+    c(min(lines_y[[1]]), lines_y[[1]], min(lines_y[[1]])),
+    col=rgb(37/255,211/255,102/255,0.2),
+    border=F
+  )
+
 
   # close device
   dev.off()

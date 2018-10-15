@@ -48,7 +48,8 @@ main <- function() {
   lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
   # plot lines
-  plot_lines(title, lines_x, lines_y, colors)
+  plot_lines(title, lines_x, lines_y, colors,
+             lwd=2)
 
   # axis labels
   x_axis_label("Time (s)")
