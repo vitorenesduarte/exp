@@ -43,7 +43,7 @@ main <- function() {
   options(scipen=999)
 
   # open device
-  png(filename=output_file, width=850, height=600, res=130)
+  png(filename=output_file, width=850, height=700, res=130)
 
   # change outer margins
   op <- par(
@@ -72,14 +72,15 @@ main <- function() {
 
   plot_lines_retwis(lines_x, lines_y_1, colors,
                     y_lab=y_lab,
-                    y_max=10,
+                    y_max=2,
                     lwd=2)
   title("0%-50%", cex.main=1.3)
 
   plot_lines_retwis(lines_x, lines_y_2, colors,
-                    y_max=10,
+                    y_max=2,
                     lwd=2)
   title("50%-100%", cex.main=1.3)
+  print(lines_y_2)
 
   # second plot
   key <- "memory_term_size"
@@ -89,12 +90,13 @@ main <- function() {
 
   plot_lines_retwis(lines_x, lines_y_1, colors,
                     y_lab=y_lab,
-                    y_max=4.5,
+                    y_max=2,
                     lwd=2)
 
   plot_lines_retwis(lines_x, lines_y_2, colors,
-                    y_max=4.5,
+                    y_max=2,
                     lwd=2)
+  print(lines_y_2)
 
   x_axis_label(x_lab)
 
@@ -107,7 +109,7 @@ main <- function() {
     "bottom",
     # 0.1, # x
     # 0,  # y 
-    inset=-.35,
+    inset=-.25,
     cex=1,
     legend=labels,
     pch=c(3,6),

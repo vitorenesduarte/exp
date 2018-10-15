@@ -13,7 +13,7 @@ CPU=7
 
 # event number, event interval, state sync interval
 SPEED_CONFIG_=(
-    "100 500 500"
+    "100 1000 1000"
 )
 
 # overlay nodes
