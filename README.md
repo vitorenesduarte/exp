@@ -32,6 +32,9 @@ the simulation
 - __RETWIS_ZIPF__: Zipf coefficient to be used in
 the Retwis application
 
+#### Run the experiments
+Please check [here](evaluation/icde19).
+
 
 <!--
 #### Google Cloud Platform
