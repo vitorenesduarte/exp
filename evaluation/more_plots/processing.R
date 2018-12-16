@@ -20,6 +20,7 @@ main <- function() {
   labels <- c(
     "State-based",
     "Scuttlebutt",
+    "Scuttlebutt+",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -36,7 +37,7 @@ main <- function() {
   op <- par(
     oma=c(3.5,2,0,0),   # room for the legend
     mfrow=c(2,2),      # 2x4 matrix
-    mar=c(2,2,2,1) # spacing between plots
+    mar=c(2.5,2,2,1) # spacing between plots
   )
 
   # style stuff
@@ -86,7 +87,7 @@ main <- function() {
   # legend
   legend(
     0.1, # x
-    -.06,  # y 
+    -.02,  # y 
     cex=1,
     legend=labels,
     angle=angles,
