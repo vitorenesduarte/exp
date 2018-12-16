@@ -32,6 +32,7 @@ main <- function() {
     "springgreen4",
     "gray22"
   )
+  pch <- c(1, 3, 6)
 
   files <- system(cluster, intern=TRUE)
 
@@ -49,7 +50,8 @@ main <- function() {
 
   # plot lines
   plot_lines(title, lines_x, lines_y, colors,
-             lwd=2)
+             lwd=2,
+             pch=pch)
 
   # axis labels
   x_axis_label("Time (s)")
@@ -63,9 +65,9 @@ main <- function() {
   legend(
     0.05, # x
     -.32,  # y 
-    cex=0.95,
+    cex=1,
     legend=labels,
-    pch=c(1:10),
+    pch=pch,
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

@@ -14,18 +14,14 @@ pre: preprocess.py
 	python preprocess.py
 
 plots:
-	-Rscript icde19/first.R
-	-Rscript icde19/second.R
-	-Rscript icde19/gset_gcounter.R
-	-Rscript icde19/gmap.R
-	-Rscript icde19/memory.R
-	-Rscript icde19/processing.R
-	-Rscript icde19/metadata.R
-	make retwis_plots
-
-retwis_plots:
-	-Rscript icde19/retwis.R
-	-Rscript icde19/retwis_processing.R
+	Rscript icde19/first.R
+	Rscript icde19/second.R
+	Rscript icde19/gset_gcounter.R
+	Rscript icde19/gmap.R
+	Rscript icde19/memory.R
+	Rscript icde19/metadata.R
+	Rscript icde19/retwis.R
+	Rscript icde19/retwis_processing.R
 
 show:
 	$(VIEWER) *.png

@@ -39,7 +39,7 @@ main <- function() {
     "steelblue4",
     "gray22"
   )
-  angles <- c(45, 45)
+  angles <- c(135, 135)
   densities <- c(15, 45)
 
   for(i in 1:length(clusters)) {

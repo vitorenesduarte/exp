@@ -106,7 +106,7 @@ plot_cdf <- function(title, lines, colors, y_max, y_step) {
 }
 
 plot_lines <- function(title, lines_x, lines_y, colors,
-                       lwd=1.5) {
+                       lwd=1.5, pch=c(1:10)) {
   # find the x max and y max
   x_max <- Reduce(max, lapply(lines_x, max))
   y_max <- Reduce(max, lapply(lines_y, max))
@@ -129,7 +129,7 @@ plot_lines <- function(title, lines_x, lines_y, colors,
       lines_y[[i]],
       col=colors[[i]],
       type="b",
-      pch=i,
+      pch=pch[[i]],
       lwd=lwd
     )
   }

@@ -29,6 +29,7 @@ main <- function() {
   labels <- c(
     "State-based",
     "Scuttlebutt",
+    "Scuttlebutt+",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -51,12 +52,14 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
+    "darkgoldenrod",
     "steelblue4",
     "springgreen4",
     "darkorange1",
     "red4",
     "gray22"
   )
+  pch <- c(1,12,2,3,4,5,6)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -74,7 +77,8 @@ main <- function() {
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
     # plot lines
-    plot_lines(title, lines_x, lines_y, colors)
+    plot_lines(title, lines_x, lines_y, colors,
+               pch=pch)
   }
 
   # axis labels
@@ -89,9 +93,10 @@ main <- function() {
   legend(
     -.03, # x
     -.2,  # y 
-    cex=0.92,
+    cex=1,
     legend=labels,
-    pch=c(1:10),
+    pch=pch,
+    text.width=c(0,0.105,0.10,0.10,0.10,0.108,0.113),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

@@ -32,8 +32,8 @@ main <- function() {
     "springgreen4",
     "gray22"
   )
-  angles <- c(0, 135, 45)
-  densities <- c(0, 15, 45)
+  angles <- c(0, 45, 135)
+  densities <- c(0, 30, 45)
 
   files <- system(cluster, intern=TRUE)
 
@@ -69,7 +69,7 @@ main <- function() {
   legend(
     -.65, # x
     -.11,  # y 
-    cex=0.95,
+    cex=1,
     legend=labels,
     angle=angles,
     density=densities,
