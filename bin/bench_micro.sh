@@ -36,6 +36,7 @@ SIM_CONFIG_=(
 # mode bp rr
 LDB_=(
     "state_based undefined undefined"
+    "vanilla_scuttlebutt undefined undefined"
     "scuttlebutt undefined undefined"
     "delta_based false     false"
     "delta_based true      false"
