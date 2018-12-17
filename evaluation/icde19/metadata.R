@@ -17,7 +17,7 @@ main <- function() {
     "64 Nodes"
   )
   labels <- c(
-    "Scuttlebutt",
+    "Scuttlebutt-GC",
     "Delta-based BP+RR"
   )
 

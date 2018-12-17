@@ -29,7 +29,7 @@ main <- function() {
   labels <- c(
     "State-based",
     "Scuttlebutt",
-    "Scuttlebutt+",
+    "Scuttlebutt-GC",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -96,7 +96,7 @@ main <- function() {
     cex=1,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.105,0.10,0.10,0.10,0.108,0.113),
+    text.width=c(0,0.102,0.098,0.105,0.103,0.108,0.113),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

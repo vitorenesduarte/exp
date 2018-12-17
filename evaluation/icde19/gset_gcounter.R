@@ -21,7 +21,7 @@ main <- function() {
   labels <- c(
     "State-based",
     "Scuttlebutt",
-    "Scuttlebutt+",
+    "Scuttlebutt-GC",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
