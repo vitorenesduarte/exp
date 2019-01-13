@@ -70,7 +70,7 @@ all() ->
      delta_based_ring_test,
      delta_based_revisited_ring_test,
      scuttlebutt_ring_test,
-     vanilla_scuttlebutt_ring_test
+     scuttlebutt_gc_ring_test
     ].
 
 %% ===================================================================
@@ -89,12 +89,12 @@ delta_based_revisited_ring_test(_Config) ->
 scuttlebutt_ring_test(_Config) ->
     run(scuttlebutt, ring).
 
-vanilla_scuttlebutt_ring_test(_Config) ->
-    run(vanilla_scuttlebutt, ring).
+scuttlebutt_gc_ring_test(_Config) ->
+    run(scuttlebutt_gc, ring).
 
 %% @private
 run(Evaluation, Overlay) ->
-    {Mode, Redundant, BackPropagation} = get_config(Evaluation),
+    {Mode, Redundant, BackPropagation, GC} = get_config(Evaluation),
 
     Options = [{node_number, ?NODE_NUMBER},
                {exp_settings,
@@ -105,18 +105,19 @@ run(Evaluation, Overlay) ->
                {ldb_settings,
                 [{ldb_mode, Mode},
                  {ldb_redundant_dgroups, Redundant},
-                 {ldb_dgroup_back_propagation, BackPropagation}]}],
+                 {ldb_dgroup_back_propagation, BackPropagation},
+                 {ldb_scuttlebutt_gc, GC}]}],
 
     exp_local_simulations_support:run(Options).
 
 %% @private
 get_config(state_based) ->
-    {state_based, false, false};
+    {state_based, false, false, false};
 get_config(delta_based) ->
-    {delta_based, false, false};
+    {delta_based, false, false, false};
 get_config(delta_based_revisited) ->
-    {delta_based, true, true};
+    {delta_based, true, true, false};
 get_config(scuttlebutt) ->
-    {scuttlebutt, false, false};
-get_config(vanilla_scuttlebutt) ->
-    {vanilla_scuttlebutt, false, false}.
+    {scuttlebutt, false, false, false};
+get_config(scuttlebutt_gc) ->
+    {scuttlebutt, false, false, true}.
