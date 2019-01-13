@@ -13,6 +13,7 @@
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
+- __LDB_SCUTTLEBUTT_GC__: boolean
 - __NODE_NUMBER__: number of nodes
 - __OVERLAY__:
   - `fullmesh`

@@ -32,7 +32,8 @@ push_exp_metrics(StartTime) ->
     LDBVars = [ldb_mode,
                ldb_state_sync_interval,
                ldb_redundant_dgroups,
-               ldb_dgroup_back_propagation],
+               ldb_dgroup_back_propagation,
+               ldb_scuttlebutt_gc],
     LDBConfigs = get_configs(ldb, LDBVars),
 
     LSimVars = [exp_overlay,
@@ -108,14 +109,12 @@ file_path(Name) ->
 
 %% @private
 get_configs(App, Vars) ->
+    Mod = case App of
+        ldb -> ldb_config;
+        exp -> exp_config
+    end,
     lists:map(
-        fun(Var) ->
-            Mod = case App of
-                ldb -> ldb_config;
-                exp -> exp_config
-            end,
-            {Var, Mod:get(Var)}
-        end,
+        fun(Var) -> {Var, Mod:get(Var)} end,
         Vars
     ).
 
