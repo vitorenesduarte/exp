@@ -7,13 +7,13 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"ldb">>,
   {git,"https://github.com/vitorenesduarte/ldb",
-       {ref,"71cb6bc28b3cddedaa4d70c4143d8d6c001506f5"}},
+       {ref,"fbd1122404c991ea92a7bede126d740a0f89e1ef"}},
   0},
  {<<"mochiweb">>,{pkg,<<"mochiweb">>,<<"2.15.0">>},0},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.5.0">>},1},
  {<<"types">>,
   {git,"https://github.com/vitorenesduarte/types",
-       {ref,"bc2327a0c2b6f43ca092440a54c2c2dc21fb71a1"}},
+       {ref,"df11ff0dd889fac8fac4a42ae30523b4a0823fee"}},
   0}]}.
 [
 {pkg_hash,[

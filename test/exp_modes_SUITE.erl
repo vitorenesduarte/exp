@@ -92,6 +92,9 @@ scuttlebutt_ring_test(_Config) ->
 scuttlebutt_gc_ring_test(_Config) ->
     run(scuttlebutt_gc, ring).
 
+op_based_ring_test(_Config) ->
+    run(op_based, ring).
+
 %% @private
 run(Evaluation, Overlay) ->
     {Mode, Redundant, BackPropagation, GC} = get_config(Evaluation),
@@ -120,4 +123,6 @@ get_config(delta_based_revisited) ->
 get_config(scuttlebutt) ->
     {scuttlebutt, false, false, false};
 get_config(scuttlebutt_gc) ->
-    {scuttlebutt, false, false, true}.
+    {scuttlebutt, false, false, true};
+get_config(op_based) ->
+    {op_based, false, false, false}.
