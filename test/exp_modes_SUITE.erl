@@ -70,7 +70,8 @@ all() ->
      delta_based_ring_test,
      delta_based_revisited_ring_test,
      scuttlebutt_ring_test,
-     scuttlebutt_gc_ring_test
+     scuttlebutt_gc_ring_test,
+     op_based_ring_test
     ].
 
 %% ===================================================================
