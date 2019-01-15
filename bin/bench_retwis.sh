@@ -34,6 +34,7 @@ SIM_CONFIG_=(
 # ldb configuration
 # mode bp rr gc
 LDB_=(
+    "op_based    undefined undefined undefined"
     "delta_based false     false     undefined"
     "delta_based true      true      undefined"
 )
