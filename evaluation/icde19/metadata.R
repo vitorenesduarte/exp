@@ -17,6 +17,8 @@ main <- function() {
     "64 Nodes"
   )
   labels <- c(
+    "Op-based",
+    "Scuttlebutt",
     "Scuttlebutt-GC",
     "Delta-based BP+RR"
   )
@@ -36,11 +38,13 @@ main <- function() {
 
   # style stuff
   colors <- c(
+    "yellow3",
+    "darkgoldenrod",
     "steelblue4",
     "gray22"
   )
-  angles <- c(135, 135)
-  densities <- c(15, 45)
+  angles <- c(135, 45, 135, 135)
+  densities <- c(30, 15, 15, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

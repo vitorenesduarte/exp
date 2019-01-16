@@ -20,6 +20,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
     "Delta-based",
@@ -44,7 +45,7 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
-    # "lightsteelblue",
+    "yellow3",
     "darkgoldenrod",
     "steelblue4",
     "springgreen4",
@@ -52,8 +53,8 @@ main <- function() {
     "red4",
     "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30, 45, 45)
+  angles <- c(0, 135, 45, 135, 45, 135, 45, 135)
+  densities <- c(0, 30, 15, 15, 30, 30, 45, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -67,6 +68,17 @@ main <- function() {
     # data
     title <- titles[i]
     lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
+
+    # metadata info
+    metadata_ratio <- map(
+      files,
+      function(f) {
+        j <- json(c(f))
+        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+        round(r, 3) * 100
+      }
+    )
+    print(metadata_ratio)
 
     # (wrto rr)
     if(length(lines) == length(labels)) {

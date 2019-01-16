@@ -5,7 +5,7 @@ source("generic.R")
 main <- function() {
   output_file <- "first.png"
 
-  cluster <- "ls -d processed/* | grep 0~gset~partialmesh~15 | grep -v scuttlebutt | grep -v False~True | grep -v True~False"
+  cluster <- "ls -d processed/* | grep 0~gset~partialmesh~15 | grep -v scuttlebutt | grep -v op_based | grep -v False~True | grep -v True~False"
 
   labels <- c(
     "State-based",

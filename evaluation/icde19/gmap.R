@@ -28,6 +28,7 @@ main <- function() {
   )
   labels <- c(
     "State-based",
+    "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
     "Delta-based",
@@ -52,6 +53,7 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
+    "yellow3",
     "darkgoldenrod",
     "steelblue4",
     "springgreen4",
@@ -59,7 +61,7 @@ main <- function() {
     "red4",
     "gray22"
   )
-  pch <- c(1,12,2,3,4,5,6)
+  pch <- c(1,7,8,2,3,4,5,6)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -75,6 +77,17 @@ main <- function() {
     title <- titles[i]
     lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+
+    # metadata info
+    metadata_ratio <- map(
+      files,
+      function(f) {
+        j <- json(c(f))
+        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+        round(r, 3) * 100
+      }
+    )
+    print(metadata_ratio)
 
     # plot lines
     plot_lines(title, lines_x, lines_y, colors,
@@ -93,10 +106,10 @@ main <- function() {
   legend(
     -.03, # x
     -.2,  # y 
-    cex=1,
+    cex=0.92,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.102,0.098,0.105,0.103,0.108,0.113),
+    text.width=c(0,0.09,0.085,0.085,0.092,0.092,0.095,0.098),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box
