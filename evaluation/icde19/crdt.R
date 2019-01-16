@@ -3,7 +3,7 @@ source("generic.R")
 
 # draw!
 main <- function() {
-  output_file <- "gmap.png"
+  output_file <- "crdt.png"
 
   clusters <- c(
     "ls -d processed/* | grep 10~gmap~tree",
@@ -72,24 +72,13 @@ main <- function() {
     if(length(files) == 0) next
 
     # keys
-    key_x <- "transmission_compressed_x"
-    key_y <- "transmission_compressed"
+    key_x <- "transmission_crdt_compressed_x"
+    key_y <- "transmission_crdt_compressed"
 
     # data
     title <- titles[i]
     lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
-
-    # metadata info
-    metadata_ratio <- map(
-      files,
-      function(f) {
-        j <- json(c(f))
-        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
-        round(r, 3) * 100
-      }
-    )
-    print(metadata_ratio)
 
     # plot lines
     plot_lines(title, lines_x, lines_y, colors,
@@ -98,7 +87,7 @@ main <- function() {
 
   # axis labels
   x_axis_label("Time (s)")
-  y_axis_label("Transmission")
+  y_axis_label("CRDT Transmission")
 
   par(op) # Leave the last plot
   op <- par(usr=c(0,1,0,1), # Reset the coordinates

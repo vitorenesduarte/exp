@@ -74,12 +74,17 @@ def key(config):
         "exp_node_number",
         "ldb_mode",
         "ldb_redundant_dgroups",
-        "ldb_dgroup_back_propagation"
+        "ldb_dgroup_back_propagation",
+        "ldb_scuttlebutt_gc",
+        "ldb_op_ii"
     ]
 
     l = []
     for k in keys:
-        l.append(str(config[k]))
+        v = "undefined"
+        if k in config:
+            v = str(config[k])
+        l.append(v)
 
     k = "~".join(l)
     return (start_time, k)
@@ -317,12 +322,14 @@ def aggregate(d):
     def get_compress_index(key):
         m = {
             110: 1,
-            210: 5,
-            310: 2,
-            420: 4,
-            430: 6,
-            440: 3,
-            450: 0
+            220: 5,
+            230: 8,
+            340: 2,
+            350: 4,
+            460: 6,
+            470: 3,
+            480: 0,
+            490: 7
         }
 
         score = get_score(key)
@@ -353,30 +360,31 @@ def aggregate(d):
             r[key]["transmission"].append(M + C)
             r[key]["transmission_term_size"].append(T)
 
-        # compress transmissions
-        # e.g. sum every 10 values
+        # compress transmissions (total and crdt only)
+        # e.g. sum every 10 values 
         # and average them
-        xs = []
-        ys = []
-        current_sum = 0
-        run_len = len(r[key]["transmission"])
-        index = get_compress_index(key)
+        for to_compress_key in ["transmission", "transmission_crdt"]:
+            xs = []
+            ys = []
+            current_sum = 0
+            run_len = len(r[key][to_compress_key])
+            index = get_compress_index(key)
 
-        for i in range(run_len):
-            # update sum
-            current_sum += r[key]["transmission"][i]
+            for i in range(run_len):
+                # update sum
+                current_sum += r[key][to_compress_key][i]
 
-            if(i % COMPRESS == index):
-                ys.append(current_sum)
-                # reset sum
-                current_sum = 0
+                if(i % COMPRESS == index):
+                    ys.append(current_sum)
+                    # reset sum
+                    current_sum = 0
 
-        for i in range(len(ys)):
-            xs.append((i * COMPRESS) + index)
+            for i in range(len(ys)):
+                xs.append((i * COMPRESS) + index)
 
-        ys = divide_lists(ys, COMPRESS)
-        r[key]["transmission_compressed"] = ys
-        r[key]["transmission_compressed_x"] = xs
+            ys = divide_lists(ys, COMPRESS)
+            r[key][to_compress_key + "_compressed"] = ys
+            r[key][to_compress_key + "_compressed_x"] = xs
 
         # aggregate memory
         for [A, C, T] in d[key]["memory"]:
@@ -409,31 +417,39 @@ def get_score(type):
 
     parts = type.split("~")
     mode = parts[5]
-    delta_mode = "_".join(parts[6:])
+    rest = "_".join(parts[6:])
 
     if mode == "state_based":
         score += 100
-    elif mode == "vanilla_scuttlebutt":
+    elif mode == "op_based":
         score += 200
     elif mode == "scuttlebutt":
         score += 300
     elif mode == "delta_based":
         score += 400
     else:
-        error("Mode not found")
+        error("Mode not found: " + mode)
 
-    if delta_mode == "undefined_undefined":
+    if rest == "undefined_undefined_undefined_undefined":
         score += 10
-    elif delta_mode == "False_False":
+    elif rest == "undefined_undefined_undefined_False":
         score += 20
-    elif delta_mode == "False_True":
+    elif rest == "undefined_undefined_undefined_True":
         score += 30
-    elif delta_mode == "True_False":
+    elif rest == "undefined_undefined_False_undefined":
         score += 40
-    elif delta_mode == "True_True":
+    elif rest == "undefined_undefined_True_undefined":
         score += 50
+    elif rest == "False_False_undefined_undefined":
+        score += 60
+    elif rest == "False_True_undefined_undefined":
+        score += 70
+    elif rest == "True_False_undefined_undefined":
+        score += 80
+    elif rest == "True_True_undefined_undefined":
+        score += 90
     else:
-        error("Delta mode not found")
+        error("Remaining configuration not found: " + rest)
 
     return score
 
