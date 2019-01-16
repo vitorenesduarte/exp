@@ -33,7 +33,8 @@ push_exp_metrics(StartTime) ->
                ldb_state_sync_interval,
                ldb_redundant_dgroups,
                ldb_dgroup_back_propagation,
-               ldb_scuttlebutt_gc],
+               ldb_scuttlebutt_gc,
+               ldb_op_ii],
     LDBConfigs = get_configs(ldb, LDBVars),
 
     LSimVars = [exp_overlay,

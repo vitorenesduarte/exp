@@ -33,16 +33,17 @@ SIM_CONFIG_=(
 )
 
 # ldb configuration
-# mode bp rr gc
+# mode bp rr gc ii
 LDB_=(
-    "state_based undefined undefined undefined"
-    "op_based    undefined undefined undefined"
-    "scuttlebutt undefined undefined false"
-    "scuttlebutt undefined undefined true"
-    "delta_based false     false     undefined"
-    "delta_based true      false     undefined"
-    "delta_based false     true      undefined"
-    "delta_based true      true      undefined"
+    "state_based undefined undefined undefined undefined"
+    "op_based    undefined undefined undefined false"
+    "op_based    undefined undefined undefined true"
+    "scuttlebutt undefined undefined false     undefined"
+    "scuttlebutt undefined undefined true      undefined"
+    "delta_based false     false     undefined undefined"
+    "delta_based true      false     undefined undefined"
+    "delta_based false     true      undefined undefined"
+    "delta_based true      true      undefined undefined"
 )
 
 # number of experiments
@@ -76,6 +77,7 @@ for REP in $(seq 1 $REPS); do
                     LDB_DGROUP_BACK_PROPAGATION=${LDB[1]}
                     LDB_REDUNDANT_DGROUPS=${LDB[2]}
                     LDB_SCUTTLEBUTT_GC=${LDB[3]}
+                    LDB_OP_II=${LDB[4]}
 
                     IMAGE=${IMAGE} \
                         PULL_IMAGE=${PULL_IMAGE} \
@@ -84,6 +86,7 @@ for REP in $(seq 1 $REPS); do
                         LDB_DGROUP_BACK_PROPAGATION=${LDB_DGROUP_BACK_PROPAGATION} \
                         LDB_REDUNDANT_DGROUPS=${LDB_REDUNDANT_DGROUPS} \
                         LDB_SCUTTLEBUTT_GC=${LDB_SCUTTLEBUTT_GC} \
+                        LDB_OP_II=${LDB_OP_II} \
                         OVERLAY=${OVERLAY} \
                         SIMULATION=${SIMULATION} \
                         GMAP_SIMULATION_KEY_PERCENTAGE=${GMAP_SIMULATION_KEY_PERCENTAGE} \
