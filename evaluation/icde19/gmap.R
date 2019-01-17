@@ -1,7 +1,7 @@
 source("util.R")
 source("generic.R")
 
-TO_KEEP <- "'(110|230|340|350|460|470|480|490)'"
+TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
 
 # draw!
 main <- function() {
@@ -32,9 +32,9 @@ main <- function() {
   )
   labels <- c(
     "State-based",
-    "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -57,9 +57,9 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
-    "yellow3",
     "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "springgreen4",
     "darkorange1",
     "red4",
@@ -83,15 +83,28 @@ main <- function() {
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
 
     # metadata info
-    metadata_ratio <- map(
+    # metadata_ratio <- map(
+    #   files,
+    #   function(f) {
+    #     j <- json(c(f))
+    #     r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+    #     round(r, 3) * 100
+    #   }
+    # )
+    # print(metadata_ratio)
+
+    avgs <- map(
       files,
       function(f) {
         j <- json(c(f))
-        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
-        round(r, 3) * 100
+        sum(j[[key_y]]) / length(j[[key_y]])
       }
     )
-    print(metadata_ratio)
+    print(title)
+    print(paste("scuttlebutt: ", 100 - 100 * round(avgs[[2]] / avgs[[1]], 2)))
+    print(paste("scuttlebutt-gc: ", 100 - 100 * round(avgs[[3]] / avgs[[1]], 2)))
+    print(paste("op-based: ", 100 - 100 * round(avgs[[4]] / avgs[[1]], 2)))
+    print(paste("delta-based bp+rr: ", 100 - 100 * round(avgs[[8]] / avgs[[1]], 2)))
 
     # plot lines
     plot_lines(title, lines_x, lines_y, colors,
@@ -113,7 +126,7 @@ main <- function() {
     cex=0.92,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.09,0.085,0.085,0.092,0.092,0.095,0.098),
+    text.width=c(0,0.09,0.085,0.092,0.087,0.089,0.095,0.098),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

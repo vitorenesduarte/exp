@@ -1,7 +1,7 @@
 source("util.R")
 source("generic.R")
 
-TO_KEEP <- "'(110|230|340|350|460|470|480|490)'"
+TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
 
 # draw!
 main <- function() {
@@ -24,9 +24,9 @@ main <- function() {
   )
   labels <- c(
     "State-based",
-    "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -49,16 +49,16 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
-    "yellow3",
     "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "springgreen4",
     "darkorange1",
     "red4",
     "gray22"
   )
   angles <- c(0, 135, 45, 135, 45, 135, 45, 135)
-  densities <- c(0, 30, 15, 15, 30, 30, 45, 45)
+  densities <- c(0, 15, 15, 22, 30, 30, 45, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

@@ -336,7 +336,7 @@ def aggregate(d):
         if score in m:
             return (COMPRESS * m[score]) / len(m)
         else:
-            return 0
+            error("score not found: " + score)
 
     r = {}
 
@@ -421,9 +421,9 @@ def get_score(type):
 
     if mode == "state_based":
         score += 100
-    elif mode == "op_based":
-        score += 200
     elif mode == "scuttlebutt":
+        score += 200
+    elif mode == "op_based":
         score += 300
     elif mode == "delta_based":
         score += 400
@@ -432,13 +432,13 @@ def get_score(type):
 
     if rest == "undefined_undefined_undefined_undefined":
         score += 10
-    elif rest == "undefined_undefined_undefined_False":
-        score += 20
-    elif rest == "undefined_undefined_undefined_True":
-        score += 30
     elif rest == "undefined_undefined_False_undefined":
-        score += 40
+        score += 20
     elif rest == "undefined_undefined_True_undefined":
+        score += 30
+    elif rest == "undefined_undefined_undefined_False":
+        score += 40
+    elif rest == "undefined_undefined_undefined_True":
         score += 50
     elif rest == "False_False_undefined_undefined":
         score += 60
