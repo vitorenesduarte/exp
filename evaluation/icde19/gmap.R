@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(110|230|340|350|460|470|480|490)'"
+
 # draw!
 main <- function() {
   output_file <- "gmap.png"
@@ -15,7 +17,9 @@ main <- function() {
     "ls -d processed/* | grep 60~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "GMap 10% - Tree",
     "GMap 30% - Tree",
@@ -28,7 +32,6 @@ main <- function() {
   )
   labels <- c(
     "State-based",
-    "Op-based--",
     "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
@@ -54,7 +57,6 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
-    "tomato",
     "yellow3",
     "darkgoldenrod",
     "steelblue4",
@@ -63,7 +65,7 @@ main <- function() {
     "red4",
     "gray22"
   )
-  pch <- c(1,9,7,8,2,3,4,5,6)
+  pch <- c(1,7,8,2,3,4,5,6)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -111,7 +113,7 @@ main <- function() {
     cex=0.92,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.09,0.085,0.085,0.092,0.092,0.095,0.098,0.1),
+    text.width=c(0,0.09,0.085,0.085,0.092,0.092,0.095,0.098),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

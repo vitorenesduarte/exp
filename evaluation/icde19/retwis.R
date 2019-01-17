@@ -4,6 +4,7 @@ source("generic.R")
 NLINES <- 2
 EXP_START <- 0
 EXP_END <- 50
+TO_KEEP <- "'(460|490)'"
 
 get_lines <- function(clusters, key, file_index, first_entry, last_entry) {
   any_non_zero <- 0.1
@@ -33,12 +34,15 @@ main <- function() {
   output_file <- "retwis.png"
 
   clusters <- c(
-    "ls -d processed/* | grep ~50~0~retwis | grep -v op_based | grep -v scuttlebutt",
-    "ls -d processed/* | grep ~75~0~retwis | grep -v op_based | grep -v scuttlebutt",
-    "ls -d processed/* | grep ~100~0~retwis | grep -v op_based | grep -v scuttlebutt",
-    "ls -d processed/* | grep ~125~0~retwis | grep -v op_based | grep -v scuttlebutt",
-    "ls -d processed/* | grep ~150~0~retwis | grep -v op_based | grep -v scuttlebutt"
+    "ls -d processed/* | grep ~50~0~retwis",
+    "ls -d processed/* | grep ~75~0~retwis",
+    "ls -d processed/* | grep ~100~0~retwis",
+    "ls -d processed/* | grep ~125~0~retwis",
+    "ls -d processed/* | grep ~150~0~retwis"
   )
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   labels <- c(
     "Delta-based",
     "Delta-based BP+RR"

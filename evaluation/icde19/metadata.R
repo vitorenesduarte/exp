@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(230|340|350|490)'"
+
 # draw!
 main <- function() {
   output_file <- "metadata.png"
@@ -10,14 +12,15 @@ main <- function() {
     "ls -d processed/* | grep partialmesh~32",
     "ls -d processed/* | grep partialmesh~64"
   )
-  ## 0 transmission
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "16 Nodes",
     "32 Nodes",
     "64 Nodes"
   )
   labels <- c(
-    "Op-based--",
     "Op-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
@@ -39,14 +42,13 @@ main <- function() {
 
   # style stuff
   colors <- c(
-    "tomato",
     "yellow3",
     "darkgoldenrod",
     "steelblue4",
     "gray22"
   )
-  angles <- c(135, 135, 45, 135, 135)
-  densities <- c(30, 30, 15, 15, 45)
+  angles <- c(135, 45, 135, 135)
+  densities <- c(30, 15, 15, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

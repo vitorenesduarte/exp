@@ -1,11 +1,14 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(110|460|490)'"
+
 # draw!
 main <- function() {
   output_file <- "second.png"
 
-  cluster <- "ls -d processed/* | grep 0~gset~partialmesh~15 | grep -v scuttlebutt | grep -v op_based | grep -v False~True | grep -v True~False"
+  cluster <- "ls -d processed/* | grep 0~gset~partialmesh~15"
+  cluster <- paste(cluster, " | grep -E ", TO_KEEP, sep="")
 
   labels <- c(
     "State-based",
