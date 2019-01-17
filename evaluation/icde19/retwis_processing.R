@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(460|490)'"
+
 get_lines <- function(clusters, key, file_index) {
   map(clusters, function(cluster) {
     files <- system(cluster, intern=TRUE)
@@ -28,6 +30,9 @@ main <- function() {
     "ls -d processed/* | grep ~125~0~retwis",
     "ls -d processed/* | grep ~150~0~retwis"
   )
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
 
   # avoid scientific notation
   options(scipen=999)

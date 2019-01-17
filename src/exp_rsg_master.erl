@@ -41,7 +41,6 @@
                 metrics_done :: ordsets:ordset(ldb_node_id()),
                 start_time :: undefined | timestamp()}).
 
--define(BARRIER_PEER_SERVICE, exp_barrier_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -156,7 +155,7 @@ schedule_create_barrier() ->
 connect([]) ->
     ok;
 connect([Node|Rest]=All) ->
-    case ?BARRIER_PEER_SERVICE:join(Node) of
+    case exp_barrier_peer_service:join(Node) of
         ok ->
             connect(Rest);
         Error ->
@@ -174,7 +173,7 @@ tell(Msg) ->
 tell(Msg, Peers) ->
     lists:foreach(
         fun(Peer) ->
-            ?BARRIER_PEER_SERVICE:forward_message(
+            exp_barrier_peer_service:forward_message(
                Peer,
                exp_rsg,
                Msg
@@ -185,7 +184,7 @@ tell(Msg, Peers) ->
 
 %% @private
 rsgs() ->
-    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    {ok, Members} = exp_barrier_peer_service:members(),
     without_me(Members).
 
 %% @private

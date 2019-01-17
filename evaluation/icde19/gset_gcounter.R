@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
+
 # draw!
 main <- function() {
   output_file <- "gset_gcounter.png"
@@ -11,7 +13,9 @@ main <- function() {
     "ls -d processed/* | grep gset~partialmesh~15",
     "ls -d processed/* | grep gcounter~partialmesh~15"
   )
-  ## 0 transmission
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "GSet - Tree",
     "GCounter - Tree",
@@ -22,6 +26,7 @@ main <- function() {
     "State-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -44,16 +49,16 @@ main <- function() {
   # style stuff
   colors <- c(
     "snow4",
-    # "lightsteelblue",
     "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "springgreen4",
     "darkorange1",
     "red4",
     "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30, 45, 45)
+  angles <- c(0, 135, 45, 135, 45, 135, 45, 135)
+  densities <- c(0, 15, 15, 22, 30, 30, 45, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -67,6 +72,17 @@ main <- function() {
     # data
     title <- titles[i]
     lines <- map(files, function(f) { sum(json(c(f))[[key]]) })
+
+    # metadata info
+    metadata_ratio <- map(
+      files,
+      function(f) {
+        j <- json(c(f))
+        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+        round(r, 3) * 100
+      }
+    )
+    print(metadata_ratio)
 
     # (wrto rr)
     if(length(lines) == length(labels)) {

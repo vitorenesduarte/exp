@@ -145,7 +145,8 @@ plot_lines_retwis <- function(lines_x, lines_y, colors,
                               y_max=0,
                               las=2,
                               digits=1,
-                              lwd=1) {
+                              lwd=1,
+                              pch=c(1:10)) {
   # find the x max and y max
   x_min <- Reduce(min, lapply(lines_x, min))
   x_max <- Reduce(max, lapply(lines_x, max))
@@ -204,13 +205,12 @@ plot_lines_retwis <- function(lines_x, lines_y, colors,
 
   # draw
   for(i in 1:length(lines_y)) {
-    pch <- if(i == 1) { 3 } else { 6 }
     lines(
       lines_x[[i]],
       lines_y[[i]],
       col=colors[[i]],
       type="b",
-      pch=pch,
+      pch=pch[[i]],
       lwd=lwd
     )
   }

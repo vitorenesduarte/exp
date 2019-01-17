@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(220|230|350|490)'"
+
 # draw!
 main <- function() {
   output_file <- "metadata.png"
@@ -10,14 +12,18 @@ main <- function() {
     "ls -d processed/* | grep partialmesh~32",
     "ls -d processed/* | grep partialmesh~64"
   )
-  ## 0 transmission
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "16 Nodes",
     "32 Nodes",
     "64 Nodes"
   )
   labels <- c(
+    "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based BP+RR"
   )
 
@@ -36,11 +42,13 @@ main <- function() {
 
   # style stuff
   colors <- c(
+    "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "gray22"
   )
-  angles <- c(135, 135)
-  densities <- c(15, 45)
+  angles <- c(135, 45, 135, 135)
+  densities <- c(15, 15, 22, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -59,6 +67,17 @@ main <- function() {
       entries <- json(c(f))[[key]]
       sum(entries) / length(entries) * id_size / 1000
     })
+
+    # metadata info
+    metadata_ratio <- map(
+      files,
+      function(f) {
+        j <- json(c(f))
+        r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+        round(r, 3) * 100
+      }
+    )
+    print(metadata_ratio)
 
     # plot bars
     y_min <- 0

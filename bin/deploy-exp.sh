@@ -9,6 +9,8 @@ ENV_VARS=(
     LDB_STATE_SYNC_INTERVAL
     LDB_REDUNDANT_DGROUPS
     LDB_DGROUP_BACK_PROPAGATION
+    LDB_SCUTTLEBUTT_GC
+    LDB_OP_II
     OVERLAY
     SIMULATION
     GMAP_SIMULATION_KEY_PERCENTAGE
@@ -33,6 +35,8 @@ echo "    LDB_MODE: ${LDB_MODE}"
 echo "    LDB_STATE_SYNC_INTERVAL: ${LDB_STATE_SYNC_INTERVAL}"
 echo "    LDB_REDUNDANT_DGROUPS: ${LDB_REDUNDANT_DGROUPS}"
 echo "    LDB_DGROUP_BACK_PROPAGATION: ${LDB_DGROUP_BACK_PROPAGATION}"
+echo "    LDB_SCUTTLEBUTT_GC: ${LDB_SCUTTLEBUTT_GC}"
+echo "    LDB_OP_II: ${LDB_OP_II}"
 echo "    OVERLAY: ${OVERLAY}"
 echo "    SIMULATION: ${SIMULATION}"
 echo "    GMAP_SIMULATION_KEY_PERCENTAGE: ${GMAP_SIMULATION_KEY_PERCENTAGE}"
@@ -109,6 +113,10 @@ spec:
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
           value: "${LDB_DGROUP_BACK_PROPAGATION}"
+        - name: LDB_SCUTTLEBUTT_GC
+          value: "${LDB_SCUTTLEBUTT_GC}"
+        - name: LDB_OP_II
+          value: "${LDB_OP_II}"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION
@@ -174,6 +182,10 @@ spec:
           value: "${LDB_REDUNDANT_DGROUPS}"
         - name: LDB_DGROUP_BACK_PROPAGATION
           value: "${LDB_DGROUP_BACK_PROPAGATION}"
+        - name: LDB_SCUTTLEBUTT_GC
+          value: "${LDB_SCUTTLEBUTT_GC}"
+        - name: LDB_OP_II
+          value: "${LDB_OP_II}"
         - name: OVERLAY
           value: "${OVERLAY}"
         - name: SIMULATION

@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
+
 # draw!
 main <- function() {
   output_file <- "gmap.png"
@@ -15,7 +17,9 @@ main <- function() {
     "ls -d processed/* | grep 60~gmap~partialmesh",
     "ls -d processed/* | grep 100~gmap~partialmesh"
   )
-  ## 0 transmission
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "GMap 10% - Tree",
     "GMap 30% - Tree",
@@ -30,6 +34,7 @@ main <- function() {
     "State-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -54,12 +59,13 @@ main <- function() {
     "snow4",
     "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "springgreen4",
     "darkorange1",
     "red4",
     "gray22"
   )
-  pch <- c(1,12,2,3,4,5,6)
+  pch <- c(1,7,8,2,3,4,5,6)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -75,6 +81,30 @@ main <- function() {
     title <- titles[i]
     lines_x <- lapply(files, function(f) { json(c(f))[[key_x]] })
     lines_y <- lapply(files, function(f) { json(c(f))[[key_y]] })
+
+    # metadata info
+    # metadata_ratio <- map(
+    #   files,
+    #   function(f) {
+    #     j <- json(c(f))
+    #     r <- sum(j[["transmission_metadata"]]) / sum(j[["transmission"]])
+    #     round(r, 3) * 100
+    #   }
+    # )
+    # print(metadata_ratio)
+
+    avgs <- map(
+      files,
+      function(f) {
+        j <- json(c(f))
+        sum(j[[key_y]]) / length(j[[key_y]])
+      }
+    )
+    print(title)
+    print(paste("scuttlebutt: ", 100 - 100 * round(avgs[[2]] / avgs[[1]], 2)))
+    print(paste("scuttlebutt-gc: ", 100 - 100 * round(avgs[[3]] / avgs[[1]], 2)))
+    print(paste("op-based: ", 100 - 100 * round(avgs[[4]] / avgs[[1]], 2)))
+    print(paste("delta-based bp+rr: ", 100 - 100 * round(avgs[[8]] / avgs[[1]], 2)))
 
     # plot lines
     plot_lines(title, lines_x, lines_y, colors,
@@ -93,10 +123,10 @@ main <- function() {
   legend(
     -.03, # x
     -.2,  # y 
-    cex=1,
+    cex=0.92,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.102,0.098,0.105,0.103,0.108,0.113),
+    text.width=c(0,0.09,0.085,0.092,0.087,0.089,0.095,0.098),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box

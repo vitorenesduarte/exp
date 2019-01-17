@@ -1,6 +1,8 @@
 source("util.R")
 source("generic.R")
 
+TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
+
 # draw!
 main <- function() {
   output_file <- "memory.png"
@@ -11,6 +13,9 @@ main <- function() {
     "ls -d processed/* | grep 10~gmap~partialmesh~15",
     "ls -d processed/* | grep 100~gmap~partialmesh~15"
   )
+  clusters <- map(clusters, function(c) {
+      paste(c, " | grep -E ", TO_KEEP, sep="")
+  })
   titles <- c(
     "GSet - Mesh",
     "GCounter - Mesh",
@@ -21,6 +26,7 @@ main <- function() {
     "State-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based",
     "Delta-based",
     "Delta-based BP",
     "Delta-based RR",
@@ -45,13 +51,14 @@ main <- function() {
     "snow4",
     "darkgoldenrod",
     "steelblue4",
+    "yellow3",
     "springgreen4",
     "darkorange1",
     "red4",
     "gray22"
   )
-  angles <- c(0, 45, 135, 45, 135, 45, 135)
-  densities <- c(0, 15, 15, 30, 30, 45, 45)
+  angles <- c(0, 135, 45, 135, 45, 135, 45, 135)
+  densities <- c(0, 15, 15, 22, 30, 30, 45, 45)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)

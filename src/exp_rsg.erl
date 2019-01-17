@@ -38,7 +38,6 @@
 
 -record(state, {node_number :: non_neg_integer()}).
 
--define(BARRIER_PEER_SERVICE, exp_barrier_peer_service).
 -define(INTERVAL, 3000).
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
@@ -84,7 +83,7 @@ handle_cast(Msg, State) ->
 handle_info(create_barrier, State) ->
     case exp_orchestration:get_task(rsg, ?BARRIER_PORT, true) of
         {ok, RSG} ->
-            ok = connect([RSG], ?BARRIER_PEER_SERVICE),
+            ok = connect([RSG], exp_barrier_peer_service),
             schedule_join_peers();
         {error, not_connected} ->
             schedule_create_barrier()
@@ -147,10 +146,10 @@ connect([Node|Rest]=All, Manager) ->
 
 %% @private
 tell(Msg) ->
-    {ok, Members} = ?BARRIER_PEER_SERVICE:members(),
+    {ok, Members} = exp_barrier_peer_service:members(),
     lists:foreach(
         fun(Peer) ->
-            ?BARRIER_PEER_SERVICE:forward_message(
+            exp_barrier_peer_service:forward_message(
                Peer,
                exp_rsg_master,
                Msg
