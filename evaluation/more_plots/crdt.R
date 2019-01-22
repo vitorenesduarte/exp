@@ -1,7 +1,7 @@
 source("util.R")
 source("generic.R")
 
-TO_KEEP <- "'(110|220|230|350|460|470|480|490)'"
+TO_KEEP <- "'(110|220|230|340|350|490)'"
 
 # draw!
 main <- function() {
@@ -34,10 +34,8 @@ main <- function() {
     "State-based",
     "Scuttlebutt",
     "Scuttlebutt-GC",
+    "Op-based Naive",
     "Op-based",
-    "Delta-based",
-    "Delta-based BP",
-    "Delta-based RR",
     "Delta-based BP+RR"
   )
 
@@ -59,13 +57,11 @@ main <- function() {
     "snow4",
     "darkgoldenrod",
     "steelblue4",
+    "tomato",
     "yellow3",
-    "springgreen4",
-    "darkorange1",
-    "red4",
     "gray22"
   )
-  pch <- c(1,7,8,2,3,4,5,6)
+  pch <- c(1,7,8,9,2,6)
 
   for(i in 1:length(clusters)) {
     files <- system(clusters[i], intern=TRUE)
@@ -102,7 +98,6 @@ main <- function() {
     cex=0.92,
     legend=labels,
     pch=pch,
-    text.width=c(0,0.09,0.085,0.092,0.087,0.089,0.095,0.098),
     col=colors,
     horiz=TRUE,
     box.col=NA # remove box
