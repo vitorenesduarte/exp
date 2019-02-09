@@ -4,7 +4,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/github/vitorenesduarte/exp/master.svg?maxAge=60)](https://coveralls.io/github/vitorenesduarte/exp?branch=master)
 
 
-This is the source code for our [ICDE 2019](https://vitorenes.org/publication/enes-efficient-synchronization/) paper.
+This is the source code for our [ICDE 2019](https://vitorenes.org/publication/enes-efficient-synchronization/enes-efficient-synchronization.pdf) paper.
 
 #### Experiments
 
