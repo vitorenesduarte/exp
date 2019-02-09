@@ -10,6 +10,7 @@
   - `state_based`
   - `delta_based`
   - `scuttlebutt`
+  - `op_based`
 - __LDB_STATE_SYNC_INTERVAL__: milliseconds
 - __LDB_REDUNDANT_DGROUPS__: boolean
 - __LDB_DGROUP_BACK_PROPAGATION__: boolean
